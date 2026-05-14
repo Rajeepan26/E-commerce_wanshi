@@ -16,6 +16,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductsIdRouteImport } from './routes/products.$id'
 import { Route as DashboardProfileRouteImport } from './routes/dashboard.profile'
+import { Route as DashboardOrdersRouteImport } from './routes/dashboard.orders'
 import { Route as DashboardCartRouteImport } from './routes/dashboard.cart'
 
 const RegisterRoute = RegisterRouteImport.update({
@@ -53,6 +54,11 @@ const DashboardProfileRoute = DashboardProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardOrdersRoute = DashboardOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardCartRoute = DashboardCartRouteImport.update({
   id: '/cart',
   path: '/cart',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/products': typeof ProductsRouteWithChildren
   '/register': typeof RegisterRoute
   '/dashboard/cart': typeof DashboardCartRoute
+  '/dashboard/orders': typeof DashboardOrdersRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/products/$id': typeof ProductsIdRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/products': typeof ProductsRouteWithChildren
   '/register': typeof RegisterRoute
   '/dashboard/cart': typeof DashboardCartRoute
+  '/dashboard/orders': typeof DashboardOrdersRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/products/$id': typeof ProductsIdRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/products': typeof ProductsRouteWithChildren
   '/register': typeof RegisterRoute
   '/dashboard/cart': typeof DashboardCartRoute
+  '/dashboard/orders': typeof DashboardOrdersRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/products/$id': typeof ProductsIdRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/products'
     | '/register'
     | '/dashboard/cart'
+    | '/dashboard/orders'
     | '/dashboard/profile'
     | '/products/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/products'
     | '/register'
     | '/dashboard/cart'
+    | '/dashboard/orders'
     | '/dashboard/profile'
     | '/products/$id'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/products'
     | '/register'
     | '/dashboard/cart'
+    | '/dashboard/orders'
     | '/dashboard/profile'
     | '/products/$id'
   fileRoutesById: FileRoutesById
@@ -182,6 +194,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardProfileRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/orders': {
+      id: '/dashboard/orders'
+      path: '/orders'
+      fullPath: '/dashboard/orders'
+      preLoaderRoute: typeof DashboardOrdersRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/cart': {
       id: '/dashboard/cart'
       path: '/cart'
@@ -194,11 +213,13 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteChildren {
   DashboardCartRoute: typeof DashboardCartRoute
+  DashboardOrdersRoute: typeof DashboardOrdersRoute
   DashboardProfileRoute: typeof DashboardProfileRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardCartRoute: DashboardCartRoute,
+  DashboardOrdersRoute: DashboardOrdersRoute,
   DashboardProfileRoute: DashboardProfileRoute,
 }
 
@@ -228,3 +249,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
