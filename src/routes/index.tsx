@@ -4,6 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site-header";
 import { WhatsappFab } from "@/components/whatsapp-fab";
 import { ProductCard } from "@/components/product-card";
+import { CategoryBanners } from "@/components/category-banners";
+import { SiteFooter } from "@/components/site-footer";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import { Truck, ShieldCheck, Wallet } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -66,32 +75,45 @@ function HomePage() {
         {/* Offers carousel */}
         <section className="mb-8">
           <h2 className="mb-3 text-xl font-bold text-foreground">Today's Top Offers</h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {offers?.map((o) => (
-              <Link
-                key={o.id}
-                to="/products"
-                search={{}}
-                className="group relative overflow-hidden rounded-lg border bg-card transition hover:shadow-md"
-              >
-                <img
-                  src={o.banner_image_url ?? ""}
-                  alt={o.title}
-                  className="h-40 w-full object-cover"
-                />
-                <div className="p-4">
-                  <p className="text-xs font-semibold text-primary">
-                    Up to {o.discount_percentage}% OFF
-                  </p>
-                  <h3 className="mt-1 font-semibold text-foreground">{o.title}</h3>
-                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                    {o.description}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <Carousel opts={{ loop: true, align: "start" }} className="w-full">
+            <CarouselContent>
+              {offers?.map((o) => (
+                <CarouselItem key={o.id} className="basis-full">
+                  <Link
+                    to="/products"
+                    search={{}}
+                    className="group relative block overflow-hidden rounded-xl border bg-card transition hover:shadow-lg"
+                  >
+                    <div className="relative h-56 w-full overflow-hidden sm:h-72 md:h-80">
+                      <img
+                        src={o.banner_image_url ?? ""}
+                        alt={o.title}
+                        className="h-full w-full object-cover transition group-hover:scale-[1.02]"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
+                      <div className="absolute inset-y-0 left-0 flex max-w-xl flex-col justify-center p-6 sm:p-10">
+                        <p className="inline-block w-fit rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">
+                          Up to {o.discount_percentage}% OFF
+                        </p>
+                        <h3 className="mt-3 text-2xl font-extrabold text-white sm:text-3xl">
+                          {o.title}
+                        </h3>
+                        <p className="mt-2 line-clamp-2 text-sm text-white/90 sm:text-base">
+                          {o.description}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="left-3" />
+            <CarouselNext className="right-3" />
+          </Carousel>
         </section>
+
+        {/* Category banners 3x3 */}
+        <CategoryBanners />
 
         {/* Product grid */}
         <section>
@@ -109,32 +131,5 @@ function HomePage() {
       <SiteFooter />
       <WhatsappFab />
     </div>
-  );
-}
-
-function SiteFooter() {
-  return (
-    <footer className="mt-12 border-t bg-secondary/40">
-      <div className="container mx-auto grid gap-6 px-4 py-8 text-sm text-muted-foreground sm:grid-cols-4">
-        <div>
-          <p className="text-lg font-extrabold text-primary">Wanshi</p>
-          <p className="mt-1">India's lean shopping destination.</p>
-        </div>
-        <div>
-          <p className="mb-2 font-semibold text-foreground">Help</p>
-          <p>About</p>
-          <p>Contact</p>
-          <p>Returns Policy</p>
-        </div>
-        <div>
-          <p className="mb-2 font-semibold text-foreground">Sell</p>
-          <p>Become a Seller</p>
-        </div>
-        <div>
-          <p className="mb-2 font-semibold text-foreground">Connect</p>
-          <p>WhatsApp · Instagram · X</p>
-        </div>
-      </div>
-    </footer>
   );
 }
