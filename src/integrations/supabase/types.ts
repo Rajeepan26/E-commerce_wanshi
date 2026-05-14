@@ -194,9 +194,12 @@ export type Database = {
       }
       orders: {
         Row: {
+          bank_details: string | null
           created_at: string
           id: string
           order_number: number
+          payment_method: string | null
+          receipt_url: string | null
           shipping_address: string | null
           shipping_phone: string | null
           status: Database["public"]["Enums"]["order_status"]
@@ -205,9 +208,12 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          bank_details?: string | null
           created_at?: string
           id?: string
           order_number?: number
+          payment_method?: string | null
+          receipt_url?: string | null
           shipping_address?: string | null
           shipping_phone?: string | null
           status?: Database["public"]["Enums"]["order_status"]
@@ -216,9 +222,12 @@ export type Database = {
           user_id: string
         }
         Update: {
+          bank_details?: string | null
           created_at?: string
           id?: string
           order_number?: number
+          payment_method?: string | null
+          receipt_url?: string | null
           shipping_address?: string | null
           shipping_phone?: string | null
           status?: Database["public"]["Enums"]["order_status"]

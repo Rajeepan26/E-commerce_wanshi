@@ -11,6 +11,8 @@ import {
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/hooks/use-auth";
 import { Toaster } from "@/components/ui/sonner";
+import { NotificationCenter } from "@/components/notification-center";
+import { ProductQuickViewProvider } from "@/components/product-quick-view";
 
 function NotFoundComponent() {
   return (
@@ -78,7 +80,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Shop trending products at unbeatable prices on Wanshi." },
       { name: "author", content: "Wanshi" },
       { property: "og:title", content: "Wanshi — India's lean shopping destination" },
-      { property: "og:description", content: "Shop trending products at unbeatable prices on Wanshi." },
+      {
+        property: "og:description",
+        content: "Shop trending products at unbeatable prices on Wanshi.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Wanshi" },
@@ -116,8 +121,11 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Outlet />
+        <ProductQuickViewProvider>
+          <Outlet />
+        </ProductQuickViewProvider>
         <Toaster />
+        <NotificationCenter />
       </AuthProvider>
     </QueryClientProvider>
   );

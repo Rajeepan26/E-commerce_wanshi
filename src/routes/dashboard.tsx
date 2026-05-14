@@ -5,19 +5,19 @@ import { SiteHeader } from "@/components/site-header";
 import { WhatsappFab } from "@/components/whatsapp-fab";
 import { SiteFooter } from "@/components/site-footer";
 import { cn } from "@/lib/utils";
-import { User, ShoppingCart, Package, Truck } from "lucide-react";
+import { User, ShoppingCart, Package, Truck, Bell, LogOut } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({ component: DashboardLayout });
 
 const NAV = [
-  { to: "/dashboard/profile", label: "My Profile", icon: User },
-  { to: "/dashboard/cart", label: "Cart", icon: ShoppingCart },
+  { to: "/dashboard/profile", label: "Profile", icon: User },
   { to: "/dashboard/orders", label: "My Orders", icon: Package },
   { to: "/dashboard/track", label: "Track Order", icon: Truck },
+  { to: "/dashboard/notifications", label: "Notification", icon: Bell },
 ] as const;
 
 function DashboardLayout() {
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const nav = useNavigate();
   const path = useRouterState({ select: (s) => s.location.pathname });
 
@@ -25,12 +25,17 @@ function DashboardLayout() {
     if (!loading && !user) nav({ to: "/login" });
   }, [user, loading, nav]);
 
+  const handleLogout = async () => {
+    await signOut();
+    nav({ to: "/" });
+  };
+
   if (loading || !user) return <div className="p-8">Loading…</div>;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-background">
       <SiteHeader />
-      <div className="container mx-auto grid gap-6 px-4 py-6 md:grid-cols-[220px_1fr]">
+      <div className="flex-1 container mx-auto grid gap-6 px-4 py-6 md:grid-cols-[220px_1fr]">
         <aside className="h-fit rounded-lg border bg-card p-2">
           {NAV.map((n) => (
             <Link
@@ -46,6 +51,12 @@ function DashboardLayout() {
               <n.icon className="size-4" /> {n.label}
             </Link>
           ))}
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition hover:bg-accent text-destructive hover:text-destructive"
+          >
+            <LogOut className="size-4" /> Logout
+          </button>
         </aside>
         <main><Outlet /></main>
       </div>

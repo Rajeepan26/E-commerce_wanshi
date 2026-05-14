@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { WhatsappFab } from "@/components/whatsapp-fab";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Package, Tag, ShoppingBag, Megaphone } from "lucide-react";
+import { LayoutDashboard, Package, Tag, ShoppingBag, Megaphone, LogOut } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({ component: AdminLayout });
 
@@ -18,7 +18,7 @@ const NAV: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exac
 ];
 
 function AdminLayout() {
-  const { user, role, loading } = useAuth();
+  const { user, role, loading, signOut } = useAuth();
   const nav = useNavigate();
   const path = useRouterState({ select: (s) => s.location.pathname });
 
@@ -27,6 +27,11 @@ function AdminLayout() {
     if (!user) nav({ to: "/login" });
     else if (role !== "admin") nav({ to: "/dashboard/profile" });
   }, [user, role, loading, nav]);
+
+  const handleLogout = async () => {
+    await signOut();
+    nav({ to: "/" });
+  };
 
   if (loading || !user || role !== "admin") return <div className="p-8">Loading…</div>;
 
@@ -50,6 +55,12 @@ function AdminLayout() {
               </Link>
             );
           })}
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition hover:bg-accent text-destructive hover:text-destructive"
+          >
+            <LogOut className="size-4" /> Logout
+          </button>
         </aside>
         <main><Outlet /></main>
       </div>

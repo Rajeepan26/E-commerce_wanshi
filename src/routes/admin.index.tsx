@@ -40,10 +40,13 @@ function AdminOverview() {
       <h1 className="text-2xl font-bold">Admin Overview</h1>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
-          <div key={c.label} className="rounded-lg border bg-card p-4">
+          <div
+            key={c.label}
+            className="rounded-lg border bg-card p-4 transition-all duration-300 hover:shadow-lg hover:border-primary cursor-pointer animate-pulse hover:animate-none"
+          >
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">{c.label}</p>
-              <c.icon className="size-5 text-primary" />
+              <c.icon className="size-5 text-primary transition-transform duration-300 hover:scale-110" />
             </div>
             <p className="mt-2 text-2xl font-bold text-foreground">{c.value}</p>
           </div>

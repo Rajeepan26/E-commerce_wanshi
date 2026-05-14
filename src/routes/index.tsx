@@ -56,9 +56,9 @@ function HomePage() {
   const heroAd = ads?.find((a) => a.position === "hero");
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-background">
       <SiteHeader />
-      <main className="container mx-auto px-4 py-6">
+      <main className="flex-1 container mx-auto px-4 py-6">
         {/* Trust strip */}
         <div className="mb-6 grid grid-cols-3 gap-3 rounded-lg border bg-primary-soft p-4 text-sm">
           <div className="flex items-center gap-2 text-foreground">

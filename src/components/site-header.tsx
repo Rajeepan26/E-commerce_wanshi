@@ -67,9 +67,6 @@ export function SiteHeader() {
                   <UserIcon className="size-4" /> Account
                 </Link>
               </Button>
-              <Button variant="ghost" size="sm" onClick={handleSignOut}>
-                <LogOut className="size-4" />
-              </Button>
               <Button asChild variant="outline" size="sm" className="relative">
                 <Link to="/dashboard/cart">
                   <ShoppingCart className="size-4" />
@@ -80,6 +77,9 @@ export function SiteHeader() {
                     </span>
                   )}
                 </Link>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                <LogOut className="size-4" />
               </Button>
             </>
           ) : (
@@ -103,8 +103,7 @@ export function SiteHeader() {
           {CATS.map((c) => (
             <Link
               key={c.slug}
-              to="/products"
-              search={{ category: c.slug }}
+              to={`/category/${c.slug}`}
               className="whitespace-nowrap rounded-full px-3 py-1.5 text-foreground/80 hover:bg-accent hover:text-accent-foreground"
             >
               {c.name}
