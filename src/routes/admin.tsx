@@ -9,13 +9,13 @@ import { LayoutDashboard, Package, Tag, ShoppingBag, Megaphone } from "lucide-re
 
 export const Route = createFileRoute("/admin")({ component: AdminLayout });
 
-const NAV = [
+const NAV: Array<{ to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { to: "/admin/products", label: "Products", icon: Package },
   { to: "/admin/categories", label: "Categories", icon: Tag },
   { to: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { to: "/admin/offers", label: "Offers & Ads", icon: Megaphone },
-] as const;
+];
 
 function AdminLayout() {
   const { user, role, loading } = useAuth();
