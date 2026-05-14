@@ -33,7 +33,10 @@ function AdminOrders() {
   });
 
   const updateStatus = async (id: string, status: string) => {
-    const { error } = await supabase.from("orders").update({ status }).eq("id", id);
+    const { error } = await supabase
+      .from("orders")
+      .update({ status: status as "Pending" })
+      .eq("id", id);
     if (error) toast.error(error.message);
     else {
       toast.success(`Order updated to ${status}`);
