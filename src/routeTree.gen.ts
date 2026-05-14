@@ -15,6 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductsIdRouteImport } from './routes/products.$id'
+import { Route as DashboardTrackRouteImport } from './routes/dashboard.track'
 import { Route as DashboardProfileRouteImport } from './routes/dashboard.profile'
 import { Route as DashboardOrdersRouteImport } from './routes/dashboard.orders'
 import { Route as DashboardCartRouteImport } from './routes/dashboard.cart'
@@ -49,6 +50,11 @@ const ProductsIdRoute = ProductsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ProductsRoute,
 } as any)
+const DashboardTrackRoute = DashboardTrackRouteImport.update({
+  id: '/track',
+  path: '/track',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardProfileRoute = DashboardProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -74,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/cart': typeof DashboardCartRoute
   '/dashboard/orders': typeof DashboardOrdersRoute
   '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/track': typeof DashboardTrackRoute
   '/products/$id': typeof ProductsIdRoute
 }
 export interface FileRoutesByTo {
@@ -85,6 +92,7 @@ export interface FileRoutesByTo {
   '/dashboard/cart': typeof DashboardCartRoute
   '/dashboard/orders': typeof DashboardOrdersRoute
   '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/track': typeof DashboardTrackRoute
   '/products/$id': typeof ProductsIdRoute
 }
 export interface FileRoutesById {
@@ -97,6 +105,7 @@ export interface FileRoutesById {
   '/dashboard/cart': typeof DashboardCartRoute
   '/dashboard/orders': typeof DashboardOrdersRoute
   '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/track': typeof DashboardTrackRoute
   '/products/$id': typeof ProductsIdRoute
 }
 export interface FileRouteTypes {
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/dashboard/cart'
     | '/dashboard/orders'
     | '/dashboard/profile'
+    | '/dashboard/track'
     | '/products/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
     | '/dashboard/cart'
     | '/dashboard/orders'
     | '/dashboard/profile'
+    | '/dashboard/track'
     | '/products/$id'
   id:
     | '__root__'
@@ -132,6 +143,7 @@ export interface FileRouteTypes {
     | '/dashboard/cart'
     | '/dashboard/orders'
     | '/dashboard/profile'
+    | '/dashboard/track'
     | '/products/$id'
   fileRoutesById: FileRoutesById
 }
@@ -187,6 +199,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsIdRouteImport
       parentRoute: typeof ProductsRoute
     }
+    '/dashboard/track': {
+      id: '/dashboard/track'
+      path: '/track'
+      fullPath: '/dashboard/track'
+      preLoaderRoute: typeof DashboardTrackRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/profile': {
       id: '/dashboard/profile'
       path: '/profile'
@@ -215,12 +234,14 @@ interface DashboardRouteChildren {
   DashboardCartRoute: typeof DashboardCartRoute
   DashboardOrdersRoute: typeof DashboardOrdersRoute
   DashboardProfileRoute: typeof DashboardProfileRoute
+  DashboardTrackRoute: typeof DashboardTrackRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardCartRoute: DashboardCartRoute,
   DashboardOrdersRoute: DashboardOrdersRoute,
   DashboardProfileRoute: DashboardProfileRoute,
+  DashboardTrackRoute: DashboardTrackRoute,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
@@ -249,3 +270,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
