@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { SiteHeader } from "@/components/site-header";
 import { WhatsappFab } from "@/components/whatsapp-fab";
+import { SiteFooter } from "@/components/site-footer";
 import { cn } from "@/lib/utils";
 import { User, ShoppingCart, Package, Truck } from "lucide-react";
 
@@ -48,6 +49,7 @@ function DashboardLayout() {
         </aside>
         <main><Outlet /></main>
       </div>
+      <SiteFooter />
       <WhatsappFab />
     </div>
   );

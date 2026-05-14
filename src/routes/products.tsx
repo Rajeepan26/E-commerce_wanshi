@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site-header";
 import { WhatsappFab } from "@/components/whatsapp-fab";
 import { ProductCard } from "@/components/product-card";
+import { SiteFooter } from "@/components/site-footer";
 
 type Search = { q?: string; category?: string };
 
@@ -56,6 +57,7 @@ function ProductsPage() {
           <p className="py-12 text-center text-muted-foreground">No products found.</p>
         )}
       </main>
+      <SiteFooter />
       <WhatsappFab />
     </div>
   );

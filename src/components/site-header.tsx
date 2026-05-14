@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, Search } from "lucide-react";
+import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, Search, Home } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/lib/cart";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,11 @@ export function SiteHeader() {
   const { count } = useCart();
   const nav = useNavigate();
   const [q, setQ] = useState("");
+
+  const handleSignOut = async () => {
+    await signOut();
+    nav({ to: "/" });
+  };
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background">
@@ -62,8 +67,19 @@ export function SiteHeader() {
                   <UserIcon className="size-4" /> Account
                 </Link>
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => signOut()}>
+              <Button variant="ghost" size="sm" onClick={handleSignOut}>
                 <LogOut className="size-4" />
+              </Button>
+              <Button asChild variant="outline" size="sm" className="relative">
+                <Link to="/dashboard/cart">
+                  <ShoppingCart className="size-4" />
+                  <span className="hidden sm:inline">Cart</span>
+                  {count > 0 && (
+                    <span className="absolute -right-2 -top-2 grid size-5 place-items-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                      {count}
+                    </span>
+                  )}
+                </Link>
               </Button>
             </>
           ) : (
@@ -73,21 +89,17 @@ export function SiteHeader() {
               </Link>
             </Button>
           )}
-          <Button asChild variant="outline" size="sm" className="relative">
-            <Link to="/dashboard/cart">
-              <ShoppingCart className="size-4" />
-              <span className="hidden sm:inline">Cart</span>
-              {count > 0 && (
-                <span className="absolute -right-2 -top-2 grid size-5 place-items-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                  {count}
-                </span>
-              )}
-            </Link>
-          </Button>
         </div>
       </div>
       <nav className="border-t bg-secondary/40">
         <div className="container mx-auto flex gap-1 overflow-x-auto px-2 py-2 text-sm">
+          <Link
+            to="/"
+            className="flex items-center gap-1 whitespace-nowrap rounded-full px-3 py-1.5 text-foreground/80 hover:bg-accent hover:text-accent-foreground"
+            aria-label="Home"
+          >
+            <Home className="size-4" /> Home
+          </Link>
           {CATS.map((c) => (
             <Link
               key={c.slug}
