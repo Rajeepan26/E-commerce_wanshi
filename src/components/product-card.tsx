@@ -1,4 +1,6 @@
-import { useNavigate } from "@tanstack/react-router";
+"use client";
+
+import { useRouter } from "next/navigation";
 import { inr, discountPct } from "@/lib/format";
 import { Star, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,7 +22,7 @@ export function ProductCard({ p }: { p: ProductCardData }) {
   const { openProduct } = useProductQuickView();
   const cart = useCart();
   const { user } = useAuth();
-  const nav = useNavigate();
+  const router = useRouter();
   const price = Number(p.price);
   const orig = p.original_price ? Number(p.original_price) : undefined;
   const off = discountPct(price, orig);
@@ -31,7 +33,7 @@ export function ProductCard({ p }: { p: ProductCardData }) {
   const requireLogin = () => {
     if (!user) {
       toast("Please log in to continue");
-      nav({ to: "/login" });
+      router.push("/login");
       return false;
     }
     return true;

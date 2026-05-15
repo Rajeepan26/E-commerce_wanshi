@@ -1,77 +1,57 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import type { Session, User } from "@supabase/supabase-js";
+"use client";
 
-type Role = "admin" | "customer" | null;
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import type { DemoAuthUser, DemoRole } from "@/lib/mock/types-shared";
+import { loadPersistedSession, persistSession, readRole } from "@/lib/mock/auth-session";
 
 type AuthCtx = {
-  user: User | null;
-  session: Session | null;
-  role: Role;
+  user: DemoAuthUser | null;
+  role: DemoRole;
   loading: boolean;
   signOut: () => Promise<void>;
 };
 
 const Ctx = createContext<AuthCtx>({
   user: null,
-  session: null,
   role: null,
   loading: true,
   signOut: async () => {},
 });
 
+export type { DemoRole };
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
-  const [role, setRole] = useState<Role>(null);
+  const [user, setUser] = useState<DemoAuthUser | null>(null);
+  const [role, setRole] = useState<DemoRole>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
-      setSession(s);
-      if (s?.user) {
-        setTimeout(async () => {
-          const { data } = await supabase
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", s.user.id);
-          const roles = (data ?? []).map((r) => r.role);
-          setRole(roles.includes("admin") ? "admin" : "customer");
-        }, 0);
-      } else {
-        setRole(null);
-      }
-    });
-
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      if (data.session?.user) {
-        supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", data.session.user.id)
-          .then(({ data: r }) => {
-            const roles = (r ?? []).map((x) => x.role);
-            setRole(roles.includes("admin") ? "admin" : "customer");
-            setLoading(false);
-          });
-      } else {
-        setLoading(false);
-      }
-    });
-
-    return () => sub.subscription.unsubscribe();
+    const sync = () => {
+      const stored = loadPersistedSession();
+      setUser(stored);
+      setRole(stored?.id ? readRole(stored.id) : null);
+      setLoading(false);
+    };
+    sync();
+    if (typeof window === "undefined") return undefined;
+    const onAuth = () => sync();
+    window.addEventListener("wanshi:auth", onAuth);
+    window.addEventListener("storage", onAuth);
+    return () => {
+      window.removeEventListener("wanshi:auth", onAuth);
+      window.removeEventListener("storage", onAuth);
+    };
   }, []);
 
   return (
     <Ctx.Provider
       value={{
-        user: session?.user ?? null,
-        session,
+        user,
         role,
         loading,
         signOut: async () => {
-          await supabase.auth.signOut();
-          setSession(null);
+          persistSession(null);
+          setUser(null);
           setRole(null);
         },
       }}
