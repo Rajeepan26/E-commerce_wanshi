@@ -9,6 +9,8 @@ import { inr } from "@/lib/format";
 import { listOrders, subscribeOrders } from "@/lib/mock/orders-store";
 import { Package, Search, X } from "lucide-react";
 
+import { LoadingSpinner } from "@/components/loading-spinner";
+
 export default function OrdersPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -39,7 +41,9 @@ export default function OrdersPage() {
     });
   }, [orders, search]);
 
-  if (isLoading) return <div className="rounded-lg border bg-card p-6">Loading…</div>;
+  if (isLoading) {
+    return <LoadingSpinner message="Syncing Orders..." className="py-12" />;
+  }
 
   if (!orders || orders.length === 0)
     return (

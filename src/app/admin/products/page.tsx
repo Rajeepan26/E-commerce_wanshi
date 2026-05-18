@@ -39,6 +39,9 @@ type AdminProductRow = {
   weight_kg?: number | string | null;
   is_active?: boolean | null;
   categories?: { name: string } | null;
+  brand?: string | null;
+  material?: string | null;
+  product_type?: string | null;
 };
 
 export default function AdminProductsPage() {
@@ -199,6 +202,9 @@ function ProductForm({
   const [stockQuantity, setStockQuantity] = useState("");
   const [weightKg, setWeightKg] = useState("");
   const [isActive, setIsActive] = useState(true);
+  const [brand, setBrand] = useState("");
+  const [material, setMaterial] = useState("");
+  const [productType, setProductType] = useState("");
   const [loading, setLoading] = useState(false);
 
   const { data: categories } = useQuery({
@@ -227,6 +233,9 @@ function ProductForm({
         product.weight_kg != null && product.weight_kg !== "" ? String(product.weight_kg) : "1",
       );
       setIsActive(product.is_active !== false);
+      setBrand(product.brand ?? "");
+      setMaterial(product.material ?? "");
+      setProductType(product.product_type ?? "");
     }
   }, [mode, product]);
 
@@ -249,6 +258,9 @@ function ProductForm({
         weight_kg: weightKg ? Number(weightKg) : 1,
         stock_quantity: stockQuantity ? Number(stockQuantity) : 0,
         is_active: isActive,
+        brand: brand || null,
+        material: material || null,
+        product_type: productType || null,
       };
       upsertProduct(row);
     } catch {
@@ -269,6 +281,9 @@ function ProductForm({
       setStockQuantity("");
       setWeightKg("");
       setIsActive(true);
+      setBrand("");
+      setMaterial("");
+      setProductType("");
     }
     onSuccess();
   };
@@ -334,7 +349,7 @@ function ProductForm({
           rows={3}
         />
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-3">
         <div>
           <Label>Image URL</Label>
           <Input
@@ -361,6 +376,32 @@ function ProductForm({
             value={weightKg}
             onChange={(e) => setWeightKg(e.target.value)}
             placeholder="1"
+          />
+        </div>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div>
+          <Label>Brand Name</Label>
+          <Input
+            value={brand}
+            onChange={(e) => setBrand(e.target.value)}
+            placeholder="e.g. Wanshi Originals"
+          />
+        </div>
+        <div>
+          <Label>Material / Composition</Label>
+          <Input
+            value={material}
+            onChange={(e) => setMaterial(e.target.value)}
+            placeholder="e.g. 100% Cotton / Oak Wood"
+          />
+        </div>
+        <div>
+          <Label>Product Type / Subtype</Label>
+          <Input
+            value={productType}
+            onChange={(e) => setProductType(e.target.value)}
+            placeholder="e.g. Casual clothing / Smart Tech"
           />
         </div>
       </div>

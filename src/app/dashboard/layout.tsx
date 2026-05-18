@@ -10,6 +10,8 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { LayoutDashboard, Package, Truck, User } from "lucide-react";
 
+import { LoadingSpinner } from "@/components/loading-spinner";
+
 const DASHBOARD_NAV = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard, exact: true },
   { href: "/dashboard/orders", label: "My Orders", icon: Package },
@@ -27,7 +29,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (!loading && !user && !isCartRoute) router.replace("/login");
   }, [user, loading, router, isCartRoute]);
 
-  if (loading) return <div className="p-8">Loading…</div>;
+  if (loading) {
+    return <LoadingSpinner message="Checking Account..." className="py-24" />;
+  }
 
   if (!user && isCartRoute) {
     return (
@@ -40,7 +44,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
   }
 
-  if (!user) return <div className="p-8">Loading…</div>;
+  if (!user) {
+    return <LoadingSpinner message="Redirecting..." className="py-24" />;
+  }
 
   const isActive = (href: string, exact = false) => {
     if (!path) return false;

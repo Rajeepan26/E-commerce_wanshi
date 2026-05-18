@@ -10,6 +10,8 @@ import { WhatsappFab } from "@/components/whatsapp-fab";
 import { cn } from "@/lib/utils";
 import { ADMIN_NAV, isAdminNavActive } from "@/lib/admin-nav";
 
+import { LoadingSpinner } from "@/components/loading-spinner";
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, role, loading } = useAuth();
   const router = useRouter();
@@ -21,7 +23,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     else if (role !== "admin") router.replace("/dashboard");
   }, [user, role, loading, router]);
 
-  if (loading || !user || role !== "admin") return <div className="p-8">Loading…</div>;
+  if (loading || !user || role !== "admin") {
+    return <LoadingSpinner message="Verifying Admin Access..." className="py-24" />;
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

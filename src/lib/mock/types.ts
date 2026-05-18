@@ -41,6 +41,9 @@ export type ProductRow = {
   weight_kg: number;
   stock_quantity: number;
   is_active: boolean;
+  brand?: string | null;
+  material?: string | null;
+  product_type?: string | null;
 };
 
 export type OrderStatus = "Pending" | "Accepted" | "In-Transit" | "Delivered" | "Cancelled";

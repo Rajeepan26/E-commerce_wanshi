@@ -115,6 +115,8 @@ function ProductQuickViewDialog({
   );
 }
 
+import { LoadingSpinner } from "@/components/loading-spinner";
+
 function QuickBody({
   productId,
   isLoading,
@@ -136,16 +138,7 @@ function QuickBody({
   const router = useRouter();
 
   if (isLoading) {
-    return (
-      <p
-        className={cn(
-          "text-center text-muted-foreground",
-          compact ? "py-6 text-xs" : "py-12 text-sm",
-        )}
-      >
-        Loading…
-      </p>
-    );
+    return <LoadingSpinner message="Opening..." className={compact ? "py-6" : "py-12"} />;
   }
   if (!product) {
     return (

@@ -12,6 +12,7 @@ import { cloneProduct, cloneProductsActive } from "@/lib/mock/catalog-store";
 import { ProductCard } from "@/components/product-card";
 import { discountPct } from "@/lib/format";
 import { toast } from "sonner";
+import { LoadingSpinner } from "@/components/loading-spinner";
 import {
   ShoppingCart,
   ArrowLeft,
@@ -79,19 +80,7 @@ export function ProductDetailClient() {
   const [newComment, setNewComment] = useState("");
 
   if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-24 space-y-4">
-        <div className="relative flex items-center justify-center">
-          {/* Animated Ambient Glow */}
-          <div className="absolute size-12 rounded-full bg-primary/10 blur-xl animate-pulse" />
-          {/* Outer Rotating Premium Spinner Ring */}
-          <div className="size-10 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
-        </div>
-        <p className="text-xs font-semibold text-muted-foreground/80 tracking-widest uppercase animate-pulse">
-          Loading Details...
-        </p>
-      </div>
-    );
+    return <LoadingSpinner message="Loading Details..." className="py-24" />;
   }
 
   if (!p) return <div className="py-12 text-muted-foreground">Not found.</div>;
@@ -273,45 +262,27 @@ export function ProductDetailClient() {
             <p className="text-sm leading-relaxed text-muted-foreground">{p.description}</p>
           )}
 
-          {/* Key Product Attributes Table (Dynamic based on Category) */}
+          {/* Key Product Attributes Table (Dynamic based on Category & Admin Inputs) */}
           <div className="rounded-xl border border-border/60 bg-muted/10 p-4 space-y-2">
-            {isClothing ? (
-              <>
-                <div className="grid grid-cols-3 text-xs border-b border-border/40 pb-2">
-                  <span className="font-bold text-muted-foreground">Type:</span>
-                  <span className="col-span-2 text-foreground font-semibold">Casual clothing</span>
-                </div>
-                <div className="grid grid-cols-3 text-xs border-b border-border/40 pb-2">
-                  <span className="font-bold text-muted-foreground">Material:</span>
-                  <span className="col-span-2 text-foreground font-semibold">100% Premium Cotton</span>
-                </div>
-              </>
-            ) : p.category_id?.includes("electronics") ? (
-              <>
-                <div className="grid grid-cols-3 text-xs border-b border-border/40 pb-2">
-                  <span className="font-bold text-muted-foreground">Type:</span>
-                  <span className="col-span-2 text-foreground font-semibold">Smart Device</span>
-                </div>
-                <div className="grid grid-cols-3 text-xs border-b border-border/40 pb-2">
-                  <span className="font-bold text-muted-foreground">Connectivity:</span>
-                  <span className="col-span-2 text-foreground font-semibold">High-Speed Connection</span>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="grid grid-cols-3 text-xs border-b border-border/40 pb-2">
-                  <span className="font-bold text-muted-foreground">Type:</span>
-                  <span className="col-span-2 text-foreground font-semibold">Home & Collection</span>
-                </div>
-                <div className="grid grid-cols-3 text-xs border-b border-border/40 pb-2">
-                  <span className="font-bold text-muted-foreground">Quality:</span>
-                  <span className="col-span-2 text-foreground font-semibold">Certified Grade A</span>
-                </div>
-              </>
-            )}
+            <div className="grid grid-cols-3 text-xs border-b border-border/40 pb-2">
+              <span className="font-bold text-muted-foreground">Type:</span>
+              <span className="col-span-2 text-foreground font-semibold">
+                {p.product_type || (isClothing ? "Casual clothing" : p.category_id?.includes("electronics") ? "Smart Device" : "Home & Collection")}
+              </span>
+            </div>
+            <div className="grid grid-cols-3 text-xs border-b border-border/40 pb-2">
+              <span className="font-bold text-muted-foreground">
+                {p.category_id?.includes("electronics") && !p.material ? "Connectivity:" : "Material:"}
+              </span>
+              <span className="col-span-2 text-foreground font-semibold">
+                {p.material || (isClothing ? "100% Premium Cotton" : p.category_id?.includes("electronics") ? "High-Speed Connection" : "Certified Grade A")}
+              </span>
+            </div>
             <div className="grid grid-cols-3 text-xs">
               <span className="font-bold text-muted-foreground">Brand:</span>
-              <span className="col-span-2 text-foreground font-semibold">Wanshi Originals</span>
+              <span className="col-span-2 text-foreground font-semibold">
+                {p.brand || "Wanshi Originals"}
+              </span>
             </div>
           </div>
 
