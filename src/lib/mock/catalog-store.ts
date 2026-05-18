@@ -364,7 +364,7 @@ const SEED_OFFERS: OfferRow[] = [
   {
     id: "off-home-tech",
     title: "Electronics & home appliances",
-    description: "Gadgets, parts, and mixers — deals under ₹8k.",
+    description: "Gadgets, parts, and mixers — deals under LKR 8,000.",
     discount_percentage: 35,
     banner_image_url: unsplashPhoto("photo-1550009158-9ebf69173e03", 1280),
     is_active: true,
@@ -384,6 +384,42 @@ const SEED_ADS: AdvertisementRow[] = [
     starts_at: null,
     ends_at: null,
   },
+  {
+    id: "ad-festival",
+    title: "Festive Collection — Get 10% instant cashback on Bank Transfers",
+    position: "banner",
+    image_url: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=1200&q=80",
+    is_active: true,
+    starts_at: "2026-05-01",
+    ends_at: "2026-06-30",
+  },
+  {
+    id: "ad-summer",
+    title: "Summer Essentials | Light, breathable, and highly organic cotton kurtas",
+    position: "sidebar",
+    image_url: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=600&q=80",
+    is_active: true,
+    starts_at: "2026-05-10",
+    ends_at: "2026-08-31",
+  },
+  {
+    id: "ad-shipping",
+    title: "Free Express Shipping on all prepaid orders above LKR 1,499",
+    position: "banner",
+    image_url: null,
+    is_active: true,
+    starts_at: null,
+    ends_at: null,
+  },
+  {
+    id: "ad-flash",
+    title: "Midnight Flash Sale — Starting at 12:00 AM tonight",
+    position: "sidebar",
+    image_url: null,
+    is_active: true,
+    starts_at: null,
+    ends_at: null,
+  }
 ];
 
 const categoriesState = [...SEED_CATEGORIES];
@@ -511,4 +547,23 @@ export function getCatalogCounts() {
     offers: offersState.length,
     ads: adsState.length,
   };
+}
+
+export function deleteCategory(id: string) {
+  const index = categoriesState.findIndex((c) => c.id === id);
+  if (index !== -1) {
+    categoriesState.splice(index, 1);
+  }
+}
+
+export function upsertCategory(row: Omit<CategoryRow, "id"> & { id?: string }) {
+  if (row.id) {
+    const index = categoriesState.findIndex((c) => c.id === row.id);
+    if (index !== -1) {
+      categoriesState[index] = { ...categoriesState[index], ...row, id: row.id };
+    }
+  } else {
+    const id = `cat-${crypto.randomUUID()}`;
+    categoriesState.push({ ...row, id });
+  }
 }

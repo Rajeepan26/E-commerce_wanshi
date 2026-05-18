@@ -15,7 +15,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { IndianRupee, LayoutDashboard, Package, ShoppingBag, Users } from "lucide-react";
+import { Coins, LayoutDashboard, Package, ShoppingBag, Users } from "lucide-react";
 
 import {
   ChartContainer,
@@ -180,7 +180,7 @@ export default function AdminOverviewPage() {
   });
 
   const cards = [
-    { label: "Total Revenue", value: inr(data?.revenue ?? 0), icon: IndianRupee },
+    { label: "Total Revenue", value: inr(data?.revenue ?? 0), icon: Coins },
     { label: "Orders", value: data?.orders ?? 0, icon: ShoppingBag },
     { label: "Products", value: data?.products ?? 0, icon: Package },
     { label: "Customers", value: data?.customers ?? 0, icon: Users },

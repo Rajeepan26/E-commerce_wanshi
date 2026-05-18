@@ -210,38 +210,38 @@ export default function DashboardOverviewPage() {
         ))}
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-12 lg:gap-8">
-        <section className="lg:col-span-5">
+      <div className="flex flex-col gap-8">
+        <section className="w-full">
           <div className="mb-4 flex items-center gap-2">
             <Sparkles className="size-5 text-primary" aria-hidden />
             <h2 className="text-lg font-bold text-foreground">Quick actions</h2>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+          <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
             {quickActions.map((a) => (
               <Link
                 key={a.title}
                 href={a.href}
                 {...(a.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                className="group flex gap-3 rounded-2xl border bg-card p-4 text-left shadow-sm transition hover:border-primary/30 hover:shadow-md"
+                className="group flex flex-col gap-2 rounded-2xl border bg-card p-4 text-left shadow-sm transition hover:border-primary/30 hover:shadow-md h-full justify-between"
               >
-                <div
-                  className={cn(
-                    "flex size-11 shrink-0 items-center justify-center rounded-xl transition group-hover:scale-105",
-                    a.accent,
-                  )}
-                >
-                  <a.icon className="size-5" aria-hidden />
+                <div className="flex items-center gap-3">
+                  <div
+                    className={cn(
+                      "flex size-10 shrink-0 items-center justify-center rounded-xl transition group-hover:scale-105",
+                      a.accent,
+                    )}
+                  >
+                    <a.icon className="size-5" aria-hidden />
+                  </div>
+                  <p className="font-semibold text-foreground text-sm line-clamp-1">{a.title}</p>
                 </div>
-                <div className="min-w-0">
-                  <p className="font-semibold text-foreground">{a.title}</p>
-                  <p className="mt-0.5 text-sm text-muted-foreground">{a.desc}</p>
-                </div>
+                <p className="text-xs text-muted-foreground leading-normal line-clamp-2">{a.desc}</p>
               </Link>
             ))}
           </div>
         </section>
 
-        <section className="lg:col-span-7">
+        <section className="w-full">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <CalendarRange className="size-5 text-primary" aria-hidden />
@@ -252,70 +252,72 @@ export default function DashboardOverviewPage() {
             </Button>
           </div>
 
-          <div className="space-y-3">
-            {recent.length === 0 ? (
-              <div className="rounded-2xl border border-dashed bg-card/50 p-8 text-center text-sm text-muted-foreground">
-                No orders yet — start shopping to see receipts and tracking here.
-                <div className="mt-4">
-                  <Button asChild size="sm">
-                    <Link href="/products">Browse products</Link>
-                  </Button>
-                </div>
+          {recent.length === 0 ? (
+            <div className="rounded-2xl border border-dashed bg-card/50 p-8 text-center text-sm text-muted-foreground">
+              No orders yet — start shopping to see receipts and tracking here.
+              <div className="mt-4">
+                <Button asChild size="sm">
+                  <Link href="/products">Browse products</Link>
+                </Button>
               </div>
-            ) : (
-              recent.map((o) => (
+            </div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {recent.map((o) => (
                 <article
                   key={o.id}
-                  className="rounded-2xl border bg-card p-4 shadow-sm transition hover:border-primary/20"
+                  className="rounded-2xl border bg-card p-5 shadow-sm transition hover:border-primary/20 flex flex-col justify-between"
                 >
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <p className="font-semibold text-foreground">
-                        Order #{String(o.order_number).padStart(4, "0")}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(o.created_at).toLocaleString(undefined, {
-                          dateStyle: "medium",
-                          timeStyle: "short",
-                        })}
-                      </p>
+                  <div>
+                    <div className="flex items-start justify-between gap-2 border-b pb-3 mb-3">
+                      <div>
+                        <p className="font-semibold text-foreground text-sm sm:text-base">
+                          Order #{String(o.order_number).padStart(4, "0")}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {new Date(o.created_at).toLocaleString(undefined, {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                          })}
+                        </p>
+                      </div>
+                      <span
+                        className={cn(
+                          "rounded-full px-2.5 py-0.5 text-[10px] font-semibold capitalize",
+                          statusTone(o.status),
+                        )}
+                      >
+                        {o.status}
+                      </span>
                     </div>
-                    <span
-                      className={cn(
-                        "rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize",
-                        statusTone(o.status),
-                      )}
-                    >
-                      {o.status}
-                    </span>
+                    <div className="grid gap-2 text-xs mb-3">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Total:</span>
+                        <span className="font-bold text-foreground">
+                          {inr(Number(o.total_amount ?? 0))}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Items:</span>
+                        <span className="font-medium text-foreground">{o.order_items.length} SKU</span>
+                      </div>
+                    </div>
+                    <p className="line-clamp-2 text-[11px] text-muted-foreground leading-relaxed italic bg-muted/20 p-2 rounded-xl mb-4">
+                      {o.order_items.map((i) => i.product_name).join(" · ")}
+                    </p>
                   </div>
-                  <div className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
-                    <div>
-                      <p className="text-muted-foreground">Total</p>
-                      <p className="font-medium text-foreground">
-                        {inr(Number(o.total_amount ?? 0))}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Items</p>
-                      <p className="font-medium text-foreground">{o.order_items.length} SKU</p>
-                    </div>
-                  </div>
-                  <p className="mt-3 line-clamp-2 text-xs text-muted-foreground">
-                    {o.order_items.map((i) => i.product_name).join(" · ")}
-                  </p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <Button variant="outline" size="sm" asChild>
+                  <div className="flex gap-2 border-t pt-3">
+                    <Button variant="outline" size="sm" className="w-full text-xs" asChild>
                       <Link href="/dashboard/orders">Details</Link>
                     </Button>
-                    <Button variant="ghost" size="sm" className="text-primary" asChild>
+                    <Button variant="ghost" size="sm" className="w-full text-xs text-primary bg-primary-soft/10 hover:bg-primary-soft/20" asChild>
                       <Link href="/dashboard/track">Track</Link>
                     </Button>
                   </div>
                 </article>
-              ))
-            )}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </div>

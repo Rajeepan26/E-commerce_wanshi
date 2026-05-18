@@ -305,7 +305,7 @@ function ProductForm({
           </select>
         </div>
         <div>
-          <Label>Price (₹) *</Label>
+          <Label>Price (LKR) *</Label>
           <Input
             type="number"
             value={price}
@@ -315,7 +315,7 @@ function ProductForm({
           />
         </div>
         <div>
-          <Label>Original Price (₹)</Label>
+          <Label>Original Price (LKR)</Label>
           <Input
             type="number"
             value={originalPrice}

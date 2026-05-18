@@ -7,14 +7,14 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "http://localhost:3000",
   ),
   title: {
-    default: "Wanshi — India's lean shopping destination",
+    default: "Wanshi — Sri Lanka's lean shopping destination",
     template: "%s — Wanshi",
   },
-  description: "Shop trending products at unbeatable prices on Wanshi.",
+  description: "Shop trending products at unbeatable prices in Sri Lanka on Wanshi.",
   authors: [{ name: "Wanshi" }],
   openGraph: {
-    title: "Wanshi — India's lean shopping destination",
-    description: "Shop trending products at unbeatable prices on Wanshi.",
+    title: "Wanshi — Sri Lanka's lean shopping destination",
+    description: "Shop trending products at unbeatable prices in Sri Lanka on Wanshi.",
     type: "website",
   },
   twitter: {

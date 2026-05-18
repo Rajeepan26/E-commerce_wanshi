@@ -1,10 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { inr, discountPct } from "@/lib/format";
 import { Star, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useProductQuickView } from "@/components/product-quick-view-context";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
@@ -20,7 +20,6 @@ export type ProductCardData = {
 };
 
 export function ProductCard({ p }: { p: ProductCardData }) {
-  const { openProduct } = useProductQuickView();
   const cart = useCart();
   const { user } = useAuth();
   const router = useRouter();
@@ -54,55 +53,54 @@ export function ProductCard({ p }: { p: ProductCardData }) {
   };
 
   return (
-    <div className="group flex h-full flex-col overflow-hidden rounded-lg border bg-card transition hover:shadow-md">
-      <button
-        type="button"
+    <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/80 bg-card p-2 shadow-sm transition-all duration-500 hover:-translate-y-0.5 hover:shadow-xl hover:border-primary/20">
+      <Link
+        href={`/products/${p.id}`}
         className="flex flex-1 flex-col text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        onClick={() => openProduct(p.id)}
       >
-        <div className="aspect-square overflow-hidden bg-secondary">
+        <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-muted/40">
           <img
             src={p.image_url ?? "https://placehold.co/400"}
             alt={p.name}
             loading="lazy"
-            className="h-full w-full object-cover transition group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-[1000ms] group-hover:scale-105"
           />
+          {off > 0 && (
+            <span className="absolute top-2 left-2 z-10 rounded-lg bg-primary/95 text-[9px] font-extrabold uppercase tracking-wider text-primary-foreground px-2 py-0.5 shadow-sm">
+              {off}% OFF
+            </span>
+          )}
         </div>
-        <div className="flex flex-1 flex-col gap-1.5 p-2.5 pb-2 sm:p-3 sm:pb-2">
-          <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-foreground sm:min-h-[2.875rem] sm:text-[1.0625rem]">
+        <div className="flex flex-1 flex-col gap-1.5 p-2 pb-2 sm:p-2.5 sm:pb-2">
+          <h3 className="line-clamp-2 min-h-[2.25rem] text-xs font-semibold leading-snug text-foreground/90 group-hover:text-primary transition-colors duration-300 sm:text-sm">
             {p.name}
           </h3>
-          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
-            <span className="text-[15px] font-bold leading-none text-primary sm:text-base">
+          <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-1">
+            <span className="text-[13px] font-extrabold leading-none text-primary sm:text-sm">
               {inr(price)}
             </span>
             {orig && (
-              <span className="text-[11px] leading-none text-muted-foreground line-through sm:text-xs">
+              <span className="text-[10px] leading-none text-muted-foreground line-through sm:text-xs">
                 {inr(orig)}
               </span>
             )}
-            {off > 0 && (
-              <span className="rounded bg-success/15 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-success">
-                {off}% OFF
-              </span>
-            )}
           </div>
-          <div className="inline-flex w-fit items-center gap-1 rounded bg-success/10 px-1.5 py-0.5 text-[11px] font-medium text-success">
-            {rating} <Star className="size-3 fill-current" />
+          <div className="inline-flex w-fit items-center gap-1 rounded-full bg-amber-400/10 px-2 py-0.5 text-[9px] font-extrabold text-amber-600 border border-amber-400/15">
+            {rating} <Star className="size-2.5 fill-current" />
           </div>
         </div>
-      </button>
-      <div className="mt-auto border-t px-2 pb-2 pt-1.5">
+      </Link>
+      <div className="mt-auto px-1 pb-1 pt-1.5">
         <Button
           type="button"
           variant="outline"
           size="sm"
-          className="h-9 w-full gap-1.5 px-2 text-xs sm:gap-2"
+          className="h-9 w-full gap-1.5 rounded-xl px-2 text-xs border-border/80 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 active:scale-95 shadow-sm"
           disabled={out}
           onClick={addToCart}
         >
           <ShoppingCart className="size-3.5 shrink-0" />
-          Add to cart
+          {out ? "Out of Stock" : "Add to cart"}
         </Button>
       </div>
     </div>

@@ -9,10 +9,9 @@ import { SiteFooter } from "@/components/site-footer";
 import { WhatsappFab } from "@/components/whatsapp-fab";
 import { cn } from "@/lib/utils";
 import { ADMIN_NAV, isAdminNavActive } from "@/lib/admin-nav";
-import { LogOut } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, role, loading, signOut } = useAuth();
+  const { user, role, loading } = useAuth();
   const router = useRouter();
   const path = usePathname();
 
@@ -22,44 +21,47 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     else if (role !== "admin") router.replace("/dashboard");
   }, [user, role, loading, router]);
 
-  const handleLogout = async () => {
-    await signOut();
-    router.replace("/");
-  };
-
   if (loading || !user || role !== "admin") return <div className="p-8">Loading…</div>;
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
-      <div className="container mx-auto grid min-w-0 flex-1 gap-6 px-4 py-6 md:grid-cols-[220px_1fr]">
-        <aside className="hidden md:flex md:h-fit md:flex-col md:gap-1 md:rounded-lg md:border md:bg-card md:p-2">
-          {ADMIN_NAV.map((n) => {
-            const activeNav = isAdminNavActive(path, n);
-
-            return (
-              <Link
-                key={n.href}
-                href={n.href}
-                className={cn(
-                  "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition md:w-full",
-                  activeNav ? "bg-primary-soft font-medium text-primary" : "hover:bg-accent",
-                )}
-              >
-                <n.icon className="size-4" /> {n.label}
-              </Link>
-            );
-          })}
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-destructive transition hover:bg-accent hover:text-destructive md:w-full"
-          >
-            <LogOut className="size-4" /> Logout
-          </button>
-        </aside>
-        <main className="min-w-0">{children}</main>
-      </div>
+      <main className="mx-auto w-full max-w-6xl min-w-0 flex-1 px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+        <div className="mb-6 flex flex-col gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/60 pb-3">
+            <div>
+              <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+                Admin Console
+              </h2>
+              <p className="text-xs text-muted-foreground sm:text-sm">
+                Manage products, users, categories, orders, discount offers, and advertisements.
+              </p>
+            </div>
+          </div>
+          <nav className="flex flex-row items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none sm:gap-2" aria-label="Admin sub navigation">
+            {ADMIN_NAV.map((n) => {
+              const active = isAdminNavActive(path || "", n);
+              return (
+                <Link
+                  key={n.href}
+                  href={n.href}
+                  className={cn(
+                    "flex shrink-0 items-center gap-1.5 rounded-2xl px-4 py-2.5 text-xs font-semibold tracking-tight transition-all sm:text-sm",
+                    "motion-safe:active:scale-[0.98]",
+                    active
+                      ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
+                      : "border border-border/50 bg-card text-muted-foreground hover:bg-muted/40 hover:text-foreground",
+                  )}
+                >
+                  <n.icon className="size-4" aria-hidden />
+                  <span>{n.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+        <div className="min-w-0">{children}</div>
+      </main>
       <SiteFooter />
       <WhatsappFab />
     </div>

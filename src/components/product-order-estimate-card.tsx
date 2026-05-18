@@ -167,6 +167,7 @@ export function ProductPricingColumn({
   weightKg,
   addToCartSlot,
   compact = false,
+  showTotal = true,
 }: {
   priceInr: number;
   originalPriceInr?: number | string | null;
@@ -174,6 +175,7 @@ export function ProductPricingColumn({
   weightKg: number;
   addToCartSlot?: React.ReactNode;
   compact?: boolean;
+  showTotal?: boolean;
 }) {
   const price = Number(priceInr);
   const orig =
@@ -214,73 +216,77 @@ export function ProductPricingColumn({
         </span>
       )}
 
-      <div className={compact ? "mt-3" : "mt-5"}>
-        <p
-          className={cn(
-            "font-bold uppercase tracking-wider text-muted-foreground",
-            compact ? "text-[9px]" : "text-xs",
-          )}
-        >
-          Additional
-        </p>
-        <div
-          className={cn(
-            "rounded-lg border border-border/80 bg-muted/25",
-            compact ? "mt-1.5 p-2" : "mt-2 p-3 sm:p-4",
-          )}
-        >
-          <dl className={cn(compact ? "space-y-1.5 text-[11px]" : "space-y-2.5 text-sm")}>
-            <div className="flex justify-between gap-2">
-              <dt className="min-w-0 text-muted-foreground">
-                <span className="font-medium text-foreground">{weightHandlingLineLabel()}</span>
-                <span
-                  className={cn(
-                    "block font-normal capitalize text-muted-foreground",
-                    compact ? "text-[9px]" : "text-[11px]",
-                  )}
-                >
-                  ({bracket})
-                </span>
-              </dt>
-              <dd className="shrink-0 font-semibold tabular-nums text-foreground">
-                {inr(weightFee)}
-              </dd>
+      {showTotal && (
+        <>
+          <div className={compact ? "mt-3" : "mt-5"}>
+            <p
+              className={cn(
+                "font-bold uppercase tracking-wider text-muted-foreground",
+                compact ? "text-[9px]" : "text-xs",
+              )}
+            >
+              Additional
+            </p>
+            <div
+              className={cn(
+                "rounded-lg border border-border/80 bg-muted/25",
+                compact ? "mt-1.5 p-2" : "mt-2 p-3 sm:p-4",
+              )}
+            >
+              <dl className={cn(compact ? "space-y-1.5 text-[11px]" : "space-y-2.5 text-sm")}>
+                <div className="flex justify-between gap-2">
+                  <dt className="min-w-0 text-muted-foreground">
+                    <span className="font-medium text-foreground">{weightHandlingLineLabel()}</span>
+                    <span
+                      className={cn(
+                        "block font-normal capitalize text-muted-foreground",
+                        compact ? "text-[9px]" : "text-[11px]",
+                      )}
+                    >
+                      ({bracket})
+                    </span>
+                  </dt>
+                  <dd className="shrink-0 font-semibold tabular-nums text-foreground">
+                    {inr(weightFee)}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="font-medium text-foreground">Delivery</dt>
+                  <dd className="font-semibold tabular-nums text-foreground">
+                    {inr(DELIVERY_FLAT_INR)}
+                  </dd>
+                </div>
+              </dl>
             </div>
-            <div className="flex justify-between gap-2">
-              <dt className="font-medium text-foreground">Delivery</dt>
-              <dd className="font-semibold tabular-nums text-foreground">
-                {inr(DELIVERY_FLAT_INR)}
-              </dd>
-            </div>
-          </dl>
-        </div>
-      </div>
+          </div>
 
-      <Separator className={compact ? "my-2.5" : "my-4"} />
-      <div
-        className={cn(
-          "flex items-center justify-between gap-2 rounded-lg bg-primary-soft/70",
-          compact ? "px-2 py-1.5" : "items-end px-3 py-2.5 sm:px-4",
-        )}
-      >
-        <span className={cn("font-bold text-foreground", compact ? "text-xs" : "text-sm")}>
-          Total
-        </span>
-        <span
-          className={cn("font-bold tabular-nums text-primary", compact ? "text-base" : "text-xl")}
-        >
-          {inr(overall)}
-        </span>
-      </div>
-      {!compact && (
-        <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
-          Item price + applicable weight handling + flat delivery (estimate for this product only).
-        </p>
-      )}
-      {compact && (
-        <p className="mt-1 text-[9px] leading-snug text-muted-foreground">
-          Incl. handling + flat delivery (demo).
-        </p>
+          <Separator className={compact ? "my-2.5" : "my-4"} />
+          <div
+            className={cn(
+              "flex items-center justify-between gap-2 rounded-lg bg-primary-soft/70",
+              compact ? "px-2 py-1.5" : "items-end px-3 py-2.5 sm:px-4",
+            )}
+          >
+            <span className={cn("font-bold text-foreground", compact ? "text-xs" : "text-sm")}>
+              Total
+            </span>
+            <span
+              className={cn("font-bold tabular-nums text-primary", compact ? "text-base" : "text-xl")}
+            >
+              {inr(overall)}
+            </span>
+          </div>
+          {!compact && (
+            <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+              Item price + applicable weight handling + flat delivery (estimate for this product only).
+            </p>
+          )}
+          {compact && (
+            <p className="mt-1 text-[9px] leading-snug text-muted-foreground">
+              Incl. handling + flat delivery (demo).
+            </p>
+          )}
+        </>
       )}
 
       {addToCartSlot ? (

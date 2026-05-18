@@ -14,6 +14,8 @@ import {
   Package,
   Truck,
   Bell,
+  ChevronDown,
+  Check,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -24,6 +26,9 @@ import { Suspense, useState } from "react";
 import { ADMIN_NAV, isAdminNavActive } from "@/lib/admin-nav";
 import { cn } from "@/lib/utils";
 import { ShopSearchBar, isCustomerShopBrowsePath } from "@/components/shop-search-bar";
+import { useQuery } from "@tanstack/react-query";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 /** Logged-in customer: nav in main bar; shop search row on home, products, and category pages (md+). */
 const CUSTOMER_APP_NAV: { href: string; label: string; icon: LucideIcon }[] = [
@@ -46,6 +51,104 @@ export function SiteHeader() {
   const { count } = useCart();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileNotificationsOpen, setMobileNotificationsOpen] = useState(false);
+
+  const [notifications, setNotifications] = useState<Array<{
+    id: string;
+    title: string;
+    message: string;
+    created_at: string;
+    read: boolean;
+    targetRole?: "admin" | "customer" | "all";
+  }>>([
+    // Admin Notifications
+    {
+      id: "admin-1",
+      title: "New Order Received! 🛍️",
+      message: "Order #WN-90240 has been placed by a customer. Please verify and process ship-weight.",
+      created_at: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+      read: false,
+      targetRole: "admin",
+    },
+    {
+      id: "admin-2",
+      title: "Stock Alert: Low Inventory ⚠️",
+      message: "Printed cotton kurta · Wine inventory is below 30 units. Restock suggested.",
+      created_at: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
+      read: false,
+      targetRole: "admin",
+    },
+    {
+      id: "admin-3",
+      title: "Daily Revenue Target Met! 📈",
+      message: "Store revenue has passed the LKR 50,000 threshold for today. Keep it up!",
+      created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+      read: false,
+      targetRole: "admin",
+    },
+    {
+      id: "admin-4",
+      title: "System Performance 🟢",
+      message: "All database instances, WhatsApp channels, and seeding microservices are operating fully.",
+      created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+      read: true,
+      targetRole: "admin",
+    },
+
+    // Customer Notifications
+    {
+      id: "user-1",
+      title: "Welcome to Wanshi! 🛍️",
+      message: "Experience modern, high-quality, lightweight shopping. Explore our latest catalog now!",
+      created_at: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+      read: false,
+      targetRole: "customer",
+    },
+    {
+      id: "user-2",
+      title: "Order Confirmed: #WN-90234 📦",
+      message: "Your purchase of 'Printed cotton kurta · Wine' is being processed. Weight fee estimate verified.",
+      created_at: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
+      read: false,
+      targetRole: "customer",
+    },
+    {
+      id: "user-3",
+      title: "46% Off Discount Active 💸",
+      message: "The seasonal discount has been applied to active product listings. Limited inventory remaining!",
+      created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+      read: false,
+      targetRole: "customer",
+    }
+  ]);
+
+  const currentRole = role === "admin" ? "admin" : "customer";
+  const displayedNotifications = notifications.filter(
+    (n) => n.targetRole === currentRole || n.targetRole === "all" || !n.targetRole
+  );
+
+  const unreadCount = displayedNotifications.filter((n) => !n.read).length;
+
+  const markAllAsRead = () => {
+    setNotifications((prev) =>
+      prev.map((n) =>
+        n.targetRole === currentRole || n.targetRole === "all" || !n.targetRole
+          ? { ...n, read: true }
+          : n
+      )
+    );
+  };
+
+  const markAsRead = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+    );
+  };
+
+  const isDashboardActive = path?.startsWith("/dashboard");
+  const filteredNav = isDashboardActive
+    ? CUSTOMER_APP_NAV.filter((n) => n.href === "/")
+    : CUSTOMER_APP_NAV;
 
   const handleSignOut = async () => {
     await signOut();
@@ -60,13 +163,27 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background shadow-sm">
-      <div className="container mx-auto flex min-w-0 items-center gap-2 px-4 py-2 sm:gap-3 sm:py-3">
-        <Link
-          href="/"
-          className="shrink-0 text-xl font-extrabold tracking-tight text-primary sm:text-2xl"
-        >
-          Wanshi
-        </Link>
+      <div className="mx-auto w-full max-w-6xl flex min-w-0 items-center justify-between gap-2 px-4 sm:px-6 lg:px-8 py-2 sm:py-3">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            className="shrink-0 text-xl font-extrabold tracking-tight text-primary sm:text-2xl"
+          >
+            Wanshi
+          </Link>
+          {isDashboardActive && (
+            <>
+              <div className="h-4 w-px bg-border md:block hidden" />
+              <Link
+                href="/"
+                className="text-xs font-bold text-muted-foreground hover:text-foreground transition-colors md:flex hidden items-center gap-1.5 bg-muted/40 hover:bg-muted/70 px-3 py-1.5 rounded-full border animate-fade-in"
+              >
+                <Home className="size-3.5" aria-hidden />
+                <span>Back to Shop</span>
+              </Link>
+            </>
+          )}
+        </div>
         {!showCustomerNavRail ? (
           <Suspense
             fallback={
@@ -77,33 +194,7 @@ export function SiteHeader() {
           >
             <ShopSearchBar variant="inline" />
           </Suspense>
-        ) : (
-          <nav
-            className="hidden min-w-0 flex-1 items-center justify-center md:flex"
-            aria-label="Dashboard and shop"
-          >
-            <div className="flex max-w-full flex-wrap justify-center gap-1.5 sm:gap-2">
-              {CUSTOMER_APP_NAV.map((n) => {
-                const active = isCustomerNavActive(path, n.href);
-                return (
-                  <Link
-                    key={n.href}
-                    href={n.href}
-                    className={cn(
-                      "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors sm:text-sm",
-                      active
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-foreground/80 hover:bg-muted/60 hover:text-foreground",
-                    )}
-                  >
-                    <n.icon className="size-3.5 sm:size-4" aria-hidden />
-                    {n.label}
-                  </Link>
-                );
-              })}
-            </div>
-          </nav>
-        )}
+        ) : null}
 
         <div className="ms-auto flex shrink-0 items-center gap-1">
           {user ? (
@@ -111,16 +202,94 @@ export function SiteHeader() {
               <div className="hidden items-center gap-1 md:flex md:gap-2">
                 {role === "admin" ? (
                   <>
-                    <Button asChild variant="ghost" size="sm">
-                      <Link href="/admin">
-                        <LayoutDashboard className="size-4" /> Admin
-                      </Link>
-                    </Button>
-                    <Button asChild variant="ghost" size="sm" className="px-2.5">
-                      <Link href="/dashboard/notifications" aria-label="Notifications">
-                        <Bell className="size-4" />
-                      </Link>
-                    </Button>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="ghost" size="sm" className="px-2.5 relative">
+                          <Bell className="size-4" />
+                          {unreadCount > 0 && (
+                            <span className="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-destructive text-[8px] font-bold text-destructive-foreground shadow-sm">
+                              {unreadCount}
+                            </span>
+                          )}
+                          <span className="sr-only">Notifications</span>
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent align="end" className="w-80 p-0 sm:w-96 rounded-2xl shadow-xl border-border/80 overflow-hidden">
+                        <div className="border-b p-4 bg-muted/20">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5">
+                                <Bell className="size-4 text-primary" /> Notifications
+                              </h3>
+                              {unreadCount > 0 && (
+                                <p className="text-[10px] text-muted-foreground mt-0.5">
+                                  You have {unreadCount} unread message{unreadCount > 1 ? "s" : ""}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {unreadCount > 0 && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={markAllAsRead}
+                                  className="text-[10px] text-primary hover:text-primary-hover font-semibold px-2 py-1 h-auto rounded-md bg-primary-soft/45 hover:bg-primary-soft"
+                                >
+                                  Mark all read
+                                </Button>
+                              )}
+                              <span className="text-[10px] bg-primary-soft text-primary font-bold px-2 py-0.5 rounded-full">
+                                Admin Demo
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="max-h-[300px] overflow-y-auto p-4 space-y-3">
+                          {displayedNotifications && displayedNotifications.length > 0 ? (
+                            displayedNotifications.map((n) => (
+                              <div
+                                key={n.id}
+                                className={cn(
+                                  "rounded-xl border p-3 text-left transition-all relative group flex flex-col gap-1.5",
+                                  n.read
+                                    ? "bg-card border-border/60 hover:bg-muted/30"
+                                    : "bg-primary-soft/10 border-primary/20 hover:bg-primary-soft/15"
+                                )}
+                              >
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="flex items-center gap-1.5">
+                                    {!n.read && <span className="size-2 shrink-0 rounded-full bg-primary" />}
+                                    <p className={cn("text-xs font-bold", n.read ? "text-foreground" : "text-primary")}>
+                                      {n.title}
+                                    </p>
+                                  </div>
+                                  {!n.read && (
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => markAsRead(n.id)}
+                                      className="size-6 rounded-lg opacity-80 hover:opacity-100 hover:bg-primary-soft"
+                                      title="Mark as read"
+                                    >
+                                      <Check className="size-3 text-primary" />
+                                    </Button>
+                                  )}
+                                </div>
+                                <p className="text-xs text-muted-foreground leading-relaxed pr-6">{n.message}</p>
+                                <p className="text-[10px] text-muted-foreground/80">
+                                  {new Date(n.created_at).toLocaleString()}
+                                </p>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-center py-6 text-muted-foreground text-xs space-y-1">
+                              <p className="font-medium text-foreground">All caught up! 🎉</p>
+                              <p>No new admin notifications.</p>
+                            </div>
+                          )}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </>
                 ) : (
                   <>
@@ -139,27 +308,135 @@ export function SiteHeader() {
                         )}
                       </Link>
                     </Button>
-                    <Button asChild variant="outline" size="icon" className="shrink-0 rounded-xl">
-                      <Link href="/dashboard/notifications" aria-label="Notifications">
-                        <Bell className="size-4" />
-                      </Link>
-                    </Button>
-                    <Button asChild variant="outline" size="icon" className="shrink-0 rounded-xl">
-                      <Link href="/dashboard/profile" aria-label="Profile">
-                        <UserIcon className="size-4" />
-                      </Link>
-                    </Button>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="relative shrink-0 rounded-xl"
+                          aria-label="Notifications"
+                        >
+                          <Bell className="size-4" />
+                          {unreadCount > 0 && (
+                            <span className="absolute -right-1 -top-1 grid size-4 place-items-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground shadow-sm">
+                              {unreadCount}
+                            </span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent align="end" className="w-80 p-0 sm:w-96 rounded-2xl shadow-xl border-border/80 overflow-hidden">
+                        <div className="border-b p-4 bg-muted/20">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5">
+                                <Bell className="size-4 text-primary" /> Notifications
+                              </h3>
+                              {unreadCount > 0 && (
+                                <p className="text-[10px] text-muted-foreground mt-0.5">
+                                  You have {unreadCount} unread message{unreadCount > 1 ? "s" : ""}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {unreadCount > 0 && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={markAllAsRead}
+                                  className="text-[10px] text-primary hover:text-primary-hover font-semibold px-2 py-1 h-auto rounded-md bg-primary-soft/45 hover:bg-primary-soft"
+                                >
+                                  Mark all read
+                                </Button>
+                              )}
+                              <span className="text-[10px] bg-primary-soft text-primary font-bold px-2 py-0.5 rounded-full">
+                                Demo Store
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="max-h-[300px] overflow-y-auto p-4 space-y-3">
+                          {displayedNotifications && displayedNotifications.length > 0 ? (
+                            displayedNotifications.map((n) => (
+                              <div
+                                key={n.id}
+                                className={cn(
+                                  "rounded-xl border p-3 text-left transition-all relative group flex flex-col gap-1.5",
+                                  n.read
+                                    ? "bg-card border-border/60 hover:bg-muted/30"
+                                    : "bg-primary-soft/10 border-primary/20 hover:bg-primary-soft/15"
+                                )}
+                              >
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="flex items-center gap-1.5">
+                                    {!n.read && <span className="size-2 shrink-0 rounded-full bg-primary" />}
+                                    <p className={cn("text-xs font-bold", n.read ? "text-foreground" : "text-primary")}>
+                                      {n.title}
+                                    </p>
+                                  </div>
+                                  {!n.read && (
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => markAsRead(n.id)}
+                                      className="size-6 rounded-lg opacity-80 hover:opacity-100 hover:bg-primary-soft"
+                                      title="Mark as read"
+                                    >
+                                      <Check className="size-3 text-primary" />
+                                    </Button>
+                                  )}
+                                </div>
+                                <p className="text-xs text-muted-foreground leading-relaxed pr-6">{n.message}</p>
+                                <p className="text-[10px] text-muted-foreground/80">
+                                  {new Date(n.created_at).toLocaleString()}
+                                </p>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-center py-6 text-muted-foreground text-xs space-y-1">
+                              <p className="font-medium text-foreground">All caught up! 🎉</p>
+                              <p>No new notifications at this time.</p>
+                            </div>
+                          )}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </>
                 )}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="shrink-0 rounded-xl"
-                  onClick={() => void handleSignOut()}
-                  aria-label="Sign out"
-                >
-                  <LogOut className="size-4" />
-                </Button>
+
+                {/* Unified User Account Popover */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="icon" className="shrink-0 rounded-xl" aria-label="Account Menu">
+                      <UserIcon className="size-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" className="w-56 p-2 rounded-2xl shadow-xl border-border/80 bg-background/95 backdrop-blur-md z-[55] animate-in fade-in-50 zoom-in-95">
+                    <div className="px-3 py-2 text-xs font-semibold text-muted-foreground/80 border-b border-border/40 pb-2 mb-1.5 flex flex-col gap-0.5">
+                      <span className="font-bold text-foreground truncate">
+                        {user.app_metadata?.full_name || "Customer"}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground truncate">
+                        {user.email}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <Button asChild variant="ghost" className="justify-start h-9 w-full rounded-xl px-3 text-xs font-semibold gap-2 text-foreground hover:bg-muted/60">
+                        <Link href={role === "admin" ? "/admin" : "/dashboard"}>
+                          <LayoutDashboard className="size-3.5 text-primary" />
+                          <span>{role === "admin" ? "Admin Panel" : "Dashboard"}</span>
+                        </Link>
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        className="justify-start h-9 w-full rounded-xl px-3 text-xs font-semibold gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        onClick={() => void handleSignOut()}
+                      >
+                        <LogOut className="size-3.5" />
+                        <span>Logout</span>
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
             </>
           ) : (
@@ -268,28 +545,89 @@ export function SiteHeader() {
                         </Link>
                       );
                     })}
-                    <Link
-                      href="/dashboard/notifications"
-                      className={cn(
-                        "flex items-center justify-center gap-2.5 rounded-full border px-5 py-3.5 font-medium transition-all duration-200 ease-out",
-                        "motion-safe:active:scale-[0.99]",
-                        path === "/dashboard/notifications"
-                          ? "border-primary text-primary"
-                          : "border-transparent text-foreground hover:border-primary/25 hover:bg-primary-soft/35",
-                      )}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <Bell
-                        className="size-[1.2rem] shrink-0"
-                        strokeWidth={path === "/dashboard/notifications" ? 2.25 : 2}
-                        aria-hidden
-                      />
-                      Notifications
-                    </Link>
+                    <Collapsible open={mobileNotificationsOpen} onOpenChange={setMobileNotificationsOpen} className="w-full animate-fade-in">
+                      <CollapsibleTrigger asChild>
+                        <button
+                          type="button"
+                          className={cn(
+                            "flex w-full items-center justify-center gap-2.5 rounded-full border px-5 py-3.5 font-medium transition-all duration-200 ease-out",
+                            "motion-safe:active:scale-[0.99]",
+                            mobileNotificationsOpen
+                              ? "border-primary text-primary"
+                              : "border-transparent text-foreground hover:border-primary/25 hover:bg-primary-soft/35",
+                          )}
+                        >
+                          <Bell className="size-[1.2rem] shrink-0" strokeWidth={2} aria-hidden />
+                          <span>Notifications</span>
+                          {unreadCount > 0 && (
+                            <span className="ml-1.5 grid size-4 place-items-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground">
+                              {unreadCount}
+                            </span>
+                          )}
+                          <ChevronDown className={cn("ml-1 size-4 transition-transform duration-200", mobileNotificationsOpen && "rotate-180")} />
+                        </button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="mt-2 space-y-2 px-2 pb-2">
+                        {unreadCount > 0 && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markAllAsRead();
+                            }}
+                            className="w-full text-right text-xs font-bold text-primary hover:underline pb-2 px-1"
+                          >
+                            Mark all as read
+                          </button>
+                        )}
+                        {displayedNotifications && displayedNotifications.length > 0 ? (
+                          displayedNotifications.map((n) => (
+                            <div
+                              key={n.id}
+                              className={cn(
+                                "rounded-xl border p-3 text-left transition-all relative flex flex-col gap-1.5",
+                                n.read
+                                  ? "bg-card border-border/60"
+                                  : "bg-primary-soft/10 border-primary/20"
+                              )}
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex items-center gap-1.5">
+                                  {!n.read && <span className="size-1.5 shrink-0 rounded-full bg-primary" />}
+                                  <p className={cn("text-xs font-bold", n.read ? "text-foreground" : "text-primary")}>
+                                    {n.title}
+                                  </p>
+                                </div>
+                                {!n.read && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      markAsRead(n.id);
+                                    }}
+                                    className="text-[10px] font-bold text-primary hover:underline flex items-center gap-0.5"
+                                  >
+                                    <Check className="size-3" /> Mark read
+                                  </button>
+                                )}
+                              </div>
+                              <p className="text-xs text-muted-foreground leading-relaxed">{n.message}</p>
+                              <p className="text-[10px] text-muted-foreground/70">
+                                {new Date(n.created_at).toLocaleString()}
+                              </p>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="rounded-xl border bg-card/30 p-4 text-center text-xs text-muted-foreground">
+                            No notifications yet
+                          </div>
+                        )}
+                      </CollapsibleContent>
+                    </Collapsible>
                   </>
                 ) : user ? (
                   <>
-                    {CUSTOMER_APP_NAV.map((n) => {
+                    {filteredNav.map((n) => {
                       const active = isCustomerNavActive(path, n.href);
                       return (
                         <Link
@@ -313,6 +651,85 @@ export function SiteHeader() {
                         </Link>
                       );
                     })}
+                    <Collapsible open={mobileNotificationsOpen} onOpenChange={setMobileNotificationsOpen} className="w-full animate-fade-in">
+                      <CollapsibleTrigger asChild>
+                        <button
+                          type="button"
+                          className={cn(
+                            "flex w-full items-center justify-center gap-2.5 rounded-full border px-5 py-3.5 font-medium transition-all duration-200 ease-out",
+                            "motion-safe:active:scale-[0.99]",
+                            mobileNotificationsOpen
+                              ? "border-primary text-primary"
+                              : "border-transparent text-foreground hover:border-primary/25 hover:bg-primary-soft/35",
+                          )}
+                        >
+                          <Bell className="size-[1.2rem] shrink-0" strokeWidth={2} aria-hidden />
+                          <span>Notifications</span>
+                          {unreadCount > 0 && (
+                            <span className="ml-1.5 grid size-4 place-items-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground">
+                              {unreadCount}
+                            </span>
+                          )}
+                          <ChevronDown className={cn("ml-1 size-4 transition-transform duration-200", mobileNotificationsOpen && "rotate-180")} />
+                        </button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="mt-2 space-y-2 px-2 pb-2">
+                        {unreadCount > 0 && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markAllAsRead();
+                            }}
+                            className="w-full text-right text-xs font-bold text-primary hover:underline pb-2 px-1"
+                          >
+                            Mark all as read
+                          </button>
+                        )}
+                        {displayedNotifications && displayedNotifications.length > 0 ? (
+                          displayedNotifications.map((n) => (
+                            <div
+                              key={n.id}
+                              className={cn(
+                                "rounded-xl border p-3 text-left transition-all relative flex flex-col gap-1.5",
+                                n.read
+                                  ? "bg-card border-border/60"
+                                  : "bg-primary-soft/10 border-primary/20"
+                              )}
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex items-center gap-1.5">
+                                  {!n.read && <span className="size-1.5 shrink-0 rounded-full bg-primary" />}
+                                  <p className={cn("text-xs font-bold", n.read ? "text-foreground" : "text-primary")}>
+                                    {n.title}
+                                  </p>
+                                </div>
+                                {!n.read && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      markAsRead(n.id);
+                                    }}
+                                    className="text-[10px] font-bold text-primary hover:underline flex items-center gap-0.5"
+                                  >
+                                    <Check className="size-3" /> Mark read
+                                  </button>
+                                )}
+                              </div>
+                              <p className="text-xs text-muted-foreground leading-relaxed">{n.message}</p>
+                              <p className="text-[10px] text-muted-foreground/70">
+                                {new Date(n.created_at).toLocaleString()}
+                              </p>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="rounded-xl border bg-card/30 p-4 text-center text-xs text-muted-foreground">
+                            No notifications yet
+                          </div>
+                        )}
+                      </CollapsibleContent>
+                    </Collapsible>
                   </>
                 ) : (
                   <Link
@@ -348,7 +765,7 @@ export function SiteHeader() {
 
       {customerShopSearchBar && (
         <div className="hidden border-t border-border/40 bg-muted/15 md:block">
-          <div className="container mx-auto px-4 pb-3 pt-2">
+          <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 pb-3 pt-2">
             <Suspense
               fallback={
                 <div
