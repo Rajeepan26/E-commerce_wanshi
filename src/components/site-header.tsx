@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   ShoppingCart,
   User as UserIcon,
@@ -14,25 +14,18 @@ import {
   Package,
   Truck,
   Bell,
-  ChevronDown,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/lib/cart";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Suspense, useEffect, useState } from "react";
-import { SHOP_CATEGORY_BANNERS } from "@/lib/mock/category-metadata";
+import { Suspense, useState } from "react";
 import { ADMIN_NAV, isAdminNavActive } from "@/lib/admin-nav";
 import { cn } from "@/lib/utils";
+import { ShopSearchBar, isCustomerShopBrowsePath } from "@/components/shop-search-bar";
 
-const CATS = SHOP_CATEGORY_BANNERS.map((c) => ({
-  name: c.name.split("·")[0]?.trim() ?? c.name,
-  slug: c.slug,
-}));
-
-/** Logged-in customer: nav in main bar; global search only on `/`, in a row below (md+). */
+/** Logged-in customer: nav in main bar; shop search row on home, products, and category pages (md+). */
 const CUSTOMER_APP_NAV: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/", label: "Home", icon: Home },
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
@@ -45,135 +38,6 @@ export function isCustomerNavActive(pathname: string | null, href: string): bool
   if (href === "/") return pathname === "/";
   if (href === "/dashboard") return pathname === "/dashboard";
   return pathname === href || pathname.startsWith(`${href}/`);
-}
-
-function DesktopSearchWithCategoryFilter({
-  variant = "inline",
-}: {
-  variant?: "inline" | "belowHome";
-}) {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const [q, setQ] = useState("");
-  const [categorySlug, setCategorySlug] = useState("");
-  const [categoriesOpen, setCategoriesOpen] = useState(false);
-
-  useEffect(() => {
-    if (pathname !== "/products") {
-      setQ("");
-      setCategorySlug("");
-      return;
-    }
-    setQ(searchParams.get("q") ?? "");
-    setCategorySlug(searchParams.get("category") ?? "");
-  }, [pathname, searchParams]);
-
-  const buildProductsHref = (slug: string) => {
-    const params = new URLSearchParams();
-    const term = q.trim();
-    if (term) params.set("q", term);
-    if (slug) params.set("category", slug);
-    return params.toString() ? `/products?${params}` : "/products";
-  };
-
-  const applyCategoryNavigate = (slug: string) => {
-    setCategorySlug(slug);
-    router.push(buildProductsHref(slug));
-    setCategoriesOpen(false);
-  };
-
-  const submitSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    router.push(buildProductsHref(categorySlug));
-  };
-
-  const currentCategoryLabel =
-    categorySlug !== ""
-      ? (CATS.find((c) => c.slug === categorySlug)?.name ?? "Category")
-      : "All categories";
-
-  return (
-    <form
-      className={cn(
-        "hidden md:block",
-        variant === "inline" && "min-w-0 flex-1",
-        variant === "belowHome" && "mx-auto w-full max-w-3xl",
-      )}
-      onSubmit={submitSearch}
-      aria-label="Search and filter products"
-    >
-      <div className="mx-auto flex h-10 w-full max-w-2xl flex-nowrap items-stretch rounded-full border border-input bg-background shadow-sm ring-offset-background transition-[box-shadow] focus-within:ring-2 focus-within:ring-ring">
-        <div className="relative min-w-0 flex-[1_1_80%]">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search products, brands and more"
-            className="h-10 rounded-l-full rounded-r-none border-0 bg-transparent pl-9 pr-2 shadow-none focus-visible:ring-0"
-            aria-label="Search products"
-          />
-        </div>
-        <div
-          className="relative flex-[0_0_20%] min-w-[7.5rem] max-w-[30%]"
-          onMouseEnter={() => setCategoriesOpen(true)}
-          onMouseLeave={() => setCategoriesOpen(false)}
-        >
-          <button
-            type="button"
-            id="header-category-trigger"
-            className="flex h-full w-full items-center justify-center gap-1 rounded-r-full border-l border-input bg-muted/40 px-2 text-xs font-medium text-foreground outline-none transition hover:bg-muted/55 sm:gap-1.5 sm:px-3 sm:text-sm"
-            aria-expanded={categoriesOpen}
-            aria-haspopup="menu"
-            aria-controls="header-category-menu"
-          >
-            <span className="truncate text-left">{currentCategoryLabel}</span>
-            <ChevronDown
-              className={cn(
-                "size-3.5 shrink-0 opacity-70 transition-transform sm:size-4",
-                categoriesOpen && "rotate-180",
-              )}
-              aria-hidden
-            />
-          </button>
-
-          {categoriesOpen && (
-            <div
-              id="header-category-menu"
-              role="menu"
-              className="absolute right-0 top-full z-[100] min-w-[12.5rem] max-w-[min(18rem,calc(100vw-3rem))] origin-top rounded-xl border bg-popover p-1 pt-2 shadow-lg outline-none animate-in fade-in-0 zoom-in-95 slide-in-from-top-1 duration-150"
-            >
-              <button
-                type="button"
-                role="menuitem"
-                className={cn(
-                  "flex w-full rounded-lg px-3 py-2 text-left text-sm transition hover:bg-accent",
-                  categorySlug === "" && "bg-accent/60 font-medium",
-                )}
-                onClick={() => applyCategoryNavigate("")}
-              >
-                All categories
-              </button>
-              {CATS.map((c) => (
-                <button
-                  key={c.slug}
-                  type="button"
-                  role="menuitem"
-                  className={cn(
-                    "flex w-full rounded-lg px-3 py-2 text-left text-sm transition hover:bg-accent",
-                    categorySlug === c.slug && "bg-accent/60 font-medium",
-                  )}
-                  onClick={() => applyCategoryNavigate(c.slug)}
-                >
-                  {c.name}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </form>
-  );
 }
 
 export function SiteHeader() {
@@ -192,7 +56,7 @@ export function SiteHeader() {
   const mobileMenuTitle = !user ? "Menu" : role === "admin" ? "Admin" : "Menu";
 
   const showCustomerNavRail = Boolean(user && role !== "admin");
-  const customerSearchOnHome = showCustomerNavRail && path === "/";
+  const customerShopSearchBar = showCustomerNavRail && isCustomerShopBrowsePath(path);
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background shadow-sm">
@@ -211,7 +75,7 @@ export function SiteHeader() {
               </div>
             }
           >
-            <DesktopSearchWithCategoryFilter variant="inline" />
+            <ShopSearchBar variant="inline" />
           </Suspense>
         ) : (
           <nav
@@ -482,7 +346,7 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {customerSearchOnHome && (
+      {customerShopSearchBar && (
         <div className="hidden border-t border-border/40 bg-muted/15 md:block">
           <div className="container mx-auto px-4 pb-3 pt-2">
             <Suspense
@@ -493,7 +357,7 @@ export function SiteHeader() {
                 />
               }
             >
-              <DesktopSearchWithCategoryFilter variant="belowHome" />
+              <ShopSearchBar variant="belowHome" />
             </Suspense>
           </div>
         </div>
