@@ -7,6 +7,7 @@ import {
   ShoppingBag,
   Store,
   Tag,
+  Users,
 } from "lucide-react";
 
 export type AdminNavItem = {
@@ -20,6 +21,7 @@ export type AdminNavItem = {
 export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { href: "/admin/products", label: "Products", icon: Package },
+  { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/categories", label: "Categories", icon: Tag },
   { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { href: "/admin/offers", label: "Offer", icon: Percent },

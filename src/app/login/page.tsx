@@ -22,7 +22,7 @@ export default function LoginPage() {
   useEffect(() => {
     if (user) {
       if (role === "admin") router.replace("/admin");
-      else router.replace("/dashboard/profile");
+      else router.replace("/dashboard");
     }
   }, [user, role, router]);
 
@@ -37,7 +37,7 @@ export default function LoginPage() {
     }
     toast.success("Welcome back!");
     if (result.role === "admin") router.replace("/admin");
-    else router.replace("/dashboard/profile");
+    else router.replace("/dashboard");
   };
 
   const fill = (e: string, p: string) => {

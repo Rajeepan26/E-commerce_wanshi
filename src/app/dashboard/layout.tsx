@@ -8,13 +8,14 @@ import { SiteHeader } from "@/components/site-header";
 import { WhatsappFab } from "@/components/whatsapp-fab";
 import { SiteFooter } from "@/components/site-footer";
 import { cn } from "@/lib/utils";
-import { User, Package, Truck, Bell, LogOut } from "lucide-react";
+import { LayoutDashboard, User, Package, Truck, Bell, LogOut } from "lucide-react";
 
 const NAV = [
-  { href: "/dashboard/profile", label: "Profile", icon: User },
+  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/orders", label: "My Orders", icon: Package },
   { href: "/dashboard/track", label: "Track Order", icon: Truck },
   { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
+  { href: "/dashboard/profile", label: "Profile", icon: User },
 ] as const;
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

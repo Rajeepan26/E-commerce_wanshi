@@ -7,19 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { inr } from "@/lib/format";
+import {
+  appliedWeightFeeBracketLabel,
+  DELIVERY_FLAT_INR,
+  weightHandlingFeeInr,
+} from "@/lib/shipping-pricing";
 import { toast } from "sonner";
 import { useRef, useState } from "react";
-import { ADMIN_WHATSAPP, waLink } from "@/lib/whatsapp";
 import { appendDemoOrder } from "@/lib/mock/orders-store";
+import { cloneProduct } from "@/lib/mock/catalog-store";
 import { Trash2, ArrowLeft, Upload } from "lucide-react";
-
-/** Saved on bank-transfer orders — demo checkout only */
-const WANSHI_BANK_SNAPSHOT = [
-  "Bank name: Commercial Bank",
-  "Account number: 8108042652",
-  "Account holder: Wanshi pvt limit",
-  "Branch: Jaffna",
-].join("\n");
 
 const WANSHI_BANK_ROWS: [string, string][] = [
   ["Bank name", "Commercial Bank"],
@@ -38,8 +35,18 @@ export default function CartPage() {
   const [uploadReceipt, setUploadReceipt] = useState("");
   const [receiptName, setReceiptName] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [orderJustConfirmed, setOrderJustConfirmed] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-
+  const itemSubtotal = cart.total;
+  const itemWeightKg = (id: string, weightKg?: number | null) =>
+    Math.max(0, Number(weightKg ?? cloneProduct(id)?.weight_kg ?? 1) || 0);
+  const totalWeightKg = cart.items.reduce(
+    (sum, item) => sum + itemWeightKg(item.id, item.weight_kg) * item.quantity,
+    0,
+  );
+  const weightFee = cart.items.length > 0 ? weightHandlingFeeInr(totalWeightKg) : 0;
+  const deliveryFee = cart.items.length > 0 ? DELIVERY_FLAT_INR : 0;
+  const grandTotal = itemSubtotal + weightFee + deliveryFee;
   const checkout = () => {
     if (!user || cart.items.length === 0) return;
     if (paymentMethod === "bank" && !uploadReceipt.trim()) {
@@ -50,7 +57,7 @@ export default function CartPage() {
     setBusy(true);
     const order = appendDemoOrder({
       userId: user.id,
-      total: cart.total,
+      total: grandTotal,
       paymentMethod,
       items: cart.items.map((i) => ({
         product_id: i.id,
@@ -66,11 +73,11 @@ export default function CartPage() {
       return;
     }
 
-    const summary = `New Wanshi Order #${order.order_number}\n\n${cart.items.map((i) => `• ${i.name} x${i.quantity} — ${inr(i.price * i.quantity)}`).join("\n")}\n\nTotal: ${inr(cart.total)}\n\nPayment Method: ${paymentMethod === "cod" ? "Cash on Delivery" : "Bank Transfer"}\nBank (demo): ${paymentMethod === "bank" ? WANSHI_BANK_SNAPSHOT : "COD"}`;
+    setOrderJustConfirmed(true);
     cart.clear();
-    toast.success("Order placed successfully (stored in this browser only).");
-    window.open(waLink(ADMIN_WHATSAPP, summary), "_blank");
-    router.push("/dashboard/orders");
+    toast.success("Order confirmed", {
+      description: `Order #${order.order_number}. Saved in this browser.`,
+    });
   };
 
   const onReceiptFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,7 +113,18 @@ export default function CartPage() {
   if (cart.items.length === 0)
     return (
       <div className="rounded-lg border bg-card p-8 text-center">
-        <p className="mb-4 text-muted-foreground">Your cart is empty.</p>
+        {orderJustConfirmed ? (
+          <div className="mb-6 rounded-lg border border-success/40 bg-[oklch(0.98_0.02_156)] px-4 py-3 dark:bg-[oklch(0.24_0.05_154)] dark:border-success/35">
+            <p className="font-semibold text-[oklch(0.32_0.11_154)] dark:text-[oklch(0.86_0.04_150)]">
+              Order confirmed
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Thank you. Your cart is empty — browse more products anytime.
+            </p>
+          </div>
+        ) : (
+          <p className="mb-6 text-muted-foreground">Your cart is empty.</p>
+        )}
         <Button type="button" onClick={() => router.push("/products")} variant="default">
           <ArrowLeft className="mr-2 size-4" /> Continue Shopping
         </Button>
@@ -123,35 +141,50 @@ export default function CartPage() {
           </div>
           <ul className="divide-y">
             {cart.items.map((i) => (
-              <li key={i.id} className="flex flex-wrap items-center gap-4 p-4 sm:flex-nowrap">
+              <li
+                key={i.id}
+                className="grid grid-cols-[5rem_minmax(0,1fr)] gap-3 p-4 sm:grid-cols-[5rem_minmax(0,1fr)_auto] sm:items-center sm:gap-4"
+              >
                 <img
                   src={i.image_url ?? "https://placehold.co/64"}
                   alt={i.name}
-                  className="size-20 shrink-0 rounded-md border bg-secondary object-cover"
+                  className="row-span-2 size-20 rounded-md border bg-secondary object-cover sm:row-span-1"
                 />
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium leading-snug">{i.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {inr(i.price)} × {i.quantity}
+                <div className="flex min-w-0 items-start justify-between gap-3 sm:block">
+                  <div className="min-w-0">
+                    <p className="line-clamp-2 text-sm font-semibold leading-snug sm:text-base">
+                      {i.name}
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {inr(i.price)} × {i.quantity}
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {itemWeightKg(i.id, i.weight_kg).toFixed(2)} kg × {i.quantity}
+                    </p>
+                  </div>
+                  <p className="shrink-0 text-sm font-semibold text-primary sm:hidden">
+                    {inr(i.price * i.quantity)}
                   </p>
                 </div>
-                <p className="text-sm font-semibold text-primary sm:w-24 sm:text-right">
+                <p className="hidden text-sm font-semibold text-primary sm:block sm:w-24 sm:text-right">
                   {inr(i.price * i.quantity)}
                 </p>
-                <div className="flex items-center gap-2">
+                <div className="col-start-2 flex items-center gap-2 sm:col-start-auto">
                   <Button
                     size="sm"
                     variant="outline"
                     type="button"
+                    className="size-9 p-0"
                     onClick={() => cart.setQty(i.id, i.quantity - 1)}
                   >
                     −
                   </Button>
-                  <span className="w-8 text-center text-sm">{i.quantity}</span>
+                  <span className="w-8 text-center text-sm tabular-nums">{i.quantity}</span>
                   <Button
                     size="sm"
                     variant="outline"
                     type="button"
+                    className="size-9 p-0"
                     onClick={() => cart.setQty(i.id, i.quantity + 1)}
                   >
                     +
@@ -301,9 +334,27 @@ export default function CartPage() {
             ))}
           </ul>
           <Separator className="my-4" />
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">Items subtotal</span>
+              <span className="font-medium">{inr(itemSubtotal)}</span>
+            </div>
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">
+                Weight fee ({totalWeightKg.toFixed(2)} kg,{" "}
+                {appliedWeightFeeBracketLabel(totalWeightKg)})
+              </span>
+              <span className="font-medium">{inr(weightFee)}</span>
+            </div>
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">Delivery fee</span>
+              <span className="font-medium">{inr(deliveryFee)}</span>
+            </div>
+          </div>
+          <Separator className="my-4" />
           <div className="flex items-baseline justify-between text-lg font-semibold">
             <span>Total</span>
-            <span className="text-xl text-primary">{inr(cart.total)}</span>
+            <span className="text-xl text-primary">{inr(grandTotal)}</span>
           </div>
         </section>
 

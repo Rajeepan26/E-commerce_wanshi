@@ -22,7 +22,7 @@ export default function RegisterPage() {
     demoSignUp(email, password, name);
     setBusy(false);
     toast.success("Account created");
-    router.replace("/dashboard/profile");
+    router.replace("/dashboard");
   };
 
   return (

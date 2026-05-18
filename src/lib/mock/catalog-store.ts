@@ -2,6 +2,7 @@
  * Demo catalog for frontend-only builds. Holds mutable arrays (admin edits this session).
  */
 import type { AdvertisementRow, CategoryRow, OfferRow, ProductRow } from "@/lib/mock/types";
+import { isPromoActiveNow } from "@/lib/mock/promo-schedule";
 import { SHOP_CATEGORY_BANNERS, unsplashPhoto } from "@/lib/mock/category-metadata";
 
 const SEED_CATEGORIES: CategoryRow[] = SHOP_CATEGORY_BANNERS.map(({ id, name, slug }) => ({
@@ -356,6 +357,9 @@ const SEED_OFFERS: OfferRow[] = [
     discount_percentage: 45,
     banner_image_url: unsplashPhoto("photo-1441986300917-64674bd600d8", 1280),
     is_active: true,
+    /** Demo: “New” badge within ~1 week */
+    starts_at: "2026-05-17",
+    ends_at: "2026-08-31",
   },
   {
     id: "off-home-tech",
@@ -364,6 +368,9 @@ const SEED_OFFERS: OfferRow[] = [
     discount_percentage: 35,
     banner_image_url: unsplashPhoto("photo-1550009158-9ebf69173e03", 1280),
     is_active: true,
+    starts_at: "2026-03-01",
+    /** Demo: “Closing soon” (~1 week ending May 24) */
+    ends_at: "2026-05-24",
   },
 ];
 
@@ -374,6 +381,8 @@ const SEED_ADS: AdvertisementRow[] = [
     position: "hero",
     image_url: null,
     is_active: true,
+    starts_at: null,
+    ends_at: null,
   },
 ];
 
@@ -400,11 +409,11 @@ export function getCategoryIdBySlug(slug: string): string | undefined {
 }
 
 export function cloneActiveOffers(): OfferRow[] {
-  return offersState.filter((o) => o.is_active);
+  return offersState.filter((o) => isPromoActiveNow(o));
 }
 
 export function cloneActiveAds(): AdvertisementRow[] {
-  return adsState.filter((a) => a.is_active);
+  return adsState.filter((a) => isPromoActiveNow(a));
 }
 
 export function cloneProductsActive(options?: {

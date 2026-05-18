@@ -31,10 +31,11 @@ const CATS = SHOP_CATEGORY_BANNERS.map((c) => ({
 }));
 
 const MOBILE_ACCOUNT_NAV = [
-  { href: "/dashboard/profile", label: "Profile", icon: UserIcon },
+  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/orders", label: "My Orders", icon: Package },
   { href: "/dashboard/track", label: "Track Order", icon: Truck },
   { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
+  { href: "/dashboard/profile", label: "Profile", icon: UserIcon },
 ] as const;
 
 export function SiteHeader() {
@@ -57,7 +58,6 @@ export function SiteHeader() {
     router.push(`/products${qs}`);
   };
 
-  const isAdminDashboard = Boolean(path?.startsWith("/admin"));
   const mobileMenuTitle = !user ? "Menu" : role === "admin" ? "Admin" : "Your account";
 
   return (
@@ -84,17 +84,23 @@ export function SiteHeader() {
         <div className="ml-auto hidden shrink-0 items-center gap-1 md:flex md:gap-2">
           {user ? (
             <>
-              {role === "admin" && !isAdminDashboard && (
-                <Button asChild variant="ghost" size="sm">
-                  <Link href="/admin">
-                    <LayoutDashboard className="size-4" /> Admin
-                  </Link>
-                </Button>
-              )}
-              {role !== "admin" && (
+              {role === "admin" ? (
                 <>
                   <Button asChild variant="ghost" size="sm">
-                    <Link href="/dashboard/profile">
+                    <Link href="/admin">
+                      <LayoutDashboard className="size-4" /> Admin
+                    </Link>
+                  </Button>
+                  <Button asChild variant="ghost" size="sm" className="px-2.5">
+                    <Link href="/dashboard/notifications" aria-label="Notifications">
+                      <Bell className="size-4" />
+                    </Link>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button asChild variant="ghost" size="sm">
+                    <Link href="/dashboard">
                       <UserIcon className="size-4" /> Account
                     </Link>
                   </Button>
@@ -107,6 +113,11 @@ export function SiteHeader() {
                           {count}
                         </span>
                       )}
+                    </Link>
+                  </Button>
+                  <Button asChild variant="ghost" size="sm" className="px-2.5">
+                    <Link href="/dashboard/notifications" aria-label="Notifications">
+                      <Bell className="size-4" />
                     </Link>
                   </Button>
                 </>
@@ -220,15 +231,22 @@ export function SiteHeader() {
                     );
                   })}
                   <Link
-                    href="/"
+                    href="/dashboard/notifications"
                     className={cn(
-                      "flex items-center justify-center gap-2.5 rounded-full border border-transparent px-5 py-3.5 font-medium text-foreground transition-all duration-200 ease-out",
-                      "hover:border-primary/25 hover:bg-primary-soft/35 motion-safe:active:scale-[0.99]",
+                      "flex items-center justify-center gap-2.5 rounded-full border px-5 py-3.5 font-medium transition-all duration-200 ease-out",
+                      "motion-safe:active:scale-[0.99]",
+                      path === "/dashboard/notifications"
+                        ? "border-primary text-primary"
+                        : "border-transparent text-foreground hover:border-primary/25 hover:bg-primary-soft/35",
                     )}
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Home className="size-[1.2rem] shrink-0" strokeWidth={2} aria-hidden />
-                    Storefront
+                    <Bell
+                      className="size-[1.2rem] shrink-0"
+                      strokeWidth={path === "/dashboard/notifications" ? 2.25 : 2}
+                      aria-hidden
+                    />
+                    Notifications
                   </Link>
                   <button
                     type="button"

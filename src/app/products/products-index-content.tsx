@@ -38,6 +38,7 @@ export default function ProductsIndexContent() {
               original_price: p.original_price,
               image_url: p.image_url,
               stock_quantity: p.stock_quantity,
+              weight_kg: p.weight_kg,
             }}
           />
         ))}

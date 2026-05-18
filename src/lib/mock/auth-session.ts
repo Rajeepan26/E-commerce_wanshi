@@ -1,12 +1,30 @@
 import type { DemoAuthUser, DemoRole } from "@/lib/mock/types-shared";
+import { readPasswordOverrides, writePasswordOverrides } from "@/lib/mock/demo-password-overrides";
+import {
+  PRESET_CREDENTIALS,
+  getPresetCredentialSessionUserId,
+} from "@/lib/mock/preset-demo-credentials";
+import { findAdminCreatedUserByEmail } from "@/lib/mock/admin-user-registry";
 
 const SESSION_KEY = "wanshi.demo_session";
 
-const CREDENTIALS: Record<string, { password: string; role: Exclude<DemoRole, null> }> = {
-  "admin@wanshi.com": { password: "admin123", role: "admin" },
-  "user@wanshi.com": { password: "user123", role: "customer" },
-  "priya@wanshi.com": { password: "priya123", role: "customer" },
-};
+/** Effective demo password — user-changed password overrides static presets. */
+function resolvePasswordForEmail(email: string): string | undefined {
+  const key = email.trim().toLowerCase();
+  const o = readPasswordOverrides()[key];
+  if (o !== undefined && o !== "") return o;
+  return PRESET_CREDENTIALS[key]?.password;
+}
+
+export function listPresetCredentials(): ReadonlyArray<{
+  email: string;
+  role: Exclude<DemoRole, null>;
+}> {
+  return Object.entries(PRESET_CREDENTIALS).map(([email, meta]) => ({
+    email,
+    role: meta.role,
+  }));
+}
 
 function readStoredSession(): DemoAuthUser | null {
   if (typeof window === "undefined") return null;
@@ -39,41 +57,101 @@ export function tryDemoSignIn(
   password: string,
 ): { ok: true; user: DemoAuthUser; role: Exclude<DemoRole, null> } | { ok: false; error: string } {
   const key = email.trim().toLowerCase();
-  const entry = CREDENTIALS[key];
-  if (!entry || entry.password !== password) {
+  const expectedPassword = resolvePasswordForEmail(key);
+
+  const presetEntry = PRESET_CREDENTIALS[key];
+  const registryEntry = findAdminCreatedUserByEmail(key);
+
+  if (!expectedPassword || expectedPassword !== password) {
     return { ok: false, error: "Invalid email or password" };
   }
+
+  if (presetEntry) {
+    const user: DemoAuthUser = {
+      id: getPresetCredentialSessionUserId(key, presetEntry.role),
+      email: key,
+    };
+    localStorage.setItem(`wanshi.demo_role.${user.id}`, presetEntry.role);
+    persistSession(user);
+    return { ok: true, user, role: presetEntry.role };
+  }
+
+  if (!registryEntry) {
+    return { ok: false, error: "Invalid email or password" };
+  }
+
+  const row = registryEntry;
   const user: DemoAuthUser = {
-    id: entry.role === "admin" ? "demo-user-admin" : `demo-user-${key.replace(/[^a-z0-9]/gi, "")}`,
+    id: row.id,
     email: key,
+    app_metadata: { full_name: row.full_name },
   };
-  localStorage.setItem(`wanshi.demo_role.${user.id}`, entry.role);
+  localStorage.setItem(`wanshi.demo_role.${row.id}`, row.role);
   persistSession(user);
-  return { ok: true, user, role: entry.role };
+  return { ok: true, user, role: row.role };
 }
 
-export function demoSignUp(email: string, _password: string, fullName: string) {
-  void _password;
+export function tryChangeDemoPassword(params: {
+  email: string;
+  currentPassword: string;
+  newPassword: string;
+}): { ok: true } | { ok: false; error: string } {
+  const key = params.email.trim().toLowerCase();
+  const presetAllowed = PRESET_CREDENTIALS[key];
+  const registryAllowed = Boolean(findAdminCreatedUserByEmail(key));
+  if (!presetAllowed && !registryAllowed) {
+    return {
+      ok: false,
+      error:
+        "Password change is only wired for preset demo accounts and admin-created users in this preview.",
+    };
+  }
+
+  const expected = resolvePasswordForEmail(key);
+  if (!expected || expected !== params.currentPassword) {
+    return { ok: false, error: "Current password is incorrect." };
+  }
+  const next = params.newPassword.trim();
+  if (next.length < 6) {
+    return { ok: false, error: "New password must be at least 6 characters." };
+  }
+
+  const overrides = readPasswordOverrides();
+  overrides[key] = next;
+  writePasswordOverrides(overrides);
+  return { ok: true };
+}
+
+export function demoSignUp(email: string, password: string, fullName: string) {
+  const key = email.trim().toLowerCase();
   const id = `demo-u-${crypto.randomUUID().replace(/-/g, "").slice(0, 12)}`;
   const user: DemoAuthUser = {
     id,
-    email: email.trim().toLowerCase(),
-    app_metadata: { full_name: fullName },
+    email: key,
+    app_metadata: { full_name: fullName.trim() },
   };
   localStorage.setItem(`wanshi.demo_role.${id}`, "customer");
+  const parts = fullName.trim().split(/\s+/);
+  const first_name = parts[0] ?? "";
+  const last_name = parts.slice(1).join(" ") ?? "";
+
+  const o = readPasswordOverrides();
+  o[key] = password;
+  writePasswordOverrides(o);
+
   const profilesRaw = localStorage.getItem("wanshi.demo_profiles") ?? "{}";
   try {
     const map = JSON.parse(profilesRaw) as Record<
       string,
-      { full_name: string; phone_number: string; default_address: string }
+      { first_name?: string; last_name?: string; phone_number?: string }
     >;
-    map[id] = { full_name: fullName, phone_number: "", default_address: "" };
+    map[id] = { first_name, last_name, phone_number: "" };
     localStorage.setItem("wanshi.demo_profiles", JSON.stringify(map));
   } catch {
     localStorage.setItem(
       "wanshi.demo_profiles",
       JSON.stringify({
-        [id]: { full_name: fullName, phone_number: "", default_address: "" },
+        [id]: { first_name, last_name, phone_number: "" },
       }),
     );
   }

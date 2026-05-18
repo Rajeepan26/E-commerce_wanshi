@@ -182,6 +182,7 @@ function QuickBody({
       name: product.name,
       price,
       image_url: product.image_url,
+      weight_kg: weightKg,
     });
     toast.success("Added to cart");
   };

@@ -58,7 +58,7 @@ export function MobileBottomNav() {
       badge: count,
     },
     {
-      href: user ? "/dashboard/profile" : "/login",
+      href: user ? "/dashboard" : "/login",
       label: "Profile",
       icon: UserRound,
       active:

@@ -16,6 +16,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { cloneActiveAds, cloneActiveOffers, cloneProductsActive } from "@/lib/mock/catalog-store";
+import { promoScheduleBadges } from "@/lib/mock/promo-schedule";
 
 export default function HomePage() {
   const { data: ads } = useQuery({
@@ -58,9 +59,23 @@ export default function HomePage() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
                       <div className="absolute inset-y-0 left-0 flex max-w-xl flex-col justify-center p-4 sm:p-10">
-                        <p className="inline-block w-fit rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">
-                          Up to {o.discount_percentage}% OFF
-                        </p>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="inline-block w-fit rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">
+                            Up to {o.discount_percentage}% OFF
+                          </p>
+                          {promoScheduleBadges(o).map((label) => (
+                            <span
+                              key={label}
+                              className={
+                                label === "New"
+                                  ? "rounded-full bg-amber-400/95 px-3 py-1 text-xs font-bold text-black shadow-sm"
+                                  : "rounded-full bg-orange-500/95 px-3 py-1 text-xs font-bold text-white shadow-sm"
+                              }
+                            >
+                              {label}
+                            </span>
+                          ))}
+                        </div>
                         <h3 className="mt-2 text-xl font-extrabold text-white sm:mt-3 sm:text-3xl">
                           {o.title}
                         </h3>
@@ -95,6 +110,7 @@ export default function HomePage() {
                   original_price: p.original_price,
                   image_url: p.image_url,
                   stock_quantity: p.stock_quantity,
+                  weight_kg: p.weight_kg,
                 }}
               />
             ))}

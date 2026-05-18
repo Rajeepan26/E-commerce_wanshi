@@ -65,6 +65,12 @@ export default function AdminAdvertisementPage() {
               <p className="font-semibold">{a.title}</p>
               <p className="text-xs text-muted-foreground">
                 Position: {a.position} · {a.is_active ? "Active" : "Inactive"}
+                {(a.starts_at ?? a.ends_at) != null ? (
+                  <span className="mt-1 block font-normal">
+                    {a.starts_at ? `Starts ${a.starts_at}` : "No start"} ·{" "}
+                    {a.ends_at ? `Ends ${a.ends_at}` : "Open-ended"}
+                  </span>
+                ) : null}
               </p>
               {a.image_url && (
                 <img

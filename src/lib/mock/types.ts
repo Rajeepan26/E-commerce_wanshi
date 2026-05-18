@@ -5,6 +5,9 @@ export type OfferRow = {
   discount_percentage: number | null;
   banner_image_url: string | null;
   is_active: boolean;
+  /** Inclusive promo window (calendar days, local). Null = unrestricted. */
+  starts_at: string | null;
+  ends_at: string | null;
 };
 
 export type AdPosition = "hero" | "sidebar" | "banner";
@@ -15,6 +18,9 @@ export type AdvertisementRow = {
   position: AdPosition;
   image_url: string | null;
   is_active: boolean;
+  /** Inclusive scheduling window for storefront visibility. Null = always on when active. */
+  starts_at: string | null;
+  ends_at: string | null;
 };
 
 export type CategoryRow = {

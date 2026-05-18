@@ -71,6 +71,12 @@ export default function AdminOffersPage() {
                 <p className="font-semibold">{o.title}</p>
                 <p className="text-xs text-muted-foreground">
                   {o.discount_percentage}% OFF · {o.is_active ? "Active" : "Inactive"}
+                  {o.starts_at || o.ends_at ? (
+                    <span className="mt-1 block font-normal">
+                      {o.starts_at ? `Starts ${o.starts_at}` : "No start"} ·{" "}
+                      {o.ends_at ? `Ends ${o.ends_at}` : "Open-ended"}
+                    </span>
+                  ) : null}
                 </p>
                 <Button
                   variant="ghost"

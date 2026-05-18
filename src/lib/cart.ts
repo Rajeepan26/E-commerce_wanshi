@@ -5,6 +5,7 @@ export type CartItem = {
   name: string;
   price: number;
   image_url?: string | null;
+  weight_kg?: number | null;
   quantity: number;
 };
 
@@ -40,8 +41,9 @@ export function useCart() {
   const add = useCallback((item: Omit<CartItem, "quantity">, qty = 1) => {
     const cur = read();
     const idx = cur.findIndex((i) => i.id === item.id);
-    if (idx >= 0) cur[idx].quantity += qty;
-    else cur.push({ ...item, quantity: qty });
+    if (idx >= 0) {
+      cur[idx] = { ...cur[idx], ...item, quantity: cur[idx].quantity + qty };
+    } else cur.push({ ...item, quantity: qty });
     write(cur);
   }, []);
 

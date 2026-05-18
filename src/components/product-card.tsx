@@ -16,6 +16,7 @@ export type ProductCardData = {
   original_price?: number | string | null;
   image_url?: string | null;
   stock_quantity?: number | null;
+  weight_kg?: number | string | null;
 };
 
 export function ProductCard({ p }: { p: ProductCardData }) {
@@ -42,15 +43,21 @@ export function ProductCard({ p }: { p: ProductCardData }) {
   const addToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!requireLogin() || out) return;
-    cart.add({ id: p.id, name: p.name, price, image_url: p.image_url });
+    cart.add({
+      id: p.id,
+      name: p.name,
+      price,
+      image_url: p.image_url,
+      weight_kg: Number(p.weight_kg ?? 1),
+    });
     toast.success("Added to cart");
   };
 
   return (
-    <div className="group flex flex-col overflow-hidden rounded-lg border bg-card transition hover:shadow-md">
+    <div className="group flex h-full flex-col overflow-hidden rounded-lg border bg-card transition hover:shadow-md">
       <button
         type="button"
-        className="flex flex-col text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="flex flex-1 flex-col text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         onClick={() => openProduct(p.id)}
       >
         <div className="aspect-square overflow-hidden bg-secondary">
@@ -61,17 +68,21 @@ export function ProductCard({ p }: { p: ProductCardData }) {
             className="h-full w-full object-cover transition group-hover:scale-105"
           />
         </div>
-        <div className="flex flex-1 flex-col gap-1 p-3 pb-2">
-          <h3 className="line-clamp-2 text-base font-medium leading-snug text-foreground sm:text-[1.0625rem]">
+        <div className="flex flex-1 flex-col gap-1.5 p-2.5 pb-2 sm:p-3 sm:pb-2">
+          <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-foreground sm:min-h-[2.875rem] sm:text-[1.0625rem]">
             {p.name}
           </h3>
-          <div className="flex flex-wrap items-baseline gap-2">
-            <span className="text-base font-bold text-primary">{inr(price)}</span>
+          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
+            <span className="text-[15px] font-bold leading-none text-primary sm:text-base">
+              {inr(price)}
+            </span>
             {orig && (
-              <span className="text-xs text-muted-foreground line-through">{inr(orig)}</span>
+              <span className="text-[11px] leading-none text-muted-foreground line-through sm:text-xs">
+                {inr(orig)}
+              </span>
             )}
             {off > 0 && (
-              <span className="rounded bg-success/15 px-1.5 py-0.5 text-[10px] font-semibold text-success">
+              <span className="rounded bg-success/15 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-success">
                 {off}% OFF
               </span>
             )}
@@ -81,12 +92,12 @@ export function ProductCard({ p }: { p: ProductCardData }) {
           </div>
         </div>
       </button>
-      <div className="border-t px-2 pb-2 pt-1.5">
+      <div className="mt-auto border-t px-2 pb-2 pt-1.5">
         <Button
           type="button"
           variant="outline"
           size="sm"
-          className="h-9 w-full gap-2 text-xs"
+          className="h-9 w-full gap-1.5 px-2 text-xs sm:gap-2"
           disabled={out}
           onClick={addToCart}
         >
