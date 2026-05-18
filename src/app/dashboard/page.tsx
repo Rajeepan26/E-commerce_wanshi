@@ -4,285 +4,320 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Pie,
-  PieChart,
-  XAxis,
-  YAxis,
-} from "recharts";
-import {
-  ArrowRight,
-  LayoutDashboard,
+  CalendarRange,
+  Clock,
+  Headphones,
+  Heart,
+  LayoutGrid,
   Package,
-  ReceiptIndianRupee,
+  Search,
   ShoppingBag,
   Sparkles,
 } from "lucide-react";
-
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from "@/components/ui/chart";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/lib/cart";
 import { inr } from "@/lib/format";
 import { listOrders } from "@/lib/mock/orders-store";
+import { waLink, ADMIN_WHATSAPP } from "@/lib/whatsapp";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import type { OrderStatus } from "@/lib/mock/types";
 
-const MONTH_KEYS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"] as const;
-
-const chartAccent = "#6366f1";
-const palette = [
-  "oklch(0.51 0.22 277)",
-  "oklch(0.62 0.18 155)",
-  "oklch(0.72 0.15 76)",
-  "oklch(0.58 0.2 27)",
-];
-
-const spendTrendConfig = {
-  amount: {
-    label: "Spend trend",
-    color: chartAccent,
-  },
-} satisfies ChartConfig;
-
-const categoryConfig = {
-  value: {
-    label: "Category share",
-    color: chartAccent,
-  },
-} satisfies ChartConfig;
-
-/** Demo blend: real local orders inflated into a fuller visual for marketing-style overview. */
-function buildSparklineTotals(orderTotal: number) {
-  const base = MONTH_KEYS.map((m, i) => ({
-    month: m,
-    amount: Math.round(
-      8000 + i * 1200 + (i % 3) * 900 + (orderTotal > 0 ? orderTotal / 8 + i * 450 : 0),
-    ),
-  }));
-  const max = Math.max(...base.map((b) => b.amount), 1);
-  const scale = Math.min(1.25, 28000 / max + 0.85);
-  return base.map((b) => ({ ...b, amount: Math.round(b.amount * scale) }));
+function statusTone(status: OrderStatus): string {
+  switch (status) {
+    case "Delivered":
+      return "bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-200";
+    case "Cancelled":
+      return "bg-muted text-muted-foreground";
+    case "Pending":
+      return "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200";
+    case "Accepted":
+      return "bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-200";
+    case "In-Transit":
+      return "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200";
+    default:
+      return "bg-muted text-muted-foreground";
+  }
 }
 
-const dummyCategorySpend = [
-  { name: "Fashion", value: 34 },
-  { name: "Electronics", value: 28 },
-  { name: "Home", value: 22 },
-  { name: "Other", value: 16 },
-];
-
-function buildMonthlyOrders(realCount: number) {
-  const seed = MONTH_KEYS.map((m, i) => ({
-    month: m,
-    orders: Math.max(1, Math.round(2 + i * 1.5 + (realCount > 3 ? realCount / 4 : realCount))),
-  }));
-  const maxVal = Math.max(...seed.map((s) => s.orders), 1);
-  const target = Math.max(realCount || 8, Math.round(maxVal * 0.9));
-  return seed.map((s, i) => ({
-    ...s,
-    orders: Math.min(Math.max(s.orders + (i % 2), 3), Math.max(target + i, 8)),
-  }));
+function initialsFromName(name: string, email?: string): string {
+  const t = name.trim();
+  if (t) {
+    const parts = t.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2)
+      return `${parts[0]![0] ?? ""}${parts[parts.length - 1]![0] ?? ""}`.toUpperCase();
+    return (parts[0] ?? "U").slice(0, 2).toUpperCase();
+  }
+  const pre = email?.split("@")[0] ?? "?";
+  return pre.slice(0, 2).toUpperCase();
 }
 
 export default function DashboardOverviewPage() {
   const { user } = useAuth();
-  const { count: cartItems } = useCart();
+  const { count: cartCount } = useCart();
 
   const { data } = useQuery({
-    queryKey: ["customer-overview-stats", user?.id],
+    queryKey: ["customer-dashboard-overview", user?.id],
     queryFn: () => {
-      const uid = user?.id ?? "guest";
+      const uid = user?.id ?? "";
       const orders = listOrders(uid);
-      const orderTotal = orders.reduce((s, o) => s + Number(o.total_amount ?? 0), 0);
-      const delivered = orders.filter((o) => o.status?.toLowerCase() === "delivered").length;
-      const pending = orders.filter((o) => o.status === "Pending").length;
+      const activePipeline = orders.filter((o) =>
+        ["Pending", "Accepted", "In-Transit"].includes(o.status),
+      );
+      const awaiting = orders.filter((o) => o.status === "Pending");
+      const sorted = [...orders].sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      );
       return {
-        orders: orders.length,
-        orderTotal,
-        delivered,
-        pending,
-        loyaltyPoints: mockLoyalty(orders.length, orderTotal),
+        orders: sorted,
+        total: orders.length,
+        activePipeline: activePipeline.length,
+        awaiting: awaiting.length,
       };
     },
     enabled: Boolean(user?.id),
   });
 
-  const spendSeries = useMemo(
-    () => buildSparklineTotals(data?.orderTotal ?? 0),
-    [data?.orderTotal],
-  );
-  const orderBars = useMemo(() => buildMonthlyOrders(data?.orders ?? 0), [data?.orders]);
+  const displayName =
+    user?.app_metadata?.full_name?.trim() ||
+    user?.email?.split("@")[0]?.replace(/\./g, " ") ||
+    "there";
 
-  const statCards = useMemo(() => {
-    const spend = data?.orderTotal ?? 0;
-    const orders = data?.orders ?? 0;
+  const initials = initialsFromName(user?.app_metadata?.full_name ?? "", user?.email ?? undefined);
+
+  const stats = useMemo(() => {
+    const total = data?.total ?? 0;
     return [
-      { label: "Lifetime spend", value: inr(spend), icon: ReceiptIndianRupee },
       {
-        label: "Orders placed",
-        value: orders.toString(),
-        icon: ShoppingBag,
-      },
-      {
-        label: "Est. loyalty points",
-        value: `${data?.loyaltyPoints ?? 120}`,
-        icon: Sparkles,
-      },
-      {
-        label: "Cart · items saved",
-        value: cartItems.toString(),
+        label: "Total orders",
+        value: String(total),
         icon: Package,
+        iconWrap: "bg-sky-100 text-sky-600 dark:bg-sky-950 dark:text-sky-300",
+      },
+      {
+        label: "Cart items",
+        value: String(cartCount),
+        icon: Heart,
+        iconWrap: "bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-300",
+      },
+      {
+        label: "Active orders",
+        value: String(data?.activePipeline ?? 0),
+        icon: ShoppingBag,
+        iconWrap: "bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-300",
+      },
+      {
+        label: "Pending delivery",
+        value: String(data?.awaiting ?? 0),
+        icon: Clock,
+        iconWrap: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-200",
       },
     ];
-  }, [cartItems, data?.loyaltyPoints, data?.orderTotal, data?.orders]);
+  }, [cartCount, data?.activePipeline, data?.awaiting, data?.total]);
+
+  const supportHref = waLink(
+    ADMIN_WHATSAPP,
+    `Hi Wanshi — I'm ${displayName}, I need help with my order.`,
+  );
+
+  const quickActions = [
+    {
+      title: "Browse catalog",
+      desc: "Explore products and daily deals",
+      href: "/products",
+      icon: LayoutGrid,
+      accent: "text-sky-600 bg-sky-50 dark:bg-sky-950 dark:text-sky-200",
+    },
+    {
+      title: "View cart",
+      desc: "Review items before checkout",
+      href: "/dashboard/cart",
+      icon: Heart,
+      accent: "text-rose-600 bg-rose-50 dark:bg-rose-950 dark:text-rose-200",
+    },
+    {
+      title: "Contact support",
+      desc: "Chat with us on WhatsApp",
+      href: supportHref,
+      icon: Headphones,
+      accent: "text-slate-600 bg-slate-100 dark:bg-slate-800 dark:text-slate-200",
+      external: true,
+    },
+    {
+      title: "Track orders",
+      desc: "Check status and tracking",
+      href: "/dashboard/track",
+      icon: Package,
+      accent: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950 dark:text-emerald-200",
+    },
+    {
+      title: "Shop spotlight",
+      desc: "Jump to search with one tap",
+      href: "/products",
+      icon: Search,
+      accent: "text-violet-600 bg-violet-50 dark:bg-violet-950 dark:text-violet-200",
+    },
+  ];
 
   if (!user) return null;
 
+  const recent = data?.orders.slice(0, 3) ?? [];
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="flex items-center gap-2 text-sm font-medium text-primary">
-            <LayoutDashboard className="size-4" aria-hidden />
-            Your dashboard
-          </p>
-          <h1 className="mt-1 text-xl font-bold sm:text-2xl">Overview</h1>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            Personalized snapshot featuring trends and insights — blends your local demo orders with
-            sample analytics for a storefront-style dashboard.
-          </p>
+    <div className="mx-auto max-w-6xl space-y-8">
+      <section className="flex flex-col gap-4 rounded-2xl border bg-card p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <div className="flex items-center gap-4">
+          <div
+            className="grid size-14 shrink-0 place-items-center rounded-full bg-gradient-to-br from-primary/20 to-primary/5 text-lg font-bold text-primary ring-2 ring-primary/20"
+            aria-hidden
+          >
+            {initials}
+          </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">User dashboard</p>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              Welcome back, {displayName}!
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Here&apos;s what&apos;s happening with your account today.
+            </p>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 sm:justify-end">
           <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/orders">View orders</Link>
+            <Link href="/dashboard/orders">Order history</Link>
           </Button>
           <Button size="sm" asChild>
-            <Link href="/products">
-              Continue shopping <ArrowRight className="size-4" aria-hidden />
-            </Link>
+            <Link href="/products">Continue shopping</Link>
           </Button>
         </div>
-      </div>
+      </section>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {statCards.map((c) => (
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {stats.map((s) => (
           <div
-            key={c.label}
-            className="rounded-lg border bg-card p-4 transition-all duration-300 hover:border-primary hover:shadow-lg"
+            key={s.label}
+            className="flex items-center gap-4 rounded-2xl border bg-card p-4 shadow-sm transition hover:border-primary/25 hover:shadow-md"
           >
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm text-muted-foreground">{c.label}</p>
-              <c.icon className="size-5 shrink-0 text-primary" aria-hidden />
+            <div className={cn("grid size-11 shrink-0 place-items-center rounded-xl", s.iconWrap)}>
+              <s.icon className="size-5" aria-hidden />
             </div>
-            <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">{c.value}</p>
+            <div className="min-w-0">
+              <p className="text-sm text-muted-foreground">{s.label}</p>
+              <p className="text-2xl font-bold tracking-tight text-foreground">{s.value}</p>
+            </div>
           </div>
         ))}
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-5">
-        <div className="rounded-xl border bg-card p-5 shadow-sm lg:col-span-3">
-          <h2 className="text-base font-semibold">Spending trend</h2>
-          <p className="mt-1 text-xs text-muted-foreground">Rolling six‑month simulated curve</p>
-          <ChartContainer config={spendTrendConfig} className="mt-6 aspect-[16/8]">
-            <AreaChart data={spendSeries}>
-              <CartesianGrid strokeDasharray="3 4" strokeOpacity={0.35} vertical={false} />
-              <XAxis tickLine={false} axisLine={false} dataKey="month" />
-              <YAxis hide />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <defs>
-                <linearGradient id="spendGlow" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={chartAccent} stopOpacity={0.35} />
-                  <stop offset="100%" stopColor={chartAccent} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <Area
-                type="monotone"
-                dataKey="amount"
-                stroke={chartAccent}
-                strokeWidth={2}
-                fill="url(#spendGlow)"
-              />
-            </AreaChart>
-          </ChartContainer>
-        </div>
-
-        <div className="rounded-xl border bg-card p-5 shadow-sm lg:col-span-2">
-          <h2 className="text-base font-semibold">Category curiosity</h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Typical mix · demo split for visuals only
-          </p>
-          <ChartContainer config={categoryConfig} className="mx-auto mt-6 aspect-square max-h-64">
-            <PieChart>
-              <Pie
-                data={dummyCategorySpend}
-                dataKey="value"
-                nameKey="name"
-                innerRadius={48}
-                outerRadius={92}
-                paddingAngle={2}
-              >
-                {dummyCategorySpend.map((_, i) => (
-                  <Cell key={i} fill={palette[i % palette.length]} />
-                ))}
-              </Pie>
-              <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-            </PieChart>
-          </ChartContainer>
-          <div className="mt-6 grid gap-3 text-xs">
-            <div className="flex justify-between border-b pb-3">
-              <span className="text-muted-foreground">Delivered journeys</span>
-              <strong>{data?.delivered ?? mockFallbackDelivered(orderBars)} stops</strong>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Shipments prepping</span>
-              <strong>{data?.pending ?? 2}</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="rounded-xl border bg-card p-5 shadow-sm">
-        <h2 className="text-base font-semibold">Order rhythm</h2>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Weekly-style cadence simulated from demo data
-        </p>
-        <ChartContainer
-          config={{ orders: { label: "Orders", color: chartAccent } } satisfies ChartConfig}
-          className="mt-8 aspect-video"
-        >
-          <BarChart data={orderBars} barGap={6}>
-            <CartesianGrid strokeDasharray="3 4" strokeOpacity={0.35} vertical={false} />
-            <XAxis dataKey="month" tickLine={false} axisLine={false} />
-            <YAxis allowDecimals={false} width={36} hide />
-            <ChartTooltip content={<ChartTooltipContent />} cursor={{ radius: 4 }} />
-            <Bar dataKey="orders" fill={chartAccent} radius={[10, 10, 0, 0]} />
-          </BarChart>
-        </ChartContainer>
-      </div>
-
-      <section className="rounded-xl border bg-primary-soft/35 p-5 text-center text-sm text-muted-foreground sm:text-left">
-        <p>
-          Tune your profile anytime so checkout stays smooth — WhatsApp-ready phone and accurate
-          address mean faster COD confirmations during live operations.
-        </p>
       </section>
+
+      <div className="grid gap-6 lg:grid-cols-12 lg:gap-8">
+        <section className="lg:col-span-5">
+          <div className="mb-4 flex items-center gap-2">
+            <Sparkles className="size-5 text-primary" aria-hidden />
+            <h2 className="text-lg font-bold text-foreground">Quick actions</h2>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+            {quickActions.map((a) => (
+              <Link
+                key={a.title}
+                href={a.href}
+                {...(a.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                className="group flex gap-3 rounded-2xl border bg-card p-4 text-left shadow-sm transition hover:border-primary/30 hover:shadow-md"
+              >
+                <div
+                  className={cn(
+                    "flex size-11 shrink-0 items-center justify-center rounded-xl transition group-hover:scale-105",
+                    a.accent,
+                  )}
+                >
+                  <a.icon className="size-5" aria-hidden />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-semibold text-foreground">{a.title}</p>
+                  <p className="mt-0.5 text-sm text-muted-foreground">{a.desc}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="lg:col-span-7">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <CalendarRange className="size-5 text-primary" aria-hidden />
+              <h2 className="text-lg font-bold text-foreground">Recent orders</h2>
+            </div>
+            <Button variant="ghost" size="sm" className="text-primary" asChild>
+              <Link href="/dashboard/orders">View all</Link>
+            </Button>
+          </div>
+
+          <div className="space-y-3">
+            {recent.length === 0 ? (
+              <div className="rounded-2xl border border-dashed bg-card/50 p-8 text-center text-sm text-muted-foreground">
+                No orders yet — start shopping to see receipts and tracking here.
+                <div className="mt-4">
+                  <Button asChild size="sm">
+                    <Link href="/products">Browse products</Link>
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              recent.map((o) => (
+                <article
+                  key={o.id}
+                  className="rounded-2xl border bg-card p-4 shadow-sm transition hover:border-primary/20"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <p className="font-semibold text-foreground">
+                        Order #{String(o.order_number).padStart(4, "0")}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(o.created_at).toLocaleString(undefined, {
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                        })}
+                      </p>
+                    </div>
+                    <span
+                      className={cn(
+                        "rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize",
+                        statusTone(o.status),
+                      )}
+                    >
+                      {o.status}
+                    </span>
+                  </div>
+                  <div className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
+                    <div>
+                      <p className="text-muted-foreground">Total</p>
+                      <p className="font-medium text-foreground">
+                        {inr(Number(o.total_amount ?? 0))}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Items</p>
+                      <p className="font-medium text-foreground">{o.order_items.length} SKU</p>
+                    </div>
+                  </div>
+                  <p className="mt-3 line-clamp-2 text-xs text-muted-foreground">
+                    {o.order_items.map((i) => i.product_name).join(" · ")}
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href="/dashboard/orders">Details</Link>
+                    </Button>
+                    <Button variant="ghost" size="sm" className="text-primary" asChild>
+                      <Link href="/dashboard/track">Track</Link>
+                    </Button>
+                  </div>
+                </article>
+              ))
+            )}
+          </div>
+        </section>
+      </div>
     </div>
   );
-}
-
-function mockLoyalty(orderCount: number, spend: number): number {
-  return Math.round(120 + spend / 550 + orderCount * 45);
-}
-
-function mockFallbackDelivered(orderBars: Array<{ orders: number }>): number {
-  return orderBars.reduce((s, row) => s + Math.max(1, Math.floor(row.orders * 0.55)), 0);
 }

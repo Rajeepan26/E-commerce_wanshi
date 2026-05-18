@@ -22,17 +22,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { user, loading, signOut } = useAuth();
   const router = useRouter();
   const path = usePathname();
+  const isCartRoute = path?.startsWith("/dashboard/cart") ?? false;
 
   useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [user, loading, router]);
+    if (!loading && !user && !isCartRoute) router.replace("/login");
+  }, [user, loading, router, isCartRoute]);
 
   const handleLogout = async () => {
     await signOut();
     router.replace("/");
   };
 
-  if (loading || !user) return <div className="p-8">Loading…</div>;
+  if (loading) return <div className="p-8">Loading…</div>;
+
+  if (!user && isCartRoute) {
+    return (
+      <div className="flex min-h-screen flex-col bg-background">
+        <SiteHeader />
+        <main className="container mx-auto min-w-0 flex-1 px-4 py-6">{children}</main>
+        <SiteFooter />
+        <WhatsappFab />
+      </div>
+    );
+  }
+
+  if (!user) return <div className="p-8">Loading…</div>;
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
