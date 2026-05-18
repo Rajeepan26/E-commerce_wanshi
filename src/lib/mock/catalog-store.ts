@@ -388,7 +388,8 @@ const SEED_ADS: AdvertisementRow[] = [
     id: "ad-festival",
     title: "Festive Collection — Get 10% instant cashback on Bank Transfers",
     position: "banner",
-    image_url: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=1200&q=80",
+    image_url:
+      "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=1200&q=80",
     is_active: true,
     starts_at: "2026-05-01",
     ends_at: "2026-06-30",
@@ -397,7 +398,8 @@ const SEED_ADS: AdvertisementRow[] = [
     id: "ad-summer",
     title: "Summer Essentials | Light, breathable, and highly organic cotton kurtas",
     position: "sidebar",
-    image_url: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=600&q=80",
+    image_url:
+      "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=600&q=80",
     is_active: true,
     starts_at: "2026-05-10",
     ends_at: "2026-08-31",
@@ -419,7 +421,7 @@ const SEED_ADS: AdvertisementRow[] = [
     is_active: true,
     starts_at: null,
     ends_at: null,
-  }
+  },
 ];
 
 const categoriesState = [...SEED_CATEGORIES];

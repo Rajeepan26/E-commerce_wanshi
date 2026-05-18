@@ -53,19 +53,22 @@ export function SiteHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileNotificationsOpen, setMobileNotificationsOpen] = useState(false);
 
-  const [notifications, setNotifications] = useState<Array<{
-    id: string;
-    title: string;
-    message: string;
-    created_at: string;
-    read: boolean;
-    targetRole?: "admin" | "customer" | "all";
-  }>>([
+  const [notifications, setNotifications] = useState<
+    Array<{
+      id: string;
+      title: string;
+      message: string;
+      created_at: string;
+      read: boolean;
+      targetRole?: "admin" | "customer" | "all";
+    }>
+  >([
     // Admin Notifications
     {
       id: "admin-1",
       title: "New Order Received! 🛍️",
-      message: "Order #WN-90240 has been placed by a customer. Please verify and process ship-weight.",
+      message:
+        "Order #WN-90240 has been placed by a customer. Please verify and process ship-weight.",
       created_at: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
       read: false,
       targetRole: "admin",
@@ -89,7 +92,8 @@ export function SiteHeader() {
     {
       id: "admin-4",
       title: "System Performance 🟢",
-      message: "All database instances, WhatsApp channels, and seeding microservices are operating fully.",
+      message:
+        "All database instances, WhatsApp channels, and seeding microservices are operating fully.",
       created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
       read: true,
       targetRole: "admin",
@@ -99,7 +103,8 @@ export function SiteHeader() {
     {
       id: "user-1",
       title: "Welcome to Wanshi! 🛍️",
-      message: "Experience modern, high-quality, lightweight shopping. Explore our latest catalog now!",
+      message:
+        "Experience modern, high-quality, lightweight shopping. Explore our latest catalog now!",
       created_at: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
       read: false,
       targetRole: "customer",
@@ -107,7 +112,8 @@ export function SiteHeader() {
     {
       id: "user-2",
       title: "Order Confirmed: #WN-90234 📦",
-      message: "Your purchase of 'Printed cotton kurta · Wine' is being processed. Weight fee estimate verified.",
+      message:
+        "Your purchase of 'Printed cotton kurta · Wine' is being processed. Weight fee estimate verified.",
       created_at: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
       read: false,
       targetRole: "customer",
@@ -115,16 +121,17 @@ export function SiteHeader() {
     {
       id: "user-3",
       title: "46% Off Discount Active 💸",
-      message: "The seasonal discount has been applied to active product listings. Limited inventory remaining!",
+      message:
+        "The seasonal discount has been applied to active product listings. Limited inventory remaining!",
       created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
       read: false,
       targetRole: "customer",
-    }
+    },
   ]);
 
   const currentRole = role === "admin" ? "admin" : "customer";
   const displayedNotifications = notifications.filter(
-    (n) => n.targetRole === currentRole || n.targetRole === "all" || !n.targetRole
+    (n) => n.targetRole === currentRole || n.targetRole === "all" || !n.targetRole,
   );
 
   const unreadCount = displayedNotifications.filter((n) => !n.read).length;
@@ -134,15 +141,13 @@ export function SiteHeader() {
       prev.map((n) =>
         n.targetRole === currentRole || n.targetRole === "all" || !n.targetRole
           ? { ...n, read: true }
-          : n
-      )
+          : n,
+      ),
     );
   };
 
   const markAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
   };
 
   const isDashboardActive = path?.startsWith("/dashboard");
@@ -214,7 +219,10 @@ export function SiteHeader() {
                           <span className="sr-only">Notifications</span>
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent align="end" className="w-80 p-0 sm:w-96 rounded-2xl shadow-xl border-border/80 overflow-hidden">
+                      <PopoverContent
+                        align="end"
+                        className="w-80 p-0 sm:w-96 rounded-2xl shadow-xl border-border/80 overflow-hidden"
+                      >
                         <div className="border-b p-4 bg-muted/20">
                           <div className="flex items-center justify-between">
                             <div>
@@ -253,13 +261,20 @@ export function SiteHeader() {
                                   "rounded-xl border p-3 text-left transition-all relative group flex flex-col gap-1.5",
                                   n.read
                                     ? "bg-card border-border/60 hover:bg-muted/30"
-                                    : "bg-primary-soft/10 border-primary/20 hover:bg-primary-soft/15"
+                                    : "bg-primary-soft/10 border-primary/20 hover:bg-primary-soft/15",
                                 )}
                               >
                                 <div className="flex items-start justify-between gap-2">
                                   <div className="flex items-center gap-1.5">
-                                    {!n.read && <span className="size-2 shrink-0 rounded-full bg-primary" />}
-                                    <p className={cn("text-xs font-bold", n.read ? "text-foreground" : "text-primary")}>
+                                    {!n.read && (
+                                      <span className="size-2 shrink-0 rounded-full bg-primary" />
+                                    )}
+                                    <p
+                                      className={cn(
+                                        "text-xs font-bold",
+                                        n.read ? "text-foreground" : "text-primary",
+                                      )}
+                                    >
                                       {n.title}
                                     </p>
                                   </div>
@@ -275,7 +290,9 @@ export function SiteHeader() {
                                     </Button>
                                   )}
                                 </div>
-                                <p className="text-xs text-muted-foreground leading-relaxed pr-6">{n.message}</p>
+                                <p className="text-xs text-muted-foreground leading-relaxed pr-6">
+                                  {n.message}
+                                </p>
                                 <p className="text-[10px] text-muted-foreground/80">
                                   {new Date(n.created_at).toLocaleString()}
                                 </p>
@@ -324,7 +341,10 @@ export function SiteHeader() {
                           )}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent align="end" className="w-80 p-0 sm:w-96 rounded-2xl shadow-xl border-border/80 overflow-hidden">
+                      <PopoverContent
+                        align="end"
+                        className="w-80 p-0 sm:w-96 rounded-2xl shadow-xl border-border/80 overflow-hidden"
+                      >
                         <div className="border-b p-4 bg-muted/20">
                           <div className="flex items-center justify-between">
                             <div>
@@ -363,13 +383,20 @@ export function SiteHeader() {
                                   "rounded-xl border p-3 text-left transition-all relative group flex flex-col gap-1.5",
                                   n.read
                                     ? "bg-card border-border/60 hover:bg-muted/30"
-                                    : "bg-primary-soft/10 border-primary/20 hover:bg-primary-soft/15"
+                                    : "bg-primary-soft/10 border-primary/20 hover:bg-primary-soft/15",
                                 )}
                               >
                                 <div className="flex items-start justify-between gap-2">
                                   <div className="flex items-center gap-1.5">
-                                    {!n.read && <span className="size-2 shrink-0 rounded-full bg-primary" />}
-                                    <p className={cn("text-xs font-bold", n.read ? "text-foreground" : "text-primary")}>
+                                    {!n.read && (
+                                      <span className="size-2 shrink-0 rounded-full bg-primary" />
+                                    )}
+                                    <p
+                                      className={cn(
+                                        "text-xs font-bold",
+                                        n.read ? "text-foreground" : "text-primary",
+                                      )}
+                                    >
                                       {n.title}
                                     </p>
                                   </div>
@@ -385,7 +412,9 @@ export function SiteHeader() {
                                     </Button>
                                   )}
                                 </div>
-                                <p className="text-xs text-muted-foreground leading-relaxed pr-6">{n.message}</p>
+                                <p className="text-xs text-muted-foreground leading-relaxed pr-6">
+                                  {n.message}
+                                </p>
                                 <p className="text-[10px] text-muted-foreground/80">
                                   {new Date(n.created_at).toLocaleString()}
                                 </p>
@@ -406,11 +435,19 @@ export function SiteHeader() {
                 {/* Unified User Account Popover */}
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" size="icon" className="shrink-0 rounded-xl" aria-label="Account Menu">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="shrink-0 rounded-xl"
+                      aria-label="Account Menu"
+                    >
                       <UserIcon className="size-4" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent align="end" className="w-56 p-2 rounded-2xl shadow-xl border-border/80 bg-background/95 backdrop-blur-md z-[55] animate-in fade-in-50 zoom-in-95">
+                  <PopoverContent
+                    align="end"
+                    className="w-56 p-2 rounded-2xl shadow-xl border-border/80 bg-background/95 backdrop-blur-md z-[55] animate-in fade-in-50 zoom-in-95"
+                  >
                     <div className="px-3 py-2 text-xs font-semibold text-muted-foreground/80 border-b border-border/40 pb-2 mb-1.5 flex flex-col gap-0.5">
                       <span className="font-bold text-foreground truncate">
                         {user.app_metadata?.full_name || "Customer"}
@@ -420,14 +457,18 @@ export function SiteHeader() {
                       </span>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <Button asChild variant="ghost" className="justify-start h-9 w-full rounded-xl px-3 text-xs font-semibold gap-2 text-foreground hover:bg-muted/60">
+                      <Button
+                        asChild
+                        variant="ghost"
+                        className="justify-start h-9 w-full rounded-xl px-3 text-xs font-semibold gap-2 text-foreground hover:bg-muted/60"
+                      >
                         <Link href={role === "admin" ? "/admin" : "/dashboard"}>
                           <LayoutDashboard className="size-3.5 text-primary" />
                           <span>{role === "admin" ? "Admin Panel" : "Dashboard"}</span>
                         </Link>
                       </Button>
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         className="justify-start h-9 w-full rounded-xl px-3 text-xs font-semibold gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
                         onClick={() => void handleSignOut()}
                       >
@@ -545,7 +586,11 @@ export function SiteHeader() {
                         </Link>
                       );
                     })}
-                    <Collapsible open={mobileNotificationsOpen} onOpenChange={setMobileNotificationsOpen} className="w-full animate-fade-in">
+                    <Collapsible
+                      open={mobileNotificationsOpen}
+                      onOpenChange={setMobileNotificationsOpen}
+                      className="w-full animate-fade-in"
+                    >
                       <CollapsibleTrigger asChild>
                         <button
                           type="button"
@@ -564,7 +609,12 @@ export function SiteHeader() {
                               {unreadCount}
                             </span>
                           )}
-                          <ChevronDown className={cn("ml-1 size-4 transition-transform duration-200", mobileNotificationsOpen && "rotate-180")} />
+                          <ChevronDown
+                            className={cn(
+                              "ml-1 size-4 transition-transform duration-200",
+                              mobileNotificationsOpen && "rotate-180",
+                            )}
+                          />
                         </button>
                       </CollapsibleTrigger>
                       <CollapsibleContent className="mt-2 space-y-2 px-2 pb-2">
@@ -588,13 +638,20 @@ export function SiteHeader() {
                                 "rounded-xl border p-3 text-left transition-all relative flex flex-col gap-1.5",
                                 n.read
                                   ? "bg-card border-border/60"
-                                  : "bg-primary-soft/10 border-primary/20"
+                                  : "bg-primary-soft/10 border-primary/20",
                               )}
                             >
                               <div className="flex items-start justify-between gap-2">
                                 <div className="flex items-center gap-1.5">
-                                  {!n.read && <span className="size-1.5 shrink-0 rounded-full bg-primary" />}
-                                  <p className={cn("text-xs font-bold", n.read ? "text-foreground" : "text-primary")}>
+                                  {!n.read && (
+                                    <span className="size-1.5 shrink-0 rounded-full bg-primary" />
+                                  )}
+                                  <p
+                                    className={cn(
+                                      "text-xs font-bold",
+                                      n.read ? "text-foreground" : "text-primary",
+                                    )}
+                                  >
                                     {n.title}
                                   </p>
                                 </div>
@@ -611,7 +668,9 @@ export function SiteHeader() {
                                   </button>
                                 )}
                               </div>
-                              <p className="text-xs text-muted-foreground leading-relaxed">{n.message}</p>
+                              <p className="text-xs text-muted-foreground leading-relaxed">
+                                {n.message}
+                              </p>
                               <p className="text-[10px] text-muted-foreground/70">
                                 {new Date(n.created_at).toLocaleString()}
                               </p>
@@ -651,7 +710,11 @@ export function SiteHeader() {
                         </Link>
                       );
                     })}
-                    <Collapsible open={mobileNotificationsOpen} onOpenChange={setMobileNotificationsOpen} className="w-full animate-fade-in">
+                    <Collapsible
+                      open={mobileNotificationsOpen}
+                      onOpenChange={setMobileNotificationsOpen}
+                      className="w-full animate-fade-in"
+                    >
                       <CollapsibleTrigger asChild>
                         <button
                           type="button"
@@ -670,7 +733,12 @@ export function SiteHeader() {
                               {unreadCount}
                             </span>
                           )}
-                          <ChevronDown className={cn("ml-1 size-4 transition-transform duration-200", mobileNotificationsOpen && "rotate-180")} />
+                          <ChevronDown
+                            className={cn(
+                              "ml-1 size-4 transition-transform duration-200",
+                              mobileNotificationsOpen && "rotate-180",
+                            )}
+                          />
                         </button>
                       </CollapsibleTrigger>
                       <CollapsibleContent className="mt-2 space-y-2 px-2 pb-2">
@@ -694,13 +762,20 @@ export function SiteHeader() {
                                 "rounded-xl border p-3 text-left transition-all relative flex flex-col gap-1.5",
                                 n.read
                                   ? "bg-card border-border/60"
-                                  : "bg-primary-soft/10 border-primary/20"
+                                  : "bg-primary-soft/10 border-primary/20",
                               )}
                             >
                               <div className="flex items-start justify-between gap-2">
                                 <div className="flex items-center gap-1.5">
-                                  {!n.read && <span className="size-1.5 shrink-0 rounded-full bg-primary" />}
-                                  <p className={cn("text-xs font-bold", n.read ? "text-foreground" : "text-primary")}>
+                                  {!n.read && (
+                                    <span className="size-1.5 shrink-0 rounded-full bg-primary" />
+                                  )}
+                                  <p
+                                    className={cn(
+                                      "text-xs font-bold",
+                                      n.read ? "text-foreground" : "text-primary",
+                                    )}
+                                  >
                                     {n.title}
                                   </p>
                                 </div>
@@ -717,7 +792,9 @@ export function SiteHeader() {
                                   </button>
                                 )}
                               </div>
-                              <p className="text-xs text-muted-foreground leading-relaxed">{n.message}</p>
+                              <p className="text-xs text-muted-foreground leading-relaxed">
+                                {n.message}
+                              </p>
                               <p className="text-[10px] text-muted-foreground/70">
                                 {new Date(n.created_at).toLocaleString()}
                               </p>

@@ -34,9 +34,7 @@ export default function OrdersPage() {
     return orders.filter((o) => {
       const matchNum = String(o.order_number).toLowerCase().includes(q);
       const matchStatus = o.status.toLowerCase().includes(q);
-      const matchItems = o.order_items?.some((it) =>
-        it.product_name.toLowerCase().includes(q)
-      );
+      const matchItems = o.order_items?.some((it) => it.product_name.toLowerCase().includes(q));
       return matchNum || matchStatus || matchItems;
     });
   }, [orders, search]);
@@ -61,7 +59,10 @@ export default function OrdersPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-3">
         <h1 className="text-xl font-bold tracking-tight">My Orders</h1>
         <div className="relative w-full sm:max-w-xs">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground" aria-hidden>
+          <span
+            className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground"
+            aria-hidden
+          >
             <Search className="size-4" />
           </span>
           <input
@@ -100,7 +101,10 @@ export default function OrdersPage() {
       ) : (
         <div className="grid gap-4">
           {filteredOrders.map((o) => (
-            <div key={o.id} className="rounded-lg border bg-card p-4 transition-all hover:shadow-sm">
+            <div
+              key={o.id}
+              className="rounded-lg border bg-card p-4 transition-all hover:shadow-sm"
+            >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="font-semibold">Order #{o.order_number}</p>
@@ -116,7 +120,9 @@ export default function OrdersPage() {
                     <span className="min-w-0 break-words">
                       {it.product_name} × {it.quantity}
                     </span>
-                    <span className="shrink-0">{inr(Number(it.price_at_purchase) * it.quantity)}</span>
+                    <span className="shrink-0">
+                      {inr(Number(it.price_at_purchase) * it.quantity)}
+                    </span>
                   </div>
                 ))}
               </div>

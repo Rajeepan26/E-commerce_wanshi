@@ -13,16 +13,7 @@ import { ProductCard } from "@/components/product-card";
 import { discountPct } from "@/lib/format";
 import { toast } from "sonner";
 import { LoadingSpinner } from "@/components/loading-spinner";
-import {
-  ShoppingCart,
-  ArrowLeft,
-  Truck,
-  Coins,
-  Star,
-  Plus,
-  Minus,
-  Check,
-} from "lucide-react";
+import { ShoppingCart, ArrowLeft, Truck, Coins, Star, Plus, Minus, Check } from "lucide-react";
 
 export function ProductDetailClient() {
   const params = useParams();
@@ -53,13 +44,15 @@ export function ProductDetailClient() {
   const [activeTab, setActiveTab] = useState("spec");
 
   // Dynamic User Reviews State
-  const [reviews, setReviews] = useState<Array<{
-    id: string;
-    userName: string;
-    rating: number;
-    comment: string;
-    date: string;
-  }>>([
+  const [reviews, setReviews] = useState<
+    Array<{
+      id: string;
+      userName: string;
+      rating: number;
+      comment: string;
+      date: string;
+    }>
+  >([
     {
       id: "rev-1",
       userName: "Tharindu K.",
@@ -220,15 +213,13 @@ export function ProductDetailClient() {
             <h1 className="text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-3xl">
               {p.name}
             </h1>
-            
+
             {/* Rating pill, Orders count, Stock Status */}
             <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs">
               <div className="flex items-center gap-1 text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20 font-bold">
                 <Star className="size-3 fill-current" /> {rating}
               </div>
-              <span className="text-muted-foreground font-medium">
-                {ordersCount} orders
-              </span>
+              <span className="text-muted-foreground font-medium">{ordersCount} orders</span>
               <span className="text-muted-foreground font-medium">•</span>
               <span className="font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-1">
                 <span className="relative flex h-2 w-2">
@@ -267,15 +258,27 @@ export function ProductDetailClient() {
             <div className="grid grid-cols-3 text-xs border-b border-border/40 pb-2">
               <span className="font-bold text-muted-foreground">Type:</span>
               <span className="col-span-2 text-foreground font-semibold">
-                {p.product_type || (isClothing ? "Casual clothing" : p.category_id?.includes("electronics") ? "Smart Device" : "Home & Collection")}
+                {p.product_type ||
+                  (isClothing
+                    ? "Casual clothing"
+                    : p.category_id?.includes("electronics")
+                      ? "Smart Device"
+                      : "Home & Collection")}
               </span>
             </div>
             <div className="grid grid-cols-3 text-xs border-b border-border/40 pb-2">
               <span className="font-bold text-muted-foreground">
-                {p.category_id?.includes("electronics") && !p.material ? "Connectivity:" : "Material:"}
+                {p.category_id?.includes("electronics") && !p.material
+                  ? "Connectivity:"
+                  : "Material:"}
               </span>
               <span className="col-span-2 text-foreground font-semibold">
-                {p.material || (isClothing ? "100% Premium Cotton" : p.category_id?.includes("electronics") ? "High-Speed Connection" : "Certified Grade A")}
+                {p.material ||
+                  (isClothing
+                    ? "100% Premium Cotton"
+                    : p.category_id?.includes("electronics")
+                      ? "High-Speed Connection"
+                      : "Certified Grade A")}
               </span>
             </div>
             <div className="grid grid-cols-3 text-xs">
@@ -380,20 +383,24 @@ export function ProductDetailClient() {
             <div className="space-y-6 animate-in fade-in duration-300">
               <div className="space-y-2">
                 <p className="text-sm leading-relaxed text-muted-foreground">
-                  Enjoy authentic products with Wanshi Originals. This product has been designed and styled according to international quality guidelines to ensure maximum durability.
+                  Enjoy authentic products with Wanshi Originals. This product has been designed and
+                  styled according to international quality guidelines to ensure maximum durability.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 pt-2 text-xs font-semibold text-foreground/80">
                   <div className="flex items-center gap-2">
-                    <Check className="size-4 text-emerald-500 shrink-0" /> Dynamic build specifications
+                    <Check className="size-4 text-emerald-500 shrink-0" /> Dynamic build
+                    specifications
                   </div>
                   <div className="flex items-center gap-2">
                     <Check className="size-4 text-emerald-500 shrink-0" /> Triple QC checked items
                   </div>
                   <div className="flex items-center gap-2">
-                    <Check className="size-4 text-emerald-500 shrink-0" /> Full manufacturing guarantees
+                    <Check className="size-4 text-emerald-500 shrink-0" /> Full manufacturing
+                    guarantees
                   </div>
                   <div className="flex items-center gap-2">
-                    <Check className="size-4 text-emerald-500 shrink-0" /> Modern premium look & feel
+                    <Check className="size-4 text-emerald-500 shrink-0" /> Modern premium look &
+                    feel
                   </div>
                 </div>
               </div>
@@ -408,15 +415,21 @@ export function ProductDetailClient() {
                     </tr>
                     <tr className="border-b">
                       <th className="px-4 py-3 font-bold text-muted-foreground">Fitting</th>
-                      <td className="px-4 py-3 text-foreground font-medium">Standard / Tailored fit</td>
+                      <td className="px-4 py-3 text-foreground font-medium">
+                        Standard / Tailored fit
+                      </td>
                     </tr>
                     <tr className="border-b bg-muted/10">
                       <th className="px-4 py-3 font-bold text-muted-foreground">Style Code</th>
-                      <td className="px-4 py-3 text-foreground font-medium">WNS-{id.toUpperCase()}</td>
+                      <td className="px-4 py-3 text-foreground font-medium">
+                        WNS-{id.toUpperCase()}
+                      </td>
                     </tr>
                     <tr>
                       <th className="px-4 py-3 font-bold text-muted-foreground">Weight</th>
-                      <td className="px-4 py-3 text-foreground font-medium">{weightKg.toFixed(2)} kg</td>
+                      <td className="px-4 py-3 text-foreground font-medium">
+                        {weightKg.toFixed(2)} kg
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -429,9 +442,13 @@ export function ProductDetailClient() {
               <div className="flex items-start gap-3 rounded-2xl border border-border/80 bg-muted/10 p-4">
                 <Truck className="size-5 text-primary shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="text-sm font-bold text-foreground">Express Delivery Island-wide</h4>
+                  <h4 className="text-sm font-bold text-foreground">
+                    Express Delivery Island-wide
+                  </h4>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Free shipping for orders over LKR 5,000. Flat rate LKR 500 for standard shipping orders under the threshold. Colombo orders deliver within 1-2 business days, outstation orders 2-4 days.
+                    Free shipping for orders over LKR 5,000. Flat rate LKR 500 for standard shipping
+                    orders under the threshold. Colombo orders deliver within 1-2 business days,
+                    outstation orders 2-4 days.
                   </p>
                 </div>
               </div>
@@ -440,7 +457,8 @@ export function ProductDetailClient() {
                 <div>
                   <h4 className="text-sm font-bold text-foreground">Cash on Delivery (COD)</h4>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Paying on delivery option is fully supported. Check your items at delivery and pay in cash cleanly.
+                    Paying on delivery option is fully supported. Check your items at delivery and
+                    pay in cash cleanly.
                   </p>
                 </div>
               </div>
@@ -500,10 +518,15 @@ export function ProductDetailClient() {
                 </h4>
                 <div className="space-y-3.5">
                   {reviews.map((rev) => (
-                    <div key={rev.id} className="rounded-xl border border-border/80 bg-background p-4 shadow-sm space-y-2">
+                    <div
+                      key={rev.id}
+                      className="rounded-xl border border-border/80 bg-background p-4 shadow-sm space-y-2"
+                    >
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-foreground/90">{rev.userName}</span>
-                        <span className="text-[10px] text-muted-foreground font-semibold">{rev.date}</span>
+                        <span className="text-[10px] text-muted-foreground font-semibold">
+                          {rev.date}
+                        </span>
                       </div>
                       <div className="flex text-amber-500">
                         {[1, 2, 3, 4, 5].map((star) => (
@@ -522,11 +545,14 @@ export function ProductDetailClient() {
               {/* Write Review Form */}
               <div className="border-t pt-5">
                 {user ? (
-                  <form onSubmit={submitReview} className="space-y-4 rounded-2xl border border-border/80 bg-card p-5 shadow-sm">
+                  <form
+                    onSubmit={submitReview}
+                    className="space-y-4 rounded-2xl border border-border/80 bg-card p-5 shadow-sm"
+                  >
                     <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
                       Write a Customer Review
                     </h4>
-                    
+
                     {/* Star Clicker */}
                     <div className="flex flex-col gap-1.5">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
@@ -542,7 +568,9 @@ export function ProductDetailClient() {
                           >
                             <Star
                               className={`size-6 ${
-                                star <= newRating ? "text-amber-500 fill-amber-500" : "text-muted-foreground/35"
+                                star <= newRating
+                                  ? "text-amber-500 fill-amber-500"
+                                  : "text-muted-foreground/35"
                               }`}
                             />
                           </button>
@@ -563,18 +591,18 @@ export function ProductDetailClient() {
                       />
                     </div>
 
-                    <Button
-                      type="submit"
-                      size="sm"
-                      className="rounded-xl h-10 w-full sm:w-auto"
-                    >
+                    <Button type="submit" size="sm" className="rounded-xl h-10 w-full sm:w-auto">
                       Submit Review
                     </Button>
                   </form>
                 ) : (
                   <div className="rounded-2xl border border-dashed border-border/80 bg-muted/10 p-5 text-center">
                     <p className="text-xs font-bold text-muted-foreground flex items-center justify-center gap-1.5">
-                      🔒 Please <Link href="/login" className="text-primary hover:underline">log in</Link> to submit a customer rating & review.
+                      🔒 Please{" "}
+                      <Link href="/login" className="text-primary hover:underline">
+                        log in
+                      </Link>{" "}
+                      to submit a customer rating & review.
                     </p>
                   </div>
                 )}

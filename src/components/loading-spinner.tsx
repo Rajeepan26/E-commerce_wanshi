@@ -5,7 +5,10 @@ interface LoadingSpinnerProps {
   className?: string;
 }
 
-export function LoadingSpinner({ message = "Loading...", className = "py-12" }: LoadingSpinnerProps) {
+export function LoadingSpinner({
+  message = "Loading...",
+  className = "py-12",
+}: LoadingSpinnerProps) {
   return (
     <div className={`flex flex-col items-center justify-center space-y-4 w-full ${className}`}>
       <div className="relative flex items-center justify-center">

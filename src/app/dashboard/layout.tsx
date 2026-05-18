@@ -37,7 +37,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return (
       <div className="flex min-h-screen flex-col bg-background">
         <SiteHeader />
-        <main className="mx-auto w-full max-w-6xl min-w-0 flex-1 px-4 sm:px-6 lg:px-8 py-6">{children}</main>
+        <main className="mx-auto w-full max-w-6xl min-w-0 flex-1 px-4 sm:px-6 lg:px-8 py-6">
+          {children}
+        </main>
         <SiteFooter />
         <WhatsappFab />
       </div>
@@ -70,7 +72,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </p>
               </div>
             </div>
-            <nav className="flex flex-row items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none sm:gap-2" aria-label="Dashboard sub navigation">
+            <nav
+              className="flex flex-row items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none sm:gap-2"
+              aria-label="Dashboard sub navigation"
+            >
               {DASHBOARD_NAV.map((n) => {
                 const active = isActive(n.href, n.exact);
                 return (

@@ -12,9 +12,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <ProductQuickViewProvider>
-          {children}
-        </ProductQuickViewProvider>
+        <ProductQuickViewProvider>{children}</ProductQuickViewProvider>
         <Toaster />
         <NotificationCenter />
       </AuthProvider>

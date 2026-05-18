@@ -42,7 +42,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </p>
             </div>
           </div>
-          <nav className="flex flex-row items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none sm:gap-2" aria-label="Admin sub navigation">
+          <nav
+            className="flex flex-row items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none sm:gap-2"
+            aria-label="Admin sub navigation"
+          >
             {ADMIN_NAV.map((n) => {
               const active = isAdminNavActive(path || "", n);
               return (

@@ -101,7 +101,9 @@ export default function ProductsIndexContent() {
     <>
       {/* Category List Filter */}
       <div className="space-y-2">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Categories</h3>
+        <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          Categories
+        </h3>
         <div className="flex flex-col gap-1 text-sm">
           <button
             type="button"
@@ -110,7 +112,7 @@ export default function ProductsIndexContent() {
               "text-left px-2.5 py-1.5 rounded-lg transition-colors font-medium flex items-center justify-between",
               !category
                 ? "bg-primary-soft/15 text-primary"
-                : "text-foreground/80 hover:bg-muted/50 hover:text-foreground"
+                : "text-foreground/80 hover:bg-muted/50 hover:text-foreground",
             )}
           >
             <span>All Categories</span>
@@ -127,7 +129,7 @@ export default function ProductsIndexContent() {
                   "text-left px-2.5 py-1.5 rounded-lg transition-colors font-medium flex items-center justify-between",
                   active
                     ? "bg-primary-soft/15 text-primary"
-                    : "text-foreground/80 hover:bg-muted/50 hover:text-foreground"
+                    : "text-foreground/80 hover:bg-muted/50 hover:text-foreground",
                 )}
               >
                 <span className="truncate">{cat.name}</span>
@@ -140,7 +142,9 @@ export default function ProductsIndexContent() {
 
       {/* Price Ranges Filter */}
       <div className="space-y-2 border-t pt-4">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Price Range</h3>
+        <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          Price Range
+        </h3>
         <div className="flex flex-col gap-1 text-sm">
           {[
             { label: "All Prices", value: "all" },
@@ -159,7 +163,7 @@ export default function ProductsIndexContent() {
                   "text-left px-2.5 py-1.5 rounded-lg transition-colors font-medium flex items-center justify-between",
                   active
                     ? "bg-primary-soft/15 text-primary"
-                    : "text-foreground/80 hover:bg-muted/50 hover:text-foreground"
+                    : "text-foreground/80 hover:bg-muted/50 hover:text-foreground",
                 )}
               >
                 <span>{range.label}</span>
@@ -172,7 +176,9 @@ export default function ProductsIndexContent() {
 
       {/* Availability Switch */}
       <div className="space-y-2 border-t pt-4">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Availability</h3>
+        <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          Availability
+        </h3>
         <label className="flex items-center gap-2.5 px-2 py-1 text-sm font-medium cursor-pointer text-foreground/80 hover:text-foreground">
           <input
             type="checkbox"
@@ -186,7 +192,9 @@ export default function ProductsIndexContent() {
 
       {/* Sort order options */}
       <div className="space-y-2 border-t pt-4">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Sort By</h3>
+        <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          Sort By
+        </h3>
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
@@ -200,35 +208,42 @@ export default function ProductsIndexContent() {
       </div>
 
       {/* Sidebar Active Promotional Ad */}
-      {ads && ads.filter(a => a.position === "sidebar" && a.is_active).length > 0 && (
+      {ads && ads.filter((a) => a.position === "sidebar" && a.is_active).length > 0 && (
         <div className="space-y-2 border-t pt-4">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Sponsor</h3>
-          {ads.filter(a => a.position === "sidebar" && a.is_active).slice(0, 1).map((ad) => (
-            <div 
-              key={ad.id} 
-              className="relative overflow-hidden rounded-xl border bg-card/60 shadow-sm p-3 group hover:shadow-md transition-all duration-300"
-            >
-              <div className="relative h-28 w-full overflow-hidden rounded-lg">
-                {ad.image_url ? (
-                  <img 
-                    src={ad.image_url} 
-                    alt={ad.title} 
-                    className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                ) : (
-                  <div className="h-full w-full bg-gradient-to-br from-primary-soft/10 via-primary-soft/30 to-background flex items-center justify-center p-4">
-                    <span className="text-[10px] font-extrabold text-primary uppercase tracking-wider">Wanshi Promo</span>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            Sponsor
+          </h3>
+          {ads
+            .filter((a) => a.position === "sidebar" && a.is_active)
+            .slice(0, 1)
+            .map((ad) => (
+              <div
+                key={ad.id}
+                className="relative overflow-hidden rounded-xl border bg-card/60 shadow-sm p-3 group hover:shadow-md transition-all duration-300"
+              >
+                <div className="relative h-28 w-full overflow-hidden rounded-lg">
+                  {ad.image_url ? (
+                    <img
+                      src={ad.image_url}
+                      alt={ad.title}
+                      className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="h-full w-full bg-gradient-to-br from-primary-soft/10 via-primary-soft/30 to-background flex items-center justify-center p-4">
+                      <span className="text-[10px] font-extrabold text-primary uppercase tracking-wider">
+                        Wanshi Promo
+                      </span>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 p-2 text-left">
+                    <h4 className="text-[11px] font-bold text-white leading-tight pr-2 drop-shadow-sm">
+                      {ad.title}
+                    </h4>
                   </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-2 text-left">
-                  <h4 className="text-[11px] font-bold text-white leading-tight pr-2 drop-shadow-sm">
-                    {ad.title}
-                  </h4>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       )}
     </>
@@ -298,9 +313,7 @@ export default function ProductsIndexContent() {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto pr-1 space-y-6">
-              {renderFiltersList()}
-            </div>
+            <div className="flex-1 overflow-y-auto pr-1 space-y-6">{renderFiltersList()}</div>
 
             <div className="border-t pt-4 mt-auto flex gap-2">
               {hasFilters && (
@@ -340,19 +353,24 @@ export default function ProductsIndexContent() {
 
           <div className="flex flex-wrap items-center justify-between gap-4 border-b pb-3">
             <div className="flex items-center gap-2.5">
-              <Link 
-                href="/" 
+              <Link
+                href="/"
                 className="group flex items-center justify-center size-8 rounded-full border border-border/80 bg-card text-muted-foreground hover:text-primary hover:border-primary/20 hover:shadow-sm transition-all duration-300 active:scale-95"
                 title="Back to Home"
               >
                 <ArrowLeft className="size-4 group-hover:-translate-x-0.5 transition-transform" />
               </Link>
               <h1 className="text-xl font-bold tracking-tight">
-                {q ? `Results for "${q}"` : category ? categoryHeadingFromSlug(category) : "All products"}
+                {q
+                  ? `Results for "${q}"`
+                  : category
+                    ? categoryHeadingFromSlug(category)
+                    : "All products"}
               </h1>
             </div>
             <p className="text-xs text-muted-foreground font-semibold bg-muted/60 px-3 py-1 rounded-full">
-              {filteredProducts.length} {filteredProducts.length === 1 ? "product" : "products"} found
+              {filteredProducts.length} {filteredProducts.length === 1 ? "product" : "products"}{" "}
+              found
             </p>
           </div>
         </div>
@@ -361,7 +379,9 @@ export default function ProductsIndexContent() {
           <div className="rounded-2xl border border-dashed bg-card p-12 text-center animate-fade-in">
             <SlidersHorizontal className="mx-auto size-12 text-muted-foreground" />
             <p className="mt-3 font-semibold text-foreground">No matching products found</p>
-            <p className="mt-1 text-xs text-muted-foreground">Try clearing your filters or category choice</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Try clearing your filters or category choice
+            </p>
             <button
               type="button"
               onClick={handleClearAll}

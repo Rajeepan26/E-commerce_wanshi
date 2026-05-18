@@ -271,14 +271,18 @@ export function ProductPricingColumn({
               Total
             </span>
             <span
-              className={cn("font-bold tabular-nums text-primary", compact ? "text-base" : "text-xl")}
+              className={cn(
+                "font-bold tabular-nums text-primary",
+                compact ? "text-base" : "text-xl",
+              )}
             >
               {inr(overall)}
             </span>
           </div>
           {!compact && (
             <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
-              Item price + applicable weight handling + flat delivery (estimate for this product only).
+              Item price + applicable weight handling + flat delivery (estimate for this product
+              only).
             </p>
           )}
           {compact && (

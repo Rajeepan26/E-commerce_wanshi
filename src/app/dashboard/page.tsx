@@ -235,7 +235,9 @@ export default function DashboardOverviewPage() {
                   </div>
                   <p className="font-semibold text-foreground text-sm line-clamp-1">{a.title}</p>
                 </div>
-                <p className="text-xs text-muted-foreground leading-normal line-clamp-2">{a.desc}</p>
+                <p className="text-xs text-muted-foreground leading-normal line-clamp-2">
+                  {a.desc}
+                </p>
               </Link>
             ))}
           </div>
@@ -299,7 +301,9 @@ export default function DashboardOverviewPage() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Items:</span>
-                        <span className="font-medium text-foreground">{o.order_items.length} SKU</span>
+                        <span className="font-medium text-foreground">
+                          {o.order_items.length} SKU
+                        </span>
                       </div>
                     </div>
                     <p className="line-clamp-2 text-[11px] text-muted-foreground leading-relaxed italic bg-muted/20 p-2 rounded-xl mb-4">
@@ -310,7 +314,12 @@ export default function DashboardOverviewPage() {
                     <Button variant="outline" size="sm" className="w-full text-xs" asChild>
                       <Link href="/dashboard/orders">Details</Link>
                     </Button>
-                    <Button variant="ghost" size="sm" className="w-full text-xs text-primary bg-primary-soft/10 hover:bg-primary-soft/20" asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full text-xs text-primary bg-primary-soft/10 hover:bg-primary-soft/20"
+                      asChild
+                    >
                       <Link href="/dashboard/track">Track</Link>
                     </Button>
                   </div>

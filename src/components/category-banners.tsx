@@ -22,10 +22,13 @@ export function CategoryBanners() {
             className={cn(
               "group relative aspect-[3/2] overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all duration-500",
               "hover:-translate-y-1 hover:shadow-xl hover:border-primary/20 motion-safe:active:scale-[0.99]",
-              i === 0 ? "animate-in fade-in-50 slide-in-from-bottom-2 duration-500" :
-              i === 1 ? "animate-in fade-in-50 slide-in-from-bottom-3 duration-600" :
-              i === 2 ? "animate-in fade-in-50 slide-in-from-bottom-4 duration-700" :
-              "animate-in fade-in-50 slide-in-from-bottom-5 duration-800"
+              i === 0
+                ? "animate-in fade-in-50 slide-in-from-bottom-2 duration-500"
+                : i === 1
+                  ? "animate-in fade-in-50 slide-in-from-bottom-3 duration-600"
+                  : i === 2
+                    ? "animate-in fade-in-50 slide-in-from-bottom-4 duration-700"
+                    : "animate-in fade-in-50 slide-in-from-bottom-5 duration-800",
             )}
           >
             <img
@@ -36,10 +39,14 @@ export function CategoryBanners() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 text-left">
-              <p className="text-sm font-extrabold leading-snug text-white sm:text-base tracking-tight">{c.name}</p>
+              <p className="text-sm font-extrabold leading-snug text-white sm:text-base tracking-tight">
+                {c.name}
+              </p>
               <p className="mt-0.5 text-[10px] text-white/90 font-medium inline-flex items-center gap-1">
                 Shop now
-                <span className="group-hover:translate-x-1 transition-transform duration-300">→</span>
+                <span className="group-hover:translate-x-1 transition-transform duration-300">
+                  →
+                </span>
               </p>
             </div>
           </Link>
