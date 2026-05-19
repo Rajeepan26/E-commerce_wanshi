@@ -48,7 +48,7 @@ export function NotificationCenter() {
       aria-live="polite"
       className="pointer-events-none fixed z-[999999998] max-w-sm space-y-2 pl-2"
       style={{
-        top: "max(0.75rem, env(safe-area-inset-top))",
+        top: "max(2rem, calc(env(safe-area-inset-top) + 0.5rem))",
         right: "max(0.75rem, env(safe-area-inset-right))",
       }}
     >

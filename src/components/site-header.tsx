@@ -167,7 +167,7 @@ export function SiteHeader() {
   const customerShopSearchBar = showCustomerNavRail && isCustomerShopBrowsePath(path);
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background shadow-sm">
+    <header className="sticky top-0 z-40 border-b bg-background shadow-sm [--site-header-h:61px] sm:[--site-header-h:69px]">
       <div className="mx-auto w-full max-w-6xl flex min-w-0 items-center justify-between gap-2 px-4 sm:px-6 lg:px-8 py-2 sm:py-3">
         <div className="flex items-center gap-3">
           <Link
@@ -487,6 +487,28 @@ export function SiteHeader() {
               </Link>
             </Button>
           )}
+
+          {user && role !== "admin" ? (
+            <Button
+              asChild
+              variant="outline"
+              size="icon"
+              className={cn(
+                "relative size-11 shrink-0 rounded-2xl border-border/70 bg-background shadow-sm md:hidden",
+                "text-primary hover:bg-primary-soft hover:text-primary [&_svg]:size-5",
+              )}
+              aria-label="Cart"
+            >
+              <Link href="/dashboard/cart">
+                <ShoppingCart strokeWidth={2.25} aria-hidden />
+                {count > 0 && (
+                  <span className="absolute right-0.5 top-0.5 grid min-w-[18px] place-items-center rounded-full bg-primary px-1 py-px text-[10px] font-bold leading-none text-primary-foreground ring-2 ring-background">
+                    {count > 99 ? "99+" : count}
+                  </span>
+                )}
+              </Link>
+            </Button>
+          ) : null}
 
           <Dialog open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <Button

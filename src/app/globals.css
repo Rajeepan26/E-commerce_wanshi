@@ -241,3 +241,23 @@
     content: none;
   }
 }
+
+/* Mobile: horizontal bar under navbar — inset from screen edges, soft rounded corners. */
+@media (max-width: 767px) {
+  [data-sonner-toaster].sonner-tailored {
+    top: calc(env(safe-area-inset-top, 0px) + 61px) !important;
+    right: 0.75rem !important;
+    left: 0.75rem !important;
+    width: auto !important;
+    max-width: none !important;
+    padding-inline: 0 !important;
+    transform: none !important;
+  }
+
+  [data-sonner-toaster].sonner-tailored [data-sonner-toast] {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-inline: 0 !important;
+    border-radius: 1rem !important;
+  }
+}

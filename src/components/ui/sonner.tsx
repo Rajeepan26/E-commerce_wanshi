@@ -24,13 +24,14 @@ const Toaster = ({ duration, toastOptions, style, icons, ...props }: ToasterProp
       duration={toastDuration}
       position="top-right"
       offset={{
-        // Sit just below sticky header search / account strip (was ~12px — overlapped icons).
-        top: "calc(env(safe-area-inset-top, 0px) + 5rem)",
-        right: "max(0.75rem, env(safe-area-inset-right))",
+        // Flush under sticky header (69px on sm+, matches mobile menu overlay).
+        top: "calc(env(safe-area-inset-top, 0px) + 69px)",
+        right: "max(1rem, env(safe-area-inset-right))",
       }}
       mobileOffset={{
-        top: "calc(env(safe-area-inset-top, 0px) + 5rem)",
-        right: "max(0.75rem, env(safe-area-inset-right))",
+        top: "calc(env(safe-area-inset-top, 0px) + 61px)",
+        left: "0.75rem",
+        right: "0.75rem",
       }}
       closeButton
       richColors
