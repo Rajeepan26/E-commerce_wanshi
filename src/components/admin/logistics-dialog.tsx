@@ -23,7 +23,8 @@ export function LogisticsDialog({ open, onOpenChange, onSelect }: LogisticsDialo
         <DialogHeader>
           <DialogTitle>Select Delivery Method</DialogTitle>
           <DialogDescription>
-            Choose how this order should be fulfilled. This will update the order status to Accepted.
+            Choose how this order should be fulfilled. This will update the order status to
+            Accepted.
           </DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-4 py-4">

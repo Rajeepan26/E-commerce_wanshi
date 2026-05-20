@@ -19,7 +19,10 @@ export function SiteFooter() {
           <p className="font-bold uppercase tracking-wider text-sky-950">Support</p>
           <ul className="space-y-3">
             <li>
-              <Link href="/dashboard/orders" className="hover:text-primary transition-colors font-medium">
+              <Link
+                href="/dashboard/orders"
+                className="hover:text-primary transition-colors font-medium"
+              >
                 Returns Policy
               </Link>
             </li>

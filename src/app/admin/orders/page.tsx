@@ -15,7 +15,12 @@ import {
 import { ADMIN_WHATSAPP, waLink } from "@/lib/whatsapp";
 import { toast } from "sonner";
 import { MessageCircle, CheckCircle2 } from "lucide-react";
-import { listOrders, subscribeOrders, updateOrderStatus, acceptOrder } from "@/lib/mock/orders-store";
+import {
+  listOrders,
+  subscribeOrders,
+  updateOrderStatus,
+  acceptOrder,
+} from "@/lib/mock/orders-store";
 import { LogisticsDialog } from "@/components/admin/logistics-dialog";
 import type { OrderStatus, StoredOrder } from "@/lib/mock/types";
 
@@ -47,10 +52,11 @@ export default function AdminOrdersPage() {
   const handleAccept = (method: "local" | "regional") => {
     if (!acceptingOrder) return;
     acceptOrder(acceptingOrder.id, method);
-    
-    const serviceName = method === "local" ? "3rd Party Dedicated Delivery" : "Parcel Courier Service";
+
+    const serviceName =
+      method === "local" ? "3rd Party Dedicated Delivery" : "Parcel Courier Service";
     const waMessage = `Your order #${acceptingOrder.order_number} has been accepted and is being handled by ${serviceName}.`;
-    
+
     qc.invalidateQueries({ queryKey: ["demo-admin-orders"] });
     toast.success("Order Accepted", {
       description: `Delivery via ${method === "local" ? "Local API" : "Regional Parcel"}.`,
@@ -59,7 +65,7 @@ export default function AdminOrdersPage() {
     // Automated notification prompt
     const link = waLink(acceptingOrder.shipping_phone || ADMIN_WHATSAPP, waMessage);
     window.open(link, "_blank");
-    
+
     setAcceptingOrder(null);
   };
 
@@ -118,7 +124,8 @@ export default function AdminOrdersPage() {
             </div>
             {o.delivery_method && (
               <div className="mt-2 text-[11px] font-medium text-primary uppercase tracking-wider">
-                🚚 Fulfilled via: {o.delivery_method === "local" ? "Local Rider" : "Regional Courier"}
+                🚚 Fulfilled via:{" "}
+                {o.delivery_method === "local" ? "Local Rider" : "Regional Courier"}
               </div>
             )}
             <div className="mt-3 space-y-1 border-t pt-3 text-sm">
@@ -134,11 +141,11 @@ export default function AdminOrdersPage() {
           </div>
         ))}
       </div>
-      
-      <LogisticsDialog 
-        open={!!acceptingOrder} 
-        onOpenChange={(o) => !o && setAcceptingOrder(null)} 
-        onSelect={handleAccept} 
+
+      <LogisticsDialog
+        open={!!acceptingOrder}
+        onOpenChange={(o) => !o && setAcceptingOrder(null)}
+        onSelect={handleAccept}
       />
     </div>
   );
