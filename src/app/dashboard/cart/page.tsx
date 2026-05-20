@@ -16,7 +16,9 @@ import { toast } from "sonner";
 import { useRef, useState } from "react";
 import { appendDemoOrder } from "@/lib/mock/orders-store";
 import { cloneProduct } from "@/lib/mock/catalog-store";
-import { Trash2, ArrowLeft, Upload } from "lucide-react";
+import { Trash2, ArrowLeft, Upload, MessageCircle } from "lucide-react";
+import { waLink, ADMIN_WHATSAPP } from "@/lib/whatsapp";
+import type { StoredOrder } from "@/lib/mock/types";
 
 const WANSHI_BANK_ROWS: [string, string][] = [
   ["Bank name", "Commercial Bank"],
@@ -35,6 +37,7 @@ export default function CartPage() {
   const [uploadReceipt, setUploadReceipt] = useState("");
   const [receiptName, setReceiptName] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [lastOrder, setLastOrder] = useState<StoredOrder | null>(null);
   const [orderJustConfirmed, setOrderJustConfirmed] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const itemSubtotal = cart.total;
@@ -73,10 +76,11 @@ export default function CartPage() {
       return;
     }
 
+    setLastOrder(order);
     setOrderJustConfirmed(true);
     cart.clear();
     toast.success("Order confirmed", {
-      description: `Order #${order.order_number}. Saved in this browser.`,
+      description: `Order #${order.order_number}. Shared link generated.`,
     });
   };
 
@@ -119,15 +123,37 @@ export default function CartPage() {
               Order confirmed
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Thank you. Your cart is empty — browse more products anytime.
+              Thank you. Your order #{lastOrder?.order_number} has been received.
             </p>
+            <Button
+              className="mt-4 w-full bg-[#25D366] text-white hover:bg-[#25D366]/90"
+              asChild
+            >
+              <a
+                href={waLink(
+                  ADMIN_WHATSAPP,
+                  `Hi! I just placed order #${lastOrder?.order_number} for total ${inr(Number(lastOrder?.total_amount))}. Please confirm my order!`,
+                )}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <MessageCircle className="mr-2 size-4" /> Share Order to WhatsApp
+              </a>
+            </Button>
           </div>
         ) : (
           <p className="mb-6 text-muted-foreground">Your cart is empty.</p>
         )}
-        <Button type="button" onClick={() => router.push("/products")} variant="default">
-          <ArrowLeft className="mr-2 size-4" /> Continue Shopping
-        </Button>
+        <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+          <Button type="button" onClick={() => router.push("/products")} variant="outline">
+            <ArrowLeft className="mr-2 size-4" /> Browse More
+          </Button>
+          {orderJustConfirmed && (
+            <Button type="button" onClick={() => router.push("/dashboard/orders")}>
+              View My Orders
+            </Button>
+          )}
+        </div>
       </div>
     );
 

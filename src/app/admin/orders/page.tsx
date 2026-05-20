@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { inr } from "@/lib/format";
 import { StatusBadge } from "@/components/status-badge";
@@ -14,9 +14,10 @@ import {
 } from "@/components/ui/select";
 import { ADMIN_WHATSAPP, waLink } from "@/lib/whatsapp";
 import { toast } from "sonner";
-import { MessageCircle } from "lucide-react";
-import { listOrders, subscribeOrders, updateOrderStatus } from "@/lib/mock/orders-store";
-import type { OrderStatus } from "@/lib/mock/types";
+import { MessageCircle, CheckCircle2 } from "lucide-react";
+import { listOrders, subscribeOrders, updateOrderStatus, acceptOrder } from "@/lib/mock/orders-store";
+import { LogisticsDialog } from "@/components/admin/logistics-dialog";
+import type { OrderStatus, StoredOrder } from "@/lib/mock/types";
 
 const STATUSES = ["Pending", "Accepted", "In-Transit", "Delivered", "Cancelled"];
 
@@ -33,12 +34,33 @@ export default function AdminOrdersPage() {
     queryFn: async () => listOrders(),
   });
 
+  const [acceptingOrder, setAcceptingOrder] = useState<StoredOrder | null>(null);
+
   const handleStatusChange = (id: string, status: OrderStatus) => {
     updateOrderStatus(id, status);
     qc.invalidateQueries({ queryKey: ["demo-admin-orders"] });
     qc.invalidateQueries({ queryKey: ["demo-my-orders"] });
     qc.invalidateQueries({ queryKey: ["demo-track"] });
     toast.success(`Order updated to ${status}`);
+  };
+
+  const handleAccept = (method: "local" | "regional") => {
+    if (!acceptingOrder) return;
+    acceptOrder(acceptingOrder.id, method);
+    
+    const serviceName = method === "local" ? "3rd Party Dedicated Delivery" : "Parcel Courier Service";
+    const waMessage = `Your order #${acceptingOrder.order_number} has been accepted and is being handled by ${serviceName}.`;
+    
+    qc.invalidateQueries({ queryKey: ["demo-admin-orders"] });
+    toast.success("Order Accepted", {
+      description: `Delivery via ${method === "local" ? "Local API" : "Regional Parcel"}.`,
+    });
+
+    // Automated notification prompt
+    const link = waLink(acceptingOrder.shipping_phone || ADMIN_WHATSAPP, waMessage);
+    window.open(link, "_blank");
+    
+    setAcceptingOrder(null);
   };
 
   return (
@@ -59,21 +81,27 @@ export default function AdminOrdersPage() {
               </div>
               <div className="flex items-center gap-2">
                 <StatusBadge status={o.status} />
-                <Select
-                  value={o.status}
-                  onValueChange={(v) => handleStatusChange(o.id, v as OrderStatus)}
-                >
-                  <SelectTrigger className="h-8 w-full max-w-[11rem] sm:w-36">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {STATUSES.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {s}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {o.status === "Pending" ? (
+                  <Button size="sm" className="h-8 gap-2" onClick={() => setAcceptingOrder(o)}>
+                    <CheckCircle2 className="size-3.5" /> Accept Order
+                  </Button>
+                ) : (
+                  <Select
+                    value={o.status}
+                    onValueChange={(v) => handleStatusChange(o.id, v as OrderStatus)}
+                  >
+                    <SelectTrigger className="h-8 w-full max-w-[11rem] sm:w-36">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {STATUSES.map((s) => (
+                        <SelectItem key={s} value={s}>
+                          {s}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
                 <Button size="sm" variant="outline" asChild>
                   <a
                     href={waLink(
@@ -88,6 +116,11 @@ export default function AdminOrdersPage() {
                 </Button>
               </div>
             </div>
+            {o.delivery_method && (
+              <div className="mt-2 text-[11px] font-medium text-primary uppercase tracking-wider">
+                🚚 Fulfilled via: {o.delivery_method === "local" ? "Local Rider" : "Regional Courier"}
+              </div>
+            )}
             <div className="mt-3 space-y-1 border-t pt-3 text-sm">
               {o.order_items?.map((it) => (
                 <div key={it.id} className="flex justify-between text-muted-foreground">
@@ -101,6 +134,12 @@ export default function AdminOrdersPage() {
           </div>
         ))}
       </div>
+      
+      <LogisticsDialog 
+        open={!!acceptingOrder} 
+        onOpenChange={(o) => !o && setAcceptingOrder(null)} 
+        onSelect={handleAccept} 
+      />
     </div>
   );
 }

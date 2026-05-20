@@ -105,3 +105,17 @@ export function updateOrderStatus(orderId: string, status: OrderStatus): boolean
   writeAll(next);
   return true;
 }
+
+export function acceptOrder(orderId: string, method: "local" | "regional"): boolean {
+  const all = readAll();
+  const idx = all.findIndex((o) => o.id === orderId);
+  if (idx < 0) return false;
+  const next = [...all];
+  next[idx] = {
+    ...next[idx],
+    status: "Accepted",
+    delivery_method: method,
+  };
+  writeAll(next);
+  return true;
+}

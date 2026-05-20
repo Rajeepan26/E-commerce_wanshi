@@ -2,6 +2,7 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { inr } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import {
   cloneCategories,
   cloneProductsForAdmin,
@@ -42,6 +43,7 @@ type AdminProductRow = {
   brand?: string | null;
   material?: string | null;
   product_type?: string | null;
+  sizes?: string[] | null;
 };
 
 export default function AdminProductsPage() {
@@ -205,6 +207,7 @@ function ProductForm({
   const [brand, setBrand] = useState("");
   const [material, setMaterial] = useState("");
   const [productType, setProductType] = useState("");
+  const [sizes, setSizes] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
   const { data: categories } = useQuery({
@@ -236,8 +239,20 @@ function ProductForm({
       setBrand(product.brand ?? "");
       setMaterial(product.material ?? "");
       setProductType(product.product_type ?? "");
+      setSizes(product.sizes ?? []);
     }
   }, [mode, product]);
+
+  const isClothingCategory = categories
+    ?.find((c) => c.id === categoryId)
+    ?.name.toLowerCase()
+    .includes("cloths");
+
+  const CLOTHING_SIZES = ["S", "M", "L", "XL", "XXL"];
+
+  const toggleSize = (size: string) => {
+    setSizes((prev) => (prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -261,6 +276,7 @@ function ProductForm({
         brand: brand || null,
         material: material || null,
         product_type: productType || null,
+        sizes: isClothingCategory ? sizes : null,
       };
       upsertProduct(row);
     } catch {
@@ -284,6 +300,7 @@ function ProductForm({
       setBrand("");
       setMaterial("");
       setProductType("");
+      setSizes([]);
     }
     onSuccess();
   };
@@ -405,10 +422,46 @@ function ProductForm({
           />
         </div>
       </div>
-      <label className="flex items-center gap-2">
-        <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
-        <span className="text-sm">Active</span>
-      </label>
+      <div className="flex flex-wrap items-center gap-6">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={isActive}
+            onChange={(e) => setIsActive(e.target.checked)}
+            className="size-4 rounded border-gray-300 text-primary focus:ring-primary"
+          />
+          <span className="text-sm font-medium">Active</span>
+        </label>
+
+        {isClothingCategory && (
+          <div className="flex flex-wrap items-center gap-3 border-l pl-6">
+            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+              Available Sizes:
+            </span>
+            <div className="flex gap-2">
+              {CLOTHING_SIZES.map((size) => (
+                <label
+                  key={size}
+                  className={cn(
+                    "flex min-w-[2.5rem] cursor-pointer items-center justify-center rounded-md border py-1.5 text-xs font-bold transition-all",
+                    sizes.includes(size)
+                      ? "border-primary bg-primary text-white shadow-sm"
+                      : "border-input bg-background hover:border-primary/50",
+                  )}
+                >
+                  <input
+                    type="checkbox"
+                    className="hidden"
+                    checked={sizes.includes(size)}
+                    onChange={() => toggleSize(size)}
+                  />
+                  {size}
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
       <Button type="submit" disabled={loading}>
         {loading ? "Saving..." : mode === "edit" ? "Save changes" : "Add Product"}
       </Button>

@@ -44,6 +44,7 @@ export type ProductRow = {
   brand?: string | null;
   material?: string | null;
   product_type?: string | null;
+  sizes?: string[] | null;
 };
 
 export type OrderStatus = "Pending" | "Accepted" | "In-Transit" | "Delivered" | "Cancelled";
@@ -66,6 +67,7 @@ export type StoredOrder = {
   shipping_address: string | null;
   shipping_phone: string | null;
   payment_method?: "cod" | "bank";
+  delivery_method?: "local" | "regional" | null;
   order_items: StoredOrderItem[];
   shipments?: {
     tracking_number: string | null;
