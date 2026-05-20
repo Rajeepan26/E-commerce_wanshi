@@ -22,7 +22,13 @@ function defaultPromoDates() {
   return { startsAt: iso(start), endsAt: iso(end) };
 }
 
-export function OfferForm({ onSuccess, initialData }: { onSuccess: () => void; initialData?: OfferRow }) {
+export function OfferForm({
+  onSuccess,
+  initialData,
+}: {
+  onSuccess: () => void;
+  initialData?: OfferRow;
+}) {
   const defaults = defaultPromoDates();
   const [title, setTitle] = useState(initialData?.title ?? "");
   const [description, setDescription] = useState(initialData?.description ?? "");
@@ -120,16 +126,30 @@ export function OfferForm({ onSuccess, initialData }: { onSuccess: () => void; i
         <span className="text-sm">Active</span>
       </label>
       <Button type="submit" disabled={loading}>
-        {loading ? (initialData ? "Updating..." : "Adding...") : (initialData ? "Update Offer" : "Add Offer")}
+        {loading
+          ? initialData
+            ? "Updating..."
+            : "Adding..."
+          : initialData
+            ? "Update Offer"
+            : "Add Offer"}
       </Button>
     </form>
   );
 }
 
-export function AdForm({ onSuccess, initialData }: { onSuccess: () => void; initialData?: AdvertisementRow }) {
+export function AdForm({
+  onSuccess,
+  initialData,
+}: {
+  onSuccess: () => void;
+  initialData?: AdvertisementRow;
+}) {
   const defaults = defaultPromoDates();
   const [title, setTitle] = useState(initialData?.title ?? "");
-  const [position, setPosition] = useState<AdvertisementRow["position"]>(initialData?.position ?? "hero");
+  const [position, setPosition] = useState<AdvertisementRow["position"]>(
+    initialData?.position ?? "hero",
+  );
   const [imageUrl, setImageUrl] = useState(initialData?.image_url ?? "");
   const [startsAt, setStartsAt] = useState(initialData?.starts_at ?? defaults.startsAt);
   const [endsAt, setEndsAt] = useState(initialData?.ends_at ?? defaults.endsAt);
@@ -161,7 +181,9 @@ export function AdForm({ onSuccess, initialData }: { onSuccess: () => void; init
       ends_at: endsAt,
     });
     setLoading(false);
-    toast.success(initialData ? "Advertisement updated successfully" : "Advertisement added successfully");
+    toast.success(
+      initialData ? "Advertisement updated successfully" : "Advertisement added successfully",
+    );
     onSuccess();
   };
 
@@ -216,7 +238,13 @@ export function AdForm({ onSuccess, initialData }: { onSuccess: () => void; init
         <span className="text-sm">Active</span>
       </label>
       <Button type="submit" disabled={loading}>
-        {loading ? (initialData ? "Updating..." : "Adding...") : (initialData ? "Update Advertisement" : "Add Advertisement")}
+        {loading
+          ? initialData
+            ? "Updating..."
+            : "Adding..."
+          : initialData
+            ? "Update Advertisement"
+            : "Add Advertisement"}
       </Button>
     </form>
   );
