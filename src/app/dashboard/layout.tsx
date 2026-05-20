@@ -37,7 +37,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return (
       <div className="flex min-h-screen flex-col bg-background">
         <SiteHeader />
-        <main className="mx-auto w-full max-w-6xl min-w-0 flex-1 px-4 sm:px-6 lg:px-8 py-6">
+        <main className="mx-auto w-full max-w-7xl min-w-0 flex-1 px-4 sm:px-6 lg:px-8 py-6">
           {children}
         </main>
         <SiteFooter />
@@ -59,7 +59,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
-      <main className="mx-auto w-full max-w-6xl min-w-0 flex-1 px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+      <main className="mx-auto w-full max-w-7xl min-w-0 flex-1 px-4 sm:px-6 lg:px-8 py-6 md:py-8">
         {!isCartRoute && (
           <div className="mb-6 flex flex-col gap-3">
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/60 pb-3">

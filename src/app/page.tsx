@@ -45,7 +45,7 @@ export default function HomePage() {
           <span className="font-bold tracking-normal">{heroAd.title}</span>
         </div>
       )}
-      <main className="mx-auto w-full max-w-6xl flex-1 min-w-0 px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+      <main className="mx-auto w-full max-w-7xl flex-1 min-w-0 px-4 sm:px-6 lg:px-8 py-6 md:py-8">
         {/* Curated Luxury Brand Banner Header */}
         <div className="text-center max-w-2xl mx-auto mb-10 mt-4 space-y-2 animate-in fade-in-50 slide-in-from-bottom-3 duration-1000">
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl md:text-5xl bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">

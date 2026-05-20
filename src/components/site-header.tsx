@@ -166,7 +166,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background shadow-sm [--site-header-h:61px] sm:[--site-header-h:69px]">
-      <div className="mx-auto w-full max-w-6xl flex min-w-0 items-center justify-between gap-2 px-4 sm:px-6 lg:px-8 py-2 sm:py-3">
+      <div className="mx-auto w-full max-w-7xl flex min-w-0 items-center justify-between gap-2 px-4 sm:px-6 lg:px-8 py-2 sm:py-3">
         <div className="flex items-center gap-3">
           <Link
             href="/"
@@ -691,7 +691,7 @@ export function SiteHeader() {
 
       {customerShopSearchBar && (
         <div className="hidden border-t border-border/40 bg-muted/15 md:block">
-          <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 pb-3 pt-2">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pb-3 pt-2">
             <Suspense
               fallback={
                 <div

@@ -164,7 +164,7 @@ export default function DashboardOverviewPage() {
   const recent = data?.orders.slice(0, 3) ?? [];
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8">
+    <div className="space-y-8">
       <section className="flex flex-col gap-4 rounded-2xl border bg-card p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div className="flex items-center gap-4">
           <div
