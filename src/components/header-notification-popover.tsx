@@ -25,6 +25,7 @@ type HeaderNotificationPopoverProps = {
   iconClassName?: string;
   side?: "top" | "right" | "bottom" | "left";
   sideOffset?: number;
+  align?: "start" | "center" | "end";
 };
 
 export function HeaderNotificationPopover({
@@ -39,6 +40,7 @@ export function HeaderNotificationPopover({
   iconClassName,
   side,
   sideOffset,
+  align = "end",
 }: HeaderNotificationPopoverProps) {
   return (
     <Popover>
@@ -67,10 +69,10 @@ export function HeaderNotificationPopover({
           {unreadCount > 0 && (
             <span
               className={cn(
-                "absolute grid place-items-center rounded-full bg-destructive font-bold text-destructive-foreground shadow-sm",
+                "absolute flex items-center justify-center rounded-full bg-destructive font-bold text-destructive-foreground shadow-sm ring-2 ring-background",
                 triggerClassName?.includes("size-11")
-                  ? "right-0.5 top-0.5 min-w-[18px] px-1 py-px text-[10px] leading-none ring-2 ring-background"
-                  : "-right-0.5 -top-0.5 size-4 text-[8px]",
+                  ? "-right-1 -top-1 min-w-[20px] h-5 px-1 text-[11px] leading-none"
+                  : "-right-0.5 -top-0.5 size-4 text-[9px]",
               )}
             >
               {unreadCount > 99 ? "99+" : unreadCount}
@@ -79,9 +81,10 @@ export function HeaderNotificationPopover({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        align="end"
+        align={align}
         side={side}
         sideOffset={sideOffset}
+        collisionPadding={16}
         className={cn(
           "w-80 p-0 sm:w-96 rounded-2xl shadow-xl border-border/80 overflow-hidden",
           contentClassName,

@@ -210,7 +210,7 @@ export function SiteHeader() {
                         <Button variant="ghost" size="sm" className="px-2.5 relative">
                           <Bell className="size-4" />
                           {unreadCount > 0 && (
-                            <span className="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-destructive text-[8px] font-bold text-destructive-foreground shadow-sm">
+                            <span className="absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-1 text-[9px] font-bold text-destructive-foreground shadow-sm ring-1 ring-background">
                               {unreadCount}
                             </span>
                           )}
@@ -317,7 +317,7 @@ export function SiteHeader() {
                       <Link href="/dashboard/cart" aria-label="Cart">
                         <ShoppingCart className="size-4" />
                         {count > 0 && (
-                          <span className="absolute -right-1 -top-1 grid size-4 place-items-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                          <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-[17px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground shadow-sm ring-1 ring-background">
                             {count > 99 ? "99+" : count}
                           </span>
                         )}
@@ -333,7 +333,7 @@ export function SiteHeader() {
                         >
                           <Bell className="size-4" />
                           {unreadCount > 0 && (
-                            <span className="absolute -right-1 -top-1 grid size-4 place-items-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground shadow-sm">
+                            <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-[17px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground shadow-sm ring-1 ring-background">
                               {unreadCount}
                             </span>
                           )}
@@ -500,7 +500,7 @@ export function SiteHeader() {
               <Link href="/dashboard/cart">
                 <ShoppingCart strokeWidth={2.25} aria-hidden />
                 {count > 0 && (
-                  <span className="absolute right-0.5 top-0.5 grid min-w-[18px] place-items-center rounded-full bg-primary px-1 py-px text-[10px] font-bold leading-none text-primary-foreground ring-2 ring-background">
+                  <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1 text-[11px] font-bold leading-none text-primary-foreground shadow-sm ring-2 ring-background">
                     {count > 99 ? "99+" : count}
                   </span>
                 )}
@@ -527,6 +527,7 @@ export function SiteHeader() {
               contentClassName="z-[62] w-[min(22rem,calc(100vw-2rem))] md:hidden"
               side="bottom"
               sideOffset={8}
+              align="center"
             />
           ) : null}
 

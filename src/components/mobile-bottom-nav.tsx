@@ -82,7 +82,7 @@ export function MobileBottomNav() {
                     strokeWidth={path.startsWith("/dashboard/cart") ? 2.25 : 2}
                   />
                   {count > 0 ? (
-                    <span className="absolute -right-2 -top-1.5 grid min-w-4 place-items-center rounded-full bg-primary px-1 text-[9px] font-bold leading-4 text-primary-foreground">
+                    <span className="absolute -right-2 -top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-primary-foreground shadow-sm ring-1 ring-background">
                       {count > 99 ? "99+" : count}
                     </span>
                   ) : null}
