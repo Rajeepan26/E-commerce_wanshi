@@ -130,7 +130,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
       <Suspense fallback={<div className="flex-1 grid place-items-center">Loading...</div>}>
-         <LoginContent />
+        <LoginContent />
       </Suspense>
       <SiteFooter />
     </div>

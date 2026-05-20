@@ -238,7 +238,8 @@ export default function ProductsIndexContent() {
                       alt={ad.title}
                       referrerPolicy="no-referrer"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = "https://placehold.co/400?text=Sponsor";
+                        (e.target as HTMLImageElement).src =
+                          "https://placehold.co/400?text=Sponsor";
                       }}
                       className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />

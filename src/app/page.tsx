@@ -82,7 +82,9 @@ export default function HomePage() {
               {/* Combine Offers and Hero Ads in Carousel */}
               {[
                 ...(offers?.map((o) => ({ ...o, type: "offer" as const })) ?? []),
-                ...(ads?.filter((a) => a.position === "hero" && a.image_url && a.is_active).map((a) => ({ ...a, type: "ad" as const })) ?? []),
+                ...(ads
+                  ?.filter((a) => a.position === "hero" && a.image_url && a.is_active)
+                  .map((a) => ({ ...a, type: "ad" as const })) ?? []),
               ].map((item) => (
                 <CarouselItem key={item.id} className="basis-full">
                   <Link
@@ -95,7 +97,8 @@ export default function HomePage() {
                         alt={item.title}
                         referrerPolicy="no-referrer"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = "https://placehold.co/800?text=Promo+Image";
+                          (e.target as HTMLImageElement).src =
+                            "https://placehold.co/800?text=Promo+Image";
                         }}
                         className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-[1.03]"
                       />
@@ -188,9 +191,12 @@ export default function HomePage() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-            {ads
-              .filter((a) => (a.position === "banner" || a.position === "sidebar") && a.is_active)
-              .map((ad, i) => (
+              {ads
+                .filter(
+                  (a) =>
+                    (a.position === "banner" || a.position === "sidebar") && a.is_active,
+                )
+                .map((ad, i) => (
                   <div
                     key={ad.id}
                     className={cn(
@@ -207,7 +213,8 @@ export default function HomePage() {
                           alt={ad.title}
                           referrerPolicy="no-referrer"
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = "https://placehold.co/600?text=Ad+Banner";
+                            (e.target as HTMLImageElement).src =
+                              "https://placehold.co/600?text=Ad+Banner";
                           }}
                           className="h-full w-full object-cover group-hover:scale-[1.025] transition-transform duration-[1000ms]"
                         />
