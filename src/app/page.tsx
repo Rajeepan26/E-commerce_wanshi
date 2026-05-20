@@ -192,10 +192,7 @@ export default function HomePage() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               {ads
-                .filter(
-                  (a) =>
-                    (a.position === "banner" || a.position === "sidebar") && a.is_active,
-                )
+                .filter((a) => (a.position === "banner" || a.position === "sidebar") && a.is_active)
                 .map((ad, i) => (
                   <div
                     key={ad.id}
