@@ -125,7 +125,10 @@ export default function CartPage() {
             <p className="mt-1 text-sm text-muted-foreground">
               Thank you. Your order #{lastOrder?.order_number} has been received.
             </p>
-            <Button className="mt-4 w-full bg-[#25D366] text-white hover:bg-[#25D366]/90 font-bold" asChild>
+            <Button
+              className="mt-4 w-full bg-[#25D366] text-white hover:bg-[#25D366]/90 font-bold"
+              asChild
+            >
               <a
                 href={waLink(
                   ADMIN_WHATSAPP,

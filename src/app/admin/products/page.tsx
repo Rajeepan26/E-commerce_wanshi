@@ -375,12 +375,7 @@ function ProductForm({
               onChange={(e) => {
                 let val = e.target.value.trim();
                 // Basic normalization for common copy-paste missing protocol
-                if (
-                  val &&
-                  !val.startsWith("http") &&
-                  !val.startsWith("/") &&
-                  val.includes(".")
-                ) {
+                if (val && !val.startsWith("http") && !val.startsWith("/") && val.includes(".")) {
                   val = `https://${val}`;
                 }
                 setImageUrl(val);
@@ -395,8 +390,7 @@ function ProductForm({
                   className="size-full object-cover"
                   referrerPolicy="no-referrer"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src =
-                      "https://placehold.co/40?text=Error";
+                    (e.target as HTMLImageElement).src = "https://placehold.co/40?text=Error";
                   }}
                 />
               </div>

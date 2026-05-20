@@ -188,8 +188,7 @@ export function ProductDetailClient() {
               referrerPolicy="no-referrer"
               className="aspect-square w-full max-w-xl rounded-xl object-cover md:max-w-none shadow-sm hover:scale-[1.01] transition-transform duration-300"
               onError={(e) => {
-                (e.target as HTMLImageElement).src =
-                  "https://placehold.co/600?text=No+Image";
+                (e.target as HTMLImageElement).src = "https://placehold.co/600?text=No+Image";
               }}
             />
           </div>

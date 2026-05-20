@@ -6,7 +6,11 @@ import { useEffect, useMemo, useState } from "react";
 import { ChevronDown, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
-import { cloneProductsActive, getCategoryIdBySlug, cloneCategories } from "@/lib/mock/catalog-store";
+import {
+  cloneProductsActive,
+  getCategoryIdBySlug,
+  cloneCategories,
+} from "@/lib/mock/catalog-store";
 import { inr } from "@/lib/format";
 import { cn } from "@/lib/utils";
 

@@ -9,7 +9,8 @@ export function CategoryBanners() {
     queryFn: async () => cloneCategories(),
   });
 
-  const placeholder = "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&w=600&q=80";
+  const placeholder =
+    "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&w=600&q=80";
 
   return (
     <section className="my-12">
