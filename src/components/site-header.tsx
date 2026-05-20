@@ -14,7 +14,6 @@ import {
   Package,
   Truck,
   Bell,
-  ChevronDown,
   Check,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -26,9 +25,9 @@ import { Suspense, useState } from "react";
 import { ADMIN_NAV, isAdminNavActive } from "@/lib/admin-nav";
 import { cn } from "@/lib/utils";
 import { ShopSearchBar, isCustomerShopBrowsePath } from "@/components/shop-search-bar";
+import { HeaderNotificationPopover } from "@/components/header-notification-popover";
 import { useQuery } from "@tanstack/react-query";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 /** Logged-in customer: nav in main bar; shop search row on home, products, and category pages (md+). */
 const CUSTOMER_APP_NAV: { href: string; label: string; icon: LucideIcon }[] = [
@@ -51,7 +50,6 @@ export function SiteHeader() {
   const { count } = useCart();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [mobileNotificationsOpen, setMobileNotificationsOpen] = useState(false);
 
   const [notifications, setNotifications] = useState<
     Array<{
@@ -510,6 +508,28 @@ export function SiteHeader() {
             </Button>
           ) : null}
 
+          {user ? (
+            <HeaderNotificationPopover
+              notifications={displayedNotifications}
+              unreadCount={unreadCount}
+              badgeLabel={role === "admin" ? "Admin Demo" : "Demo Store"}
+              emptyHint={
+                role === "admin"
+                  ? "No new admin notifications."
+                  : "No new notifications at this time."
+              }
+              onMarkAllRead={markAllAsRead}
+              onMarkRead={markAsRead}
+              triggerClassName={cn(
+                "size-11 rounded-2xl border-border/70 bg-background shadow-sm md:hidden",
+                "text-primary hover:bg-primary-soft hover:text-primary [&_svg]:size-5",
+              )}
+              contentClassName="z-[62] w-[min(22rem,calc(100vw-2rem))] md:hidden"
+              side="bottom"
+              sideOffset={8}
+            />
+          ) : null}
+
           <Dialog open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <Button
               type="button"
@@ -608,103 +628,6 @@ export function SiteHeader() {
                         </Link>
                       );
                     })}
-                    <Collapsible
-                      open={mobileNotificationsOpen}
-                      onOpenChange={setMobileNotificationsOpen}
-                      className="w-full animate-fade-in"
-                    >
-                      <CollapsibleTrigger asChild>
-                        <button
-                          type="button"
-                          className={cn(
-                            "flex w-full items-center justify-center gap-2.5 rounded-full border px-5 py-3.5 font-medium transition-all duration-200 ease-out",
-                            "motion-safe:active:scale-[0.99]",
-                            mobileNotificationsOpen
-                              ? "border-primary text-primary"
-                              : "border-transparent text-foreground hover:border-primary/25 hover:bg-primary-soft/35",
-                          )}
-                        >
-                          <Bell className="size-[1.2rem] shrink-0" strokeWidth={2} aria-hidden />
-                          <span>Notifications</span>
-                          {unreadCount > 0 && (
-                            <span className="ml-1.5 grid size-4 place-items-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground">
-                              {unreadCount}
-                            </span>
-                          )}
-                          <ChevronDown
-                            className={cn(
-                              "ml-1 size-4 transition-transform duration-200",
-                              mobileNotificationsOpen && "rotate-180",
-                            )}
-                          />
-                        </button>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className="mt-2 space-y-2 px-2 pb-2">
-                        {unreadCount > 0 && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              markAllAsRead();
-                            }}
-                            className="w-full text-right text-xs font-bold text-primary hover:underline pb-2 px-1"
-                          >
-                            Mark all as read
-                          </button>
-                        )}
-                        {displayedNotifications && displayedNotifications.length > 0 ? (
-                          displayedNotifications.map((n) => (
-                            <div
-                              key={n.id}
-                              className={cn(
-                                "rounded-xl border p-3 text-left transition-all relative flex flex-col gap-1.5",
-                                n.read
-                                  ? "bg-card border-border/60"
-                                  : "bg-primary-soft/10 border-primary/20",
-                              )}
-                            >
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="flex items-center gap-1.5">
-                                  {!n.read && (
-                                    <span className="size-1.5 shrink-0 rounded-full bg-primary" />
-                                  )}
-                                  <p
-                                    className={cn(
-                                      "text-xs font-bold",
-                                      n.read ? "text-foreground" : "text-primary",
-                                    )}
-                                  >
-                                    {n.title}
-                                  </p>
-                                </div>
-                                {!n.read && (
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      markAsRead(n.id);
-                                    }}
-                                    className="text-[10px] font-bold text-primary hover:underline flex items-center gap-0.5"
-                                  >
-                                    <Check className="size-3" /> Mark read
-                                  </button>
-                                )}
-                              </div>
-                              <p className="text-xs text-muted-foreground leading-relaxed">
-                                {n.message}
-                              </p>
-                              <p className="text-[10px] text-muted-foreground/70">
-                                {new Date(n.created_at).toLocaleString()}
-                              </p>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="rounded-xl border bg-card/30 p-4 text-center text-xs text-muted-foreground">
-                            No notifications yet
-                          </div>
-                        )}
-                      </CollapsibleContent>
-                    </Collapsible>
                   </>
                 ) : user ? (
                   <>
@@ -732,103 +655,6 @@ export function SiteHeader() {
                         </Link>
                       );
                     })}
-                    <Collapsible
-                      open={mobileNotificationsOpen}
-                      onOpenChange={setMobileNotificationsOpen}
-                      className="w-full animate-fade-in"
-                    >
-                      <CollapsibleTrigger asChild>
-                        <button
-                          type="button"
-                          className={cn(
-                            "flex w-full items-center justify-center gap-2.5 rounded-full border px-5 py-3.5 font-medium transition-all duration-200 ease-out",
-                            "motion-safe:active:scale-[0.99]",
-                            mobileNotificationsOpen
-                              ? "border-primary text-primary"
-                              : "border-transparent text-foreground hover:border-primary/25 hover:bg-primary-soft/35",
-                          )}
-                        >
-                          <Bell className="size-[1.2rem] shrink-0" strokeWidth={2} aria-hidden />
-                          <span>Notifications</span>
-                          {unreadCount > 0 && (
-                            <span className="ml-1.5 grid size-4 place-items-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground">
-                              {unreadCount}
-                            </span>
-                          )}
-                          <ChevronDown
-                            className={cn(
-                              "ml-1 size-4 transition-transform duration-200",
-                              mobileNotificationsOpen && "rotate-180",
-                            )}
-                          />
-                        </button>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className="mt-2 space-y-2 px-2 pb-2">
-                        {unreadCount > 0 && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              markAllAsRead();
-                            }}
-                            className="w-full text-right text-xs font-bold text-primary hover:underline pb-2 px-1"
-                          >
-                            Mark all as read
-                          </button>
-                        )}
-                        {displayedNotifications && displayedNotifications.length > 0 ? (
-                          displayedNotifications.map((n) => (
-                            <div
-                              key={n.id}
-                              className={cn(
-                                "rounded-xl border p-3 text-left transition-all relative flex flex-col gap-1.5",
-                                n.read
-                                  ? "bg-card border-border/60"
-                                  : "bg-primary-soft/10 border-primary/20",
-                              )}
-                            >
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="flex items-center gap-1.5">
-                                  {!n.read && (
-                                    <span className="size-1.5 shrink-0 rounded-full bg-primary" />
-                                  )}
-                                  <p
-                                    className={cn(
-                                      "text-xs font-bold",
-                                      n.read ? "text-foreground" : "text-primary",
-                                    )}
-                                  >
-                                    {n.title}
-                                  </p>
-                                </div>
-                                {!n.read && (
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      markAsRead(n.id);
-                                    }}
-                                    className="text-[10px] font-bold text-primary hover:underline flex items-center gap-0.5"
-                                  >
-                                    <Check className="size-3" /> Mark read
-                                  </button>
-                                )}
-                              </div>
-                              <p className="text-xs text-muted-foreground leading-relaxed">
-                                {n.message}
-                              </p>
-                              <p className="text-[10px] text-muted-foreground/70">
-                                {new Date(n.created_at).toLocaleString()}
-                              </p>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="rounded-xl border bg-card/30 p-4 text-center text-xs text-muted-foreground">
-                            No notifications yet
-                          </div>
-                        )}
-                      </CollapsibleContent>
-                    </Collapsible>
                   </>
                 ) : (
                   <Link
