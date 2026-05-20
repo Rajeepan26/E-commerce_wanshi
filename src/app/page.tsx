@@ -142,8 +142,6 @@ export default function HomePage() {
               Start now
             </Button>
           </div>
-
-
         </section>
 
         <CategoryBanners />
