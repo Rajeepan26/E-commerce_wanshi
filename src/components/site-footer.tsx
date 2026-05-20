@@ -48,7 +48,7 @@ export function SiteFooter() {
               <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white shadow-sm">
                 <Phone className="size-4 text-primary" />
               </div>
-              <span className="font-medium">+94 77 123 4567</span>
+              <span className="font-medium">+94 75 464 1052</span>
             </li>
             <li className="flex items-center gap-3">
               <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white shadow-sm">
@@ -64,7 +64,7 @@ export function SiteFooter() {
           <p className="font-bold uppercase tracking-wider text-sky-950">Follow Wanshi</p>
           <div className="flex flex-wrap items-center gap-3">
             <a
-              href="https://wa.me/94771234567"
+              href="https://wa.me/94754641052"
               target="_blank"
               rel="noreferrer"
               className="flex size-10 items-center justify-center rounded-xl bg-white text-[#25D366] shadow-sm ring-1 ring-black/5 transition-all hover:scale-110 hover:shadow-md"

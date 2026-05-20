@@ -60,9 +60,13 @@ export function ProductCard({ p }: { p: ProductCardData }) {
       >
         <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-muted/40">
           <img
-            src={p.image_url ?? "https://placehold.co/400"}
+            src={p.image_url ?? "https://placehold.co/400?text=No+Image"}
             alt={p.name}
             loading="lazy"
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "https://placehold.co/400?text=No+Image";
+            }}
             className="h-full w-full object-cover transition-transform duration-[1000ms] group-hover:scale-105"
           />
           {off > 0 && (

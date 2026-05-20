@@ -1,8 +1,16 @@
 import Link from "next/link";
-import { SHOP_CATEGORY_BANNERS } from "@/lib/mock/category-metadata";
+import { useQuery } from "@tanstack/react-query";
+import { cloneCategories } from "@/lib/mock/catalog-store";
 import { cn } from "@/lib/utils";
 
 export function CategoryBanners() {
+  const { data: categories = [] } = useQuery({
+    queryKey: ["demo-categories-banners"],
+    queryFn: async () => cloneCategories(),
+  });
+
+  const placeholder = "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&w=600&q=80";
+
   return (
     <section className="my-12">
       <div className="flex flex-col items-center text-center mb-6">
@@ -15,7 +23,7 @@ export function CategoryBanners() {
         <div className="h-0.5 w-8 bg-primary/30 mt-2 rounded-full" />
       </div>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4">
-        {SHOP_CATEGORY_BANNERS.map((c, i) => (
+        {categories.map((c, i) => (
           <Link
             key={c.slug}
             href={`/products?category=${encodeURIComponent(c.slug)}`}
@@ -32,7 +40,7 @@ export function CategoryBanners() {
             )}
           >
             <img
-              src={c.bannerUrl}
+              src={c.banner_url || placeholder}
               alt={c.name}
               className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-105"
               loading="lazy"

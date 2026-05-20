@@ -5,8 +5,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ChevronDown, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { SHOP_CATEGORY_BANNERS } from "@/lib/mock/category-metadata";
-import { cloneProductsActive, getCategoryIdBySlug } from "@/lib/mock/catalog-store";
+import { useQuery } from "@tanstack/react-query";
+import { cloneProductsActive, getCategoryIdBySlug, cloneCategories } from "@/lib/mock/catalog-store";
 import { inr } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -16,11 +16,6 @@ export function isCustomerShopBrowsePath(pathname: string | null): boolean {
   return pathname.startsWith("/category/");
 }
 
-const CATS = SHOP_CATEGORY_BANNERS.map((c) => ({
-  name: c.name.split("·")[0]?.trim() ?? c.name,
-  slug: c.slug,
-}));
-
 export function ShopSearchBar({ variant = "inline" }: { variant?: "inline" | "belowHome" }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -29,6 +24,18 @@ export function ShopSearchBar({ variant = "inline" }: { variant?: "inline" | "be
   const [categorySlug, setCategorySlug] = useState("");
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ["demo-categories-search"],
+    queryFn: async () => cloneCategories(),
+  });
+
+  const catOptions = useMemo(() => {
+    return categories.map((c) => ({
+      name: c.name.split("·")[0]?.trim() ?? c.name,
+      slug: c.slug,
+    }));
+  }, [categories]);
 
   useEffect(() => {
     if (pathname === "/products") {
@@ -83,7 +90,7 @@ export function ShopSearchBar({ variant = "inline" }: { variant?: "inline" | "be
 
   const currentCategoryLabel =
     categorySlug !== ""
-      ? (CATS.find((c) => c.slug === categorySlug)?.name ?? "Category")
+      ? (catOptions.find((c) => c.slug === categorySlug)?.name ?? "Category")
       : "All categories";
 
   const showSuggestions = suggestionsOpen && term.length > 0;
@@ -144,7 +151,7 @@ export function ShopSearchBar({ variant = "inline" }: { variant?: "inline" | "be
                 >
                   All categories
                 </button>
-                {CATS.map((c) => (
+                {catOptions.map((c) => (
                   <button
                     key={c.slug}
                     type="button"

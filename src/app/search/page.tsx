@@ -4,18 +4,26 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Search } from "lucide-react";
-import { cloneProductsActive } from "@/lib/mock/catalog-store";
-import { SHOP_CATEGORY_BANNERS } from "@/lib/mock/category-metadata";
+import { useQuery } from "@tanstack/react-query";
+import { cloneProductsActive, cloneCategories } from "@/lib/mock/catalog-store";
 import { inr } from "@/lib/format";
-const CATEGORIES = SHOP_CATEGORY_BANNERS.map((c) => ({
-  name: c.name.split("·")[0]?.trim() ?? c.name,
-  slug: c.slug,
-}));
 
 export default function SearchPage() {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [q, setQ] = useState("");
+
+  const { data: allCategories = [] } = useQuery({
+    queryKey: ["demo-categories-mobile-search"],
+    queryFn: async () => cloneCategories(),
+  });
+
+  const catOptions = useMemo(() => {
+    return allCategories.map((c) => ({
+      name: c.name.split("·")[0]?.trim() ?? c.name,
+      slug: c.slug,
+    }));
+  }, [allCategories]);
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 768px)");
@@ -36,11 +44,13 @@ export default function SearchPage() {
 
   const categories = useMemo(() => {
     if (!termLower) return [];
-    return CATEGORIES.filter(
-      (c) =>
-        c.name.toLowerCase().includes(termLower) || c.slug.replace(/-/g, " ").includes(termLower),
-    ).slice(0, 6);
-  }, [termLower]);
+    return catOptions
+      .filter(
+        (c) =>
+          c.name.toLowerCase().includes(termLower) || c.slug.replace(/-/g, " ").includes(termLower),
+      )
+      .slice(0, 6);
+  }, [termLower, catOptions]);
 
   const goResults = (query?: string, categorySlug?: string) => {
     const params = new URLSearchParams();

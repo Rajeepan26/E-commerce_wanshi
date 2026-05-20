@@ -5,8 +5,12 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { categoryHeadingFromSlug } from "@/lib/category-display";
-import { cloneProductsActive, getCategoryIdBySlug, cloneActiveAds } from "@/lib/mock/catalog-store";
-import { SHOP_CATEGORY_BANNERS } from "@/lib/mock/category-metadata";
+import {
+  cloneProductsActive,
+  getCategoryIdBySlug,
+  cloneActiveAds,
+  cloneCategories,
+} from "@/lib/mock/catalog-store";
 import { ProductCard } from "@/components/product-card";
 import { cn } from "@/lib/utils";
 import { Check, SlidersHorizontal, RefreshCw, X, ArrowLeft } from "lucide-react";
@@ -97,6 +101,11 @@ export default function ProductsIndexContent() {
 
   const hasFilters = priceRange !== "all" || inStockOnly || sortBy !== "relevance" || category;
 
+  const { data: categoriesData = [] } = useQuery({
+    queryKey: ["demo-categories-list"],
+    queryFn: async () => cloneCategories(),
+  });
+
   const renderFiltersList = () => (
     <>
       {/* Category List Filter */}
@@ -118,7 +127,7 @@ export default function ProductsIndexContent() {
             <span>All Categories</span>
             {!category && <Check className="size-3.5" />}
           </button>
-          {SHOP_CATEGORY_BANNERS.map((cat) => {
+          {categoriesData.map((cat) => {
             const active = category === cat.slug;
             return (
               <button

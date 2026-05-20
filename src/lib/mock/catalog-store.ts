@@ -5,11 +5,14 @@ import type { AdvertisementRow, CategoryRow, OfferRow, ProductRow } from "@/lib/
 import { isPromoActiveNow } from "@/lib/mock/promo-schedule";
 import { SHOP_CATEGORY_BANNERS, unsplashPhoto } from "@/lib/mock/category-metadata";
 
-const SEED_CATEGORIES: CategoryRow[] = SHOP_CATEGORY_BANNERS.map(({ id, name, slug }) => ({
-  id,
-  name,
-  slug,
-}));
+const SEED_CATEGORIES: CategoryRow[] = SHOP_CATEGORY_BANNERS.map(
+  ({ id, name, slug, bannerUrl }) => ({
+    id,
+    name,
+    slug,
+    banner_url: bannerUrl,
+  }),
+);
 
 const img = (photoPath: string) => unsplashPhoto(photoPath, 640);
 
@@ -424,10 +427,45 @@ const SEED_ADS: AdvertisementRow[] = [
   },
 ];
 
-const categoriesState = [...SEED_CATEGORIES];
-let productsState = [...SEED_PRODUCTS];
-let offersState = [...SEED_OFFERS];
-let adsState = [...SEED_ADS];
+const KEYS = {
+  CATS: "wanshi.demo_categories",
+  PRODS: "wanshi.demo_products",
+  OFFERS: "wanshi.demo_offers",
+  ADS: "wanshi.demo_ads",
+};
+
+function read<T>(key: string, seed: T[]): T[] {
+  if (typeof window === "undefined") return seed;
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) {
+      // First time initialization: write seed to storage
+      window.localStorage.setItem(key, JSON.stringify(seed));
+      return seed;
+    }
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as T[]) : seed;
+  } catch {
+    return seed;
+  }
+}
+
+function write<T>(key: string, data: T[]) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(key, JSON.stringify(data));
+}
+
+let categoriesState = read(KEYS.CATS, SEED_CATEGORIES).map((c) => {
+  // Migration: If banner_url is missing for a seed category, restore it
+  if (!c.banner_url) {
+    const seed = SEED_CATEGORIES.find((s) => s.id === c.id);
+    if (seed?.banner_url) return { ...c, banner_url: seed.banner_url };
+  }
+  return c;
+});
+let productsState = read(KEYS.PRODS, SEED_PRODUCTS);
+let offersState = read(KEYS.OFFERS, SEED_OFFERS);
+let adsState = read(KEYS.ADS, SEED_ADS);
 
 export function cloneCategories(): CategoryRow[] {
   return categoriesState.map((c) => ({ ...c }));
@@ -501,10 +539,12 @@ export function cloneAdsAdmin(): AdvertisementRow[] {
 
 export function deleteOffer(id: string) {
   offersState = offersState.filter((o) => o.id !== id);
+  write(KEYS.OFFERS, offersState);
 }
 
 export function deleteAdvertisement(id: string) {
   adsState = adsState.filter((a) => a.id !== id);
+  write(KEYS.ADS, adsState);
 }
 
 export function upsertOffer(row: Omit<OfferRow, "id"> & { id?: string }) {
@@ -514,6 +554,7 @@ export function upsertOffer(row: Omit<OfferRow, "id"> & { id?: string }) {
     const id = `off-${crypto.randomUUID()}`;
     offersState = [...offersState, { ...row, id }];
   }
+  write(KEYS.OFFERS, offersState);
 }
 
 export function upsertAdvertisement(row: Omit<AdvertisementRow, "id"> & { id?: string }) {
@@ -523,10 +564,12 @@ export function upsertAdvertisement(row: Omit<AdvertisementRow, "id"> & { id?: s
     const id = `ad-${crypto.randomUUID()}`;
     adsState = [...adsState, { ...row, id }];
   }
+  write(KEYS.ADS, adsState);
 }
 
 export function deleteProduct(id: string) {
   productsState = productsState.filter((p) => p.id !== id);
+  write(KEYS.PRODS, productsState);
 }
 
 export function upsertProduct(row: Omit<ProductRow, "id"> & { id?: string }) {
@@ -542,8 +585,9 @@ export function upsertProduct(row: Omit<ProductRow, "id"> & { id?: string }) {
     );
   } else {
     const id = `p-${crypto.randomUUID()}`;
-    productsState.push({ ...(normalized as Omit<ProductRow, "id">), id });
+    productsState = [...productsState, { ...(normalized as Omit<ProductRow, "id">), id }];
   }
+  write(KEYS.PRODS, productsState);
 }
 
 export function getCatalogCounts() {
@@ -556,20 +600,18 @@ export function getCatalogCounts() {
 }
 
 export function deleteCategory(id: string) {
-  const index = categoriesState.findIndex((c) => c.id === id);
-  if (index !== -1) {
-    categoriesState.splice(index, 1);
-  }
+  categoriesState = categoriesState.filter((c) => c.id !== id);
+  write(KEYS.CATS, categoriesState);
 }
 
 export function upsertCategory(row: Omit<CategoryRow, "id"> & { id?: string }) {
   if (row.id) {
-    const index = categoriesState.findIndex((c) => c.id === row.id);
-    if (index !== -1) {
-      categoriesState[index] = { ...categoriesState[index], ...row, id: row.id };
-    }
+    categoriesState = categoriesState.map((c) =>
+      c.id === row.id ? { ...c, ...row, id: row.id } : c,
+    );
   } else {
     const id = `cat-${crypto.randomUUID()}`;
-    categoriesState.push({ ...row, id });
+    categoriesState = [...categoriesState, { ...row, id }];
   }
+  write(KEYS.CATS, categoriesState);
 }

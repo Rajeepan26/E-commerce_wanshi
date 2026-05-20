@@ -1,7 +1,7 @@
 import { cloneCategories } from "@/lib/mock/catalog-store";
 import { CategoryClient } from "./category-client";
 
-export const dynamicParams = false;
+export const dynamicParams = true;
 
 export function generateStaticParams() {
   return cloneCategories().map((category) => ({

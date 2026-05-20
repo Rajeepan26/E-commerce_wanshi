@@ -27,6 +27,7 @@ export type CategoryRow = {
   id: string;
   name: string;
   slug: string;
+  banner_url?: string | null;
 };
 
 export type ProductRow = {
