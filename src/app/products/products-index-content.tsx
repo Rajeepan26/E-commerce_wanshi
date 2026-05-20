@@ -13,8 +13,9 @@ import {
 } from "@/lib/mock/catalog-store";
 import { ProductCard } from "@/components/product-card";
 import { cn } from "@/lib/utils";
-import { Check, SlidersHorizontal, RefreshCw, X, ArrowLeft } from "lucide-react";
+import { Check, SlidersHorizontal, RefreshCw, X, ArrowLeft, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function ProductsIndexContent() {
   const searchParams = useSearchParams();
@@ -235,6 +236,10 @@ export default function ProductsIndexContent() {
                     <img
                       src={ad.image_url}
                       alt={ad.title}
+                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "https://placehold.co/400?text=Sponsor";
+                      }}
                       className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
@@ -377,6 +382,27 @@ export default function ProductsIndexContent() {
                     : "All products"}
               </h1>
             </div>
+
+            <div className="flex flex-1 min-w-[200px] max-w-md items-center gap-2">
+              <div className="relative w-full">
+                <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Search in catalog..."
+                  defaultValue={q ?? ""}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      const val = (e.target as HTMLInputElement).value;
+                      const params = new URLSearchParams(searchParams.toString());
+                      if (val) params.set("q", val);
+                      else params.delete("q");
+                      router.push(`${pathname}?${params.toString()}`);
+                    }
+                  }}
+                  className="pl-9 h-9 rounded-xl border-border/60 bg-muted/30 focus-visible:ring-primary/20"
+                />
+              </div>
+            </div>
+
             <p className="text-xs text-muted-foreground font-semibold bg-muted/60 px-3 py-1 rounded-full">
               {filteredProducts.length} {filteredProducts.length === 1 ? "product" : "products"}{" "}
               found

@@ -1,4 +1,5 @@
 import type { OrderStatus, StoredOrder, StoredOrderItem } from "@/lib/mock/types";
+import { decrementStock } from "./catalog-store";
 
 const STORAGE_KEY = "wanshi.demo_orders";
 
@@ -80,6 +81,11 @@ export function appendDemoOrder(payload: {
       },
     ],
   };
+
+  // Decrement stock for each item
+  payload.items.forEach((item) => {
+    decrementStock(item.product_id, item.quantity);
+  });
 
   writeAll([...readAll(), order]);
   return order;

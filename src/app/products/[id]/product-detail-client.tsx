@@ -35,7 +35,8 @@ export function ProductDetailClient() {
   });
 
   const cart = useCart();
-  const { user } = useAuth();
+  const { user, role } = useAuth();
+  const isAdmin = role === "admin";
   const router = useRouter();
 
   // Interactive Product States
@@ -226,12 +227,12 @@ export function ProductDetailClient() {
               </div>
               <span className="text-muted-foreground font-medium">{ordersCount} orders</span>
               <span className="text-muted-foreground font-medium">•</span>
-              <span className="font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-1">
+              <span className="font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-1.5">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                {stock > 0 ? "In Stock" : "Out of Stock"}
+                {stock > 0 ? `In Stock (${stock} left)` : "Out of Stock"}
               </span>
             </div>
           </div>
@@ -335,6 +336,7 @@ export function ProductDetailClient() {
                   type="button"
                   onClick={() => setQty((prev) => Math.min(stock, prev + 1))}
                   className="flex items-center justify-center size-10 text-muted-foreground hover:text-primary active:scale-95 transition-all"
+                  disabled={qty >= stock}
                 >
                   <Plus className="size-3.5" />
                 </button>
@@ -348,10 +350,11 @@ export function ProductDetailClient() {
               size="lg"
               className="w-full gap-2 rounded-xl h-12 text-sm font-semibold active:scale-95 transition-transform"
               type="button"
-              disabled={stock <= 0}
+              disabled={stock <= 0 || isAdmin}
               onClick={addToCart}
             >
-              <ShoppingCart className="size-4 shrink-0" /> Add to cart
+              <ShoppingCart className="size-4 shrink-0" />
+              {stock <= 0 ? "Out of stock" : isAdmin ? "Admin View Only" : "Add to cart"}
             </Button>
           </div>
         </div>
@@ -416,18 +419,8 @@ export function ProductDetailClient() {
                   <tbody>
                     <tr className="border-b bg-muted/10">
                       <th className="px-4 py-3 font-bold text-muted-foreground w-1/3">Origin</th>
-                      <td className="px-4 py-3 text-foreground font-medium">Sri Lanka</td>
-                    </tr>
-                    <tr className="border-b">
-                      <th className="px-4 py-3 font-bold text-muted-foreground">Fitting</th>
                       <td className="px-4 py-3 text-foreground font-medium">
-                        Standard / Tailored fit
-                      </td>
-                    </tr>
-                    <tr className="border-b bg-muted/10">
-                      <th className="px-4 py-3 font-bold text-muted-foreground">Style Code</th>
-                      <td className="px-4 py-3 text-foreground font-medium">
-                        WNS-{id.toUpperCase()}
+                        {(p as any).origin || "Sri Lanka"}
                       </td>
                     </tr>
                     <tr>

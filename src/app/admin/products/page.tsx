@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Search } from "lucide-react";
 
 type AdminProductRow = {
   id: string;
@@ -40,9 +40,7 @@ type AdminProductRow = {
   weight_kg?: number | string | null;
   is_active?: boolean | null;
   categories?: { name: string } | null;
-  brand?: string | null;
-  material?: string | null;
-  product_type?: string | null;
+  origin?: string | null;
   sizes?: string[] | null;
 };
 
@@ -61,6 +59,18 @@ export default function AdminProductsPage() {
   const { data: products } = useQuery({
     queryKey: ["admin-products"],
     queryFn: async () => cloneProductsForAdmin(),
+  });
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredProducts = products?.filter((p) => {
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    return (
+      p.name.toLowerCase().includes(term) ||
+      (p.categories?.name ?? "").toLowerCase().includes(term) ||
+      p.id.toLowerCase().includes(term)
+    );
   });
 
   const confirmDelete = async () => {
@@ -83,6 +93,16 @@ export default function AdminProductsPage() {
         >
           {showForm ? "Cancel" : "Add Product"}
         </Button>
+      </div>
+
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="Filter products..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-9 h-9 rounded-xl"
+        />
       </div>
 
       {showForm && (
@@ -108,7 +128,7 @@ export default function AdminProductsPage() {
             </tr>
           </thead>
           <tbody>
-            {products?.map((p) => (
+            {filteredProducts?.map((p) => (
               <tr key={p.id} className="border-t">
                 <td className="flex items-center gap-3 p-3">
                   <img src={p.image_url ?? ""} alt="" className="size-10 rounded object-cover" />
@@ -203,10 +223,8 @@ function ProductForm({
   const [imageUrl, setImageUrl] = useState("");
   const [stockQuantity, setStockQuantity] = useState("");
   const [weightKg, setWeightKg] = useState("");
+  const [origin, setOrigin] = useState("");
   const [isActive, setIsActive] = useState(true);
-  const [brand, setBrand] = useState("");
-  const [material, setMaterial] = useState("");
-  const [productType, setProductType] = useState("");
   const [sizes, setSizes] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -235,10 +253,8 @@ function ProductForm({
       setWeightKg(
         product.weight_kg != null && product.weight_kg !== "" ? String(product.weight_kg) : "1",
       );
+      setOrigin(product.origin ?? "");
       setIsActive(product.is_active !== false);
-      setBrand(product.brand ?? "");
-      setMaterial(product.material ?? "");
-      setProductType(product.product_type ?? "");
       setSizes(product.sizes ?? []);
     }
   }, [mode, product]);
@@ -272,10 +288,8 @@ function ProductForm({
         image_url: imageUrl || null,
         weight_kg: weightKg ? Number(weightKg) : 1,
         stock_quantity: stockQuantity ? Number(stockQuantity) : 0,
+        origin: origin || "Sri Lanka",
         is_active: isActive,
-        brand: brand || null,
-        material: material || null,
-        product_type: productType || null,
         sizes: isClothingCategory ? sizes : null,
       };
       upsertProduct(row);
@@ -296,10 +310,8 @@ function ProductForm({
       setImageUrl("");
       setStockQuantity("");
       setWeightKg("");
+      setOrigin("");
       setIsActive(true);
-      setBrand("");
-      setMaterial("");
-      setProductType("");
       setSizes([]);
     }
     onSuccess();
@@ -418,29 +430,13 @@ function ProductForm({
           />
         </div>
       </div>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <Label>Brand Name</Label>
+          <Label>Origin</Label>
           <Input
-            value={brand}
-            onChange={(e) => setBrand(e.target.value)}
-            placeholder="e.g. Wanshi Originals"
-          />
-        </div>
-        <div>
-          <Label>Material / Composition</Label>
-          <Input
-            value={material}
-            onChange={(e) => setMaterial(e.target.value)}
-            placeholder="e.g. 100% Cotton / Oak Wood"
-          />
-        </div>
-        <div>
-          <Label>Product Type / Subtype</Label>
-          <Input
-            value={productType}
-            onChange={(e) => setProductType(e.target.value)}
-            placeholder="e.g. Casual clothing / Smart Tech"
+            value={origin}
+            onChange={(e) => setOrigin(e.target.value)}
+            placeholder="e.g. Sri Lanka"
           />
         </div>
       </div>

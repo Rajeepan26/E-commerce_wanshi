@@ -448,7 +448,7 @@ export function SiteHeader() {
                   >
                     <div className="px-3 py-2 text-xs font-semibold text-muted-foreground/80 border-b border-border/40 pb-2 mb-1.5 flex flex-col gap-0.5">
                       <span className="font-bold text-foreground truncate">
-                        {user.app_metadata?.full_name || "Customer"}
+                        {user.app_metadata?.full_name || (role === "admin" ? "Admin" : "Customer")}
                       </span>
                       <span className="text-[10px] text-muted-foreground truncate">
                         {user.email}

@@ -21,7 +21,7 @@ export type ProductCardData = {
 
 export function ProductCard({ p }: { p: ProductCardData }) {
   const cart = useCart();
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const router = useRouter();
   const price = Number(p.price);
   const orig = p.original_price ? Number(p.original_price) : undefined;
@@ -100,11 +100,11 @@ export function ProductCard({ p }: { p: ProductCardData }) {
           variant="outline"
           size="sm"
           className="h-9 w-full gap-1.5 rounded-xl px-2 text-xs border-border/80 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 active:scale-95 shadow-sm"
-          disabled={out}
+          disabled={out || (role === "admin")}
           onClick={addToCart}
         >
           <ShoppingCart className="size-3.5 shrink-0" />
-          {out ? "Out of Stock" : "Add to cart"}
+          {out ? "Out of Stock" : (role === "admin") ? "Admin View" : "Add to cart"}
         </Button>
       </div>
     </div>

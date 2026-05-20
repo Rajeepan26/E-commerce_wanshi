@@ -72,7 +72,6 @@ export function ShopSearchBar({ variant = "inline" }: { variant?: "inline" | "be
 
   const buildProductsHref = (categoryOverride?: string) => {
     const slug = categoryOverride ?? categorySlug;
-    if (slug && !term) return `/category/${slug}`;
     const params = new URLSearchParams();
     if (term) params.set("q", term);
     if (slug) params.set("category", slug);

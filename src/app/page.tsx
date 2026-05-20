@@ -21,6 +21,7 @@ import { cloneActiveAds, cloneActiveOffers, cloneProductsActive } from "@/lib/mo
 import { promoScheduleBadges } from "@/lib/mock/promo-schedule";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function HomePage() {
   const { data: ads } = useQuery({
@@ -35,6 +36,7 @@ export default function HomePage() {
     queryKey: ["demo-products", "home"],
     queryFn: async () => cloneProductsActive({ limit: 12 }),
   });
+  const { user } = useAuth();
 
   const heroAd = ads?.find((a) => a.position === "hero");
   const easyReturns = heroAd?.title?.split("|")[0]?.trim() || "Easy Returns";
@@ -77,25 +79,39 @@ export default function HomePage() {
             className="w-full relative group"
           >
             <CarouselContent>
-              {offers?.map((o) => (
-                <CarouselItem key={o.id} className="basis-full">
+              {/* Combine Offers and Hero Ads in Carousel */}
+              {[
+                ...(offers?.map((o) => ({ ...o, type: "offer" as const })) ?? []),
+                ...(ads?.filter((a) => a.position === "hero" && a.image_url && a.is_active).map((a) => ({ ...a, type: "ad" as const })) ?? []),
+              ].map((item) => (
+                <CarouselItem key={item.id} className="basis-full">
                   <Link
                     href="/products"
                     className="group relative block overflow-hidden rounded-2xl border border-border/80 bg-card transition-all duration-500 shadow-sm hover:shadow-xl hover:border-primary/20"
                   >
                     <div className="relative h-56 w-full overflow-hidden sm:h-80 md:h-[400px]">
                       <img
-                        src={o.banner_image_url ?? ""}
-                        alt={o.title}
+                        src={(item as any).banner_image_url || (item as any).image_url || ""}
+                        alt={item.title}
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "https://placehold.co/800?text=Promo+Image";
+                        }}
                         className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-[1.03]"
                       />
                       <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
                       <div className="absolute inset-y-0 left-0 flex max-w-xl flex-col justify-center p-6 sm:p-12 text-left z-10 animate-in fade-in-50 slide-in-from-left-6 duration-1000">
                         <div className="flex flex-wrap items-center gap-2">
-                          <p className="inline-block w-fit rounded-full bg-primary/95 px-3.5 py-1 text-[10px] font-extrabold text-primary-foreground uppercase tracking-widest shadow-md">
-                            Up to {o.discount_percentage}% OFF
-                          </p>
-                          {promoScheduleBadges(o).map((label) => (
+                          {item.type === "offer" ? (
+                            <p className="inline-block w-fit rounded-full bg-primary/95 px-3.5 py-1 text-[10px] font-extrabold text-primary-foreground uppercase tracking-widest shadow-md">
+                              Up to {(item as any).discount_percentage}% OFF
+                            </p>
+                          ) : (
+                            <p className="inline-block w-fit rounded-full bg-primary/95 px-3.5 py-1 text-[10px] font-extrabold text-primary-foreground uppercase tracking-widest shadow-md">
+                              Featured Selection
+                            </p>
+                          )}
+                          {promoScheduleBadges(item as any).map((label) => (
                             <span
                               key={label}
                               className={
@@ -109,10 +125,10 @@ export default function HomePage() {
                           ))}
                         </div>
                         <h3 className="mt-3 text-2xl font-extrabold text-white sm:mt-4 sm:text-4xl md:text-5xl leading-tight tracking-tight drop-shadow-md">
-                          {o.title}
+                          {item.title}
                         </h3>
                         <p className="mt-2 line-clamp-2 text-xs text-white/80 sm:text-base max-w-md font-medium leading-relaxed">
-                          {o.description}
+                          {(item as any).description || "Exclusive limited time collection."}
                         </p>
                         <div className="mt-5 sm:mt-6">
                           <span className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-xs font-bold text-black shadow-lg transition-all duration-300 hover:bg-primary hover:text-white motion-safe:active:scale-95 group-hover:shadow-primary/10">
@@ -147,8 +163,11 @@ export default function HomePage() {
                 Enjoy reliability, secure deliveries and hassle-free returns.
               </p>
             </div>
-            <Button className="rounded-full bg-black text-white px-10 py-7 text-sm font-bold hover:bg-black/90 shadow-lg transform transition-transform hover:scale-105 active:scale-95">
-              Start now
+            <Button
+              asChild
+              className="rounded-full bg-black text-white px-10 py-7 text-sm font-bold hover:bg-black/90 shadow-lg transform transition-transform hover:scale-105 active:scale-95"
+            >
+              <Link href={user ? "/products" : "/login?redirect=/products"}>Start now</Link>
             </Button>
           </div>
         </section>
@@ -169,9 +188,9 @@ export default function HomePage() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              {ads
-                .filter((a) => a.position === "banner" && a.is_active)
-                .map((ad, i) => (
+            {ads
+              .filter((a) => (a.position === "banner" || a.position === "sidebar") && a.is_active)
+              .map((ad, i) => (
                   <div
                     key={ad.id}
                     className={cn(
@@ -186,6 +205,10 @@ export default function HomePage() {
                         <img
                           src={ad.image_url}
                           alt={ad.title}
+                          referrerPolicy="no-referrer"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "https://placehold.co/600?text=Ad+Banner";
+                          }}
                           className="h-full w-full object-cover group-hover:scale-[1.025] transition-transform duration-[1000ms]"
                         />
                       ) : (

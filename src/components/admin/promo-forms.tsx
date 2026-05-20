@@ -115,11 +115,32 @@ export function OfferForm({
       </div>
       <div>
         <Label>Banner Image URL</Label>
-        <Input
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          placeholder="https://..."
-        />
+        <div className="flex gap-2">
+          <Input
+            value={imageUrl}
+            onChange={(e) => {
+              let val = e.target.value.trim();
+              if (val && !val.startsWith("http") && !val.startsWith("/") && val.includes(".")) {
+                val = `https://${val}`;
+              }
+              setImageUrl(val);
+            }}
+            placeholder="https://..."
+          />
+          {imageUrl && (
+            <div className="size-10 shrink-0 overflow-hidden rounded border bg-muted">
+              <img
+                src={imageUrl}
+                alt="Preview"
+                className="size-full object-cover"
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "https://placehold.co/40?text=Error";
+                }}
+              />
+            </div>
+          )}
+        </div>
       </div>
       <label className="flex items-center gap-2">
         <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
@@ -227,11 +248,32 @@ export function AdForm({
       </div>
       <div>
         <Label>Image URL</Label>
-        <Input
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          placeholder="https://..."
-        />
+        <div className="flex gap-2">
+          <Input
+            value={imageUrl}
+            onChange={(e) => {
+              let val = e.target.value.trim();
+              if (val && !val.startsWith("http") && !val.startsWith("/") && val.includes(".")) {
+                val = `https://${val}`;
+              }
+              setImageUrl(val);
+            }}
+            placeholder="https://..."
+          />
+          {imageUrl && (
+            <div className="size-10 shrink-0 overflow-hidden rounded border bg-muted">
+              <img
+                src={imageUrl}
+                alt="Preview"
+                className="size-full object-cover"
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "https://placehold.co/40?text=Error";
+                }}
+              />
+            </div>
+          )}
+        </div>
       </div>
       <label className="flex items-center gap-2">
         <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />

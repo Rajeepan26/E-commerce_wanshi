@@ -45,6 +45,7 @@ export type ProductRow = {
   brand?: string | null;
   material?: string | null;
   product_type?: string | null;
+  origin?: string | null;
   sizes?: string[] | null;
 };
 

@@ -39,7 +39,7 @@ const SEED_PRODUCTS: ProductRow[] = [
     category_id: "cat-women-cloths",
     image_url: img("photo-1445205170230-053b83016050"),
     weight_kg: 0.85,
-    stock_quantity: 12,
+    stock_quantity: 100,
     is_active: true,
   },
   {
@@ -614,4 +614,15 @@ export function upsertCategory(row: Omit<CategoryRow, "id"> & { id?: string }) {
     categoriesState = [...categoriesState, { ...row, id }];
   }
   write(KEYS.CATS, categoriesState);
+}
+
+export function decrementStock(productId: string, quantity: number) {
+  productsState = productsState.map((p) => {
+    if (p.id === productId) {
+      const q = Math.max(0, (Number(p.stock_quantity) || 0) - quantity);
+      return { ...p, stock_quantity: q };
+    }
+    return p;
+  });
+  write(KEYS.PRODS, productsState);
 }
