@@ -14,15 +14,12 @@ export function TrustBar({ easyReturnsLabel = "Easy Returns", className }: Trust
   return (
     <div className={cn("grid gap-3 sm:grid-cols-3 sm:gap-4", className)}>
       <div className={boxStyles}>
-        <Truck className="size-4 shrink-0 text-primary" aria-hidden />
         <span className="text-center">{easyReturnsLabel}</span>
       </div>
       <div className={boxStyles}>
-        <ShieldCheck className="size-4 shrink-0 text-primary" aria-hidden />
         <span className="text-center">Top Rated Products</span>
       </div>
       <div className={boxStyles}>
-        <Wallet className="size-4 shrink-0 text-primary" aria-hidden />
         <span className="text-center">Cash on Delivery</span>
       </div>
     </div>

@@ -42,9 +42,7 @@ export default function HomePage() {
       <SiteHeader />
       {heroAd && heroAd.is_active && (
         <div className="bg-primary/95 text-primary-foreground py-2 px-4 text-center text-xs font-semibold tracking-wide shadow-sm border-b border-primary/25 relative overflow-hidden backdrop-blur-sm animate-fade-in flex items-center justify-center gap-1.5">
-          <span className="animate-pulse">✨</span>
           <span className="font-bold tracking-normal">{heroAd.title}</span>
-          <span className="animate-pulse">✨</span>
         </div>
       )}
       <main className="mx-auto w-full max-w-6xl flex-1 min-w-0 px-4 sm:px-6 lg:px-8 py-6 md:py-8">
@@ -129,10 +127,24 @@ export default function HomePage() {
           </Carousel>
         </section>
 
-        <TrustBar
-          easyReturnsLabel={easyReturns}
-          className="mb-12 animate-in fade-in-50 slide-in-from-bottom-2 duration-700"
-        />
+        {/* New Banner Section (Task 2 & 3) */}
+        <section className="mb-12 animate-in fade-in-50 slide-in-from-bottom-3 duration-1000">
+          <div className="bg-[#f5f5f5] rounded-[2.5rem] p-8 sm:p-12 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm border border-border/40">
+            <div className="space-y-2 text-center sm:text-left">
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+                Shopping made easy
+              </h2>
+              <p className="text-sm sm:text-base text-muted-foreground font-medium max-w-md">
+                Enjoy reliability, secure deliveries and hassle-free returns.
+              </p>
+            </div>
+            <Button className="rounded-full bg-black text-white px-10 py-7 text-sm font-bold hover:bg-black/90 shadow-lg transform transition-transform hover:scale-105 active:scale-95">
+              Start now
+            </Button>
+          </div>
+
+
+        </section>
 
         <CategoryBanners />
 

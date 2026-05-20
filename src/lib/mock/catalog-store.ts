@@ -377,7 +377,7 @@ const SEED_OFFERS: OfferRow[] = [
 const SEED_ADS: AdvertisementRow[] = [
   {
     id: "ad-hero",
-    title: "Easy Returns | Fast dispatch | COD available",
+    title: "Secure privacy | Safe payments | Delivery guarantee",
     position: "hero",
     image_url: null,
     is_active: true,
