@@ -14,6 +14,7 @@ export type AdminRegistryUserRow = {
   email: string;
   full_name: string;
   role: Exclude<DemoRole, null>;
+  is_deleted?: boolean;
 };
 
 function readRegistry(): AdminRegistryUserRow[] {
@@ -116,27 +117,7 @@ export function deleteAdminCreatedUser(
   const row = rows.find((r) => r.id === userId);
   if (!row) return { ok: false, error: "User not found." };
 
-  writeRegistry(rows.filter((r) => r.id !== userId));
-
-  const o = readPasswordOverrides();
-  const emailKey = row.email.trim().toLowerCase();
-  if (Object.prototype.hasOwnProperty.call(o, emailKey)) {
-    delete o[emailKey];
-    writePasswordOverrides(o);
-  }
-
-  window.localStorage.removeItem(`wanshi.demo_role.${userId}`);
-
-  try {
-    const raw = window.localStorage.getItem(DEMO_PROFILES_KEY) ?? "{}";
-    const map = JSON.parse(raw) as Record<string, unknown>;
-    if (map && typeof map === "object" && userId in map) {
-      delete map[userId];
-      window.localStorage.setItem(DEMO_PROFILES_KEY, JSON.stringify(map));
-    }
-  } catch {
-    // ignore malformed profile blob
-  }
+  writeRegistry(rows.map((r) => (r.id === userId ? { ...r, is_deleted: true } : r)));
 
   return { ok: true };
 }

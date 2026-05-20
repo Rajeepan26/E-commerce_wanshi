@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/use-auth";
 import type { DemoRole } from "@/lib/mock/types-shared";
 import { listAdminUserDirectory } from "@/lib/mock/admin-users-directory";
 import { addAdminCreatedUser, deleteAdminCreatedUser } from "@/lib/mock/admin-user-registry";
+import { cn } from "@/lib/utils";
 
 export default function AdminUsersPage() {
   const queryClient = useQueryClient();
@@ -20,6 +21,7 @@ export default function AdminUsersPage() {
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<Exclude<DemoRole, null>>("customer");
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const { data: directory = [] } = useQuery({
     queryKey: ["admin-users-directory"],
@@ -58,6 +60,7 @@ export default function AdminUsersPage() {
         return;
       }
       toast.success("User removed");
+      setConfirmDeleteId(null);
       queryClient.invalidateQueries({ queryKey: ["admin-users-directory"] });
       if (user?.id === targetId) {
         void signOut();
@@ -167,7 +170,14 @@ export default function AdminUsersPage() {
                   <td className="px-3 py-2 capitalize">{row.role}</td>
                   <td className="px-3 py-2 text-muted-foreground">{row.phone_display}</td>
                   <td className="px-3 py-2">
-                    <span className="inline-flex rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-semibold capitalize text-emerald-800 dark:text-emerald-200">
+                    <span
+                      className={cn(
+                        "inline-flex rounded-full px-2 py-0.5 text-xs font-semibold capitalize shadow-sm",
+                        row.status === "Active"
+                          ? "bg-emerald-500/15 text-emerald-800 dark:text-emerald-200"
+                          : "bg-destructive/15 text-destructive",
+                      )}
+                    >
                       {row.status}
                     </span>
                   </td>
@@ -184,11 +194,7 @@ export default function AdminUsersPage() {
                       }
                       onClick={() => {
                         if (!row.deletable) return;
-                        if (
-                          !window.confirm(`Remove access for ${row.email}? This cannot be undone.`)
-                        )
-                          return;
-                        deleteMutation.mutate(row.id);
+                        setConfirmDeleteId(row.id);
                       }}
                     >
                       <Trash2 className="size-4" />
@@ -200,6 +206,31 @@ export default function AdminUsersPage() {
           </table>
         </div>
       </section>
+
+      {confirmDeleteId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-sm rounded-xl border bg-card p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-bold">Confirm Deletion</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Are you sure you want to remove access for this user? This action cannot be undone.
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setConfirmDeleteId(null)}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  if (confirmDeleteId) deleteMutation.mutate(confirmDeleteId);
+                }}
+                disabled={deleteMutation.isPending}
+              >
+                {deleteMutation.isPending ? "Removing..." : "Remove User"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

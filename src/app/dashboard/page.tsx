@@ -93,24 +93,28 @@ export default function DashboardOverviewPage() {
         value: String(total),
         icon: Package,
         iconWrap: "bg-sky-100 text-sky-600 dark:bg-sky-950 dark:text-sky-300",
+        href: "/dashboard/orders",
       },
       {
         label: "Cart items",
         value: String(cartCount),
         icon: Heart,
         iconWrap: "bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-300",
+        href: "/dashboard/cart",
       },
       {
         label: "Active orders",
         value: String(data?.activePipeline ?? 0),
         icon: ShoppingBag,
         iconWrap: "bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-300",
+        href: "/dashboard/orders",
       },
       {
         label: "Pending delivery",
         value: String(data?.awaiting ?? 0),
         icon: Clock,
         iconWrap: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-200",
+        href: "/dashboard/track",
       },
     ];
   }, [cartCount, data?.activePipeline, data?.awaiting, data?.total]);
@@ -195,8 +199,9 @@ export default function DashboardOverviewPage() {
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((s) => (
-          <div
+          <Link
             key={s.label}
+            href={s.href}
             className="flex items-center gap-4 rounded-2xl border bg-card p-4 shadow-sm transition hover:border-primary/25 hover:shadow-md"
           >
             <div className={cn("grid size-11 shrink-0 place-items-center rounded-xl", s.iconWrap)}>
@@ -206,7 +211,7 @@ export default function DashboardOverviewPage() {
               <p className="text-sm text-muted-foreground">{s.label}</p>
               <p className="text-2xl font-bold tracking-tight text-foreground">{s.value}</p>
             </div>
-          </div>
+          </Link>
         ))}
       </section>
 

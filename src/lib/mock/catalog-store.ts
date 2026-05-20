@@ -507,18 +507,22 @@ export function deleteAdvertisement(id: string) {
   adsState = adsState.filter((a) => a.id !== id);
 }
 
-export function insertOffer(row: Omit<OfferRow, "id">): OfferRow {
-  const id = `off-${crypto.randomUUID()}`;
-  const r: OfferRow = { ...row, id };
-  offersState = [...offersState, r];
-  return r;
+export function upsertOffer(row: Omit<OfferRow, "id"> & { id?: string }) {
+  if (row.id) {
+    offersState = offersState.map((o) => (o.id === row.id ? { ...o, ...row, id: row.id } : o));
+  } else {
+    const id = `off-${crypto.randomUUID()}`;
+    offersState = [...offersState, { ...row, id }];
+  }
 }
 
-export function insertAdvertisement(row: Omit<AdvertisementRow, "id">): AdvertisementRow {
-  const id = `ad-${crypto.randomUUID()}`;
-  const r: AdvertisementRow = { ...row, id };
-  adsState = [...adsState, r];
-  return r;
+export function upsertAdvertisement(row: Omit<AdvertisementRow, "id"> & { id?: string }) {
+  if (row.id) {
+    adsState = adsState.map((a) => (a.id === row.id ? { ...a, ...row, id: row.id } : a));
+  } else {
+    const id = `ad-${crypto.randomUUID()}`;
+    adsState = [...adsState, { ...row, id }];
+  }
 }
 
 export function deleteProduct(id: string) {

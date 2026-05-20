@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import type { AdPosition } from "@/lib/mock/types";
-import { insertAdvertisement, insertOffer } from "@/lib/mock/catalog-store";
+import { upsertAdvertisement, upsertOffer } from "@/lib/mock/catalog-store";
+import type { AdvertisementRow, OfferRow } from "@/lib/mock/types";
 import { parseDayEnd, parseDayStart } from "@/lib/mock/promo-schedule";
 
 function defaultPromoDates() {
@@ -22,15 +22,15 @@ function defaultPromoDates() {
   return { startsAt: iso(start), endsAt: iso(end) };
 }
 
-export function OfferForm({ onSuccess }: { onSuccess: () => void }) {
+export function OfferForm({ onSuccess, initialData }: { onSuccess: () => void; initialData?: OfferRow }) {
   const defaults = defaultPromoDates();
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [discount, setDiscount] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-  const [startsAt, setStartsAt] = useState(defaults.startsAt);
-  const [endsAt, setEndsAt] = useState(defaults.endsAt);
-  const [isActive, setIsActive] = useState(true);
+  const [title, setTitle] = useState(initialData?.title ?? "");
+  const [description, setDescription] = useState(initialData?.description ?? "");
+  const [discount, setDiscount] = useState(initialData?.discount_percentage?.toString() ?? "");
+  const [imageUrl, setImageUrl] = useState(initialData?.banner_image_url ?? "");
+  const [startsAt, setStartsAt] = useState(initialData?.starts_at ?? defaults.startsAt);
+  const [endsAt, setEndsAt] = useState(initialData?.ends_at ?? defaults.endsAt);
+  const [isActive, setIsActive] = useState(initialData?.is_active ?? true);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,7 +48,8 @@ export function OfferForm({ onSuccess }: { onSuccess: () => void }) {
       return;
     }
     setLoading(true);
-    insertOffer({
+    upsertOffer({
+      id: initialData?.id,
       title,
       description,
       discount_percentage: Number(discount),
@@ -58,7 +59,7 @@ export function OfferForm({ onSuccess }: { onSuccess: () => void }) {
       ends_at: endsAt,
     });
     setLoading(false);
-    toast.success("Offer added successfully");
+    toast.success(initialData ? "Offer updated successfully" : "Offer added successfully");
     onSuccess();
   };
 
@@ -119,20 +120,20 @@ export function OfferForm({ onSuccess }: { onSuccess: () => void }) {
         <span className="text-sm">Active</span>
       </label>
       <Button type="submit" disabled={loading}>
-        {loading ? "Adding..." : "Add Offer"}
+        {loading ? (initialData ? "Updating..." : "Adding...") : (initialData ? "Update Offer" : "Add Offer")}
       </Button>
     </form>
   );
 }
 
-export function AdForm({ onSuccess }: { onSuccess: () => void }) {
+export function AdForm({ onSuccess, initialData }: { onSuccess: () => void; initialData?: AdvertisementRow }) {
   const defaults = defaultPromoDates();
-  const [title, setTitle] = useState("");
-  const [position, setPosition] = useState<AdPosition>("hero");
-  const [imageUrl, setImageUrl] = useState("");
-  const [startsAt, setStartsAt] = useState(defaults.startsAt);
-  const [endsAt, setEndsAt] = useState(defaults.endsAt);
-  const [isActive, setIsActive] = useState(true);
+  const [title, setTitle] = useState(initialData?.title ?? "");
+  const [position, setPosition] = useState<AdvertisementRow["position"]>(initialData?.position ?? "hero");
+  const [imageUrl, setImageUrl] = useState(initialData?.image_url ?? "");
+  const [startsAt, setStartsAt] = useState(initialData?.starts_at ?? defaults.startsAt);
+  const [endsAt, setEndsAt] = useState(initialData?.ends_at ?? defaults.endsAt);
+  const [isActive, setIsActive] = useState(initialData?.is_active ?? true);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -150,7 +151,8 @@ export function AdForm({ onSuccess }: { onSuccess: () => void }) {
       return;
     }
     setLoading(true);
-    insertAdvertisement({
+    upsertAdvertisement({
+      id: initialData?.id,
       title,
       position,
       image_url: imageUrl || null,
@@ -159,7 +161,7 @@ export function AdForm({ onSuccess }: { onSuccess: () => void }) {
       ends_at: endsAt,
     });
     setLoading(false);
-    toast.success("Advertisement added successfully");
+    toast.success(initialData ? "Advertisement updated successfully" : "Advertisement added successfully");
     onSuccess();
   };
 
@@ -178,7 +180,7 @@ export function AdForm({ onSuccess }: { onSuccess: () => void }) {
         <Label>Position</Label>
         <select
           value={position}
-          onChange={(e) => setPosition(e.target.value as AdPosition)}
+          onChange={(e) => setPosition(e.target.value as AdvertisementRow["position"])}
           className="w-full rounded-md border border-input bg-background px-3 py-2"
         >
           <option value="hero">Hero Banner</option>
@@ -214,7 +216,7 @@ export function AdForm({ onSuccess }: { onSuccess: () => void }) {
         <span className="text-sm">Active</span>
       </label>
       <Button type="submit" disabled={loading}>
-        {loading ? "Adding..." : "Add Advertisement"}
+        {loading ? (initialData ? "Updating..." : "Adding...") : (initialData ? "Update Advertisement" : "Add Advertisement")}
       </Button>
     </form>
   );

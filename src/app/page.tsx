@@ -11,10 +11,12 @@ import { TrustBar } from "@/components/trust-bar";
 import {
   Carousel,
   CarouselContent,
+  CarouselDots,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 import { cloneActiveAds, cloneActiveOffers, cloneProductsActive } from "@/lib/mock/catalog-store";
 import { promoScheduleBadges } from "@/lib/mock/promo-schedule";
 import { Button } from "@/components/ui/button";
@@ -69,7 +71,11 @@ export default function HomePage() {
             <div className="h-0.5 w-8 bg-primary/30 mt-2 rounded-full" />
           </div>
 
-          <Carousel opts={{ loop: true, align: "start" }} className="w-full relative group">
+          <Carousel
+            opts={{ loop: true, align: "start" }}
+            plugins={[Autoplay({ delay: 2000 })]}
+            className="w-full relative group"
+          >
             <CarouselContent>
               {offers?.map((o) => (
                 <CarouselItem key={o.id} className="basis-full">
@@ -124,6 +130,9 @@ export default function HomePage() {
             </CarouselContent>
             <CarouselPrevious className="left-2 top-1/2 hidden h-10 w-10 -translate-y-1/2 rounded-full border-border/80 bg-background/80 backdrop-blur-sm sm:flex sm:left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <CarouselNext className="right-2 top-1/2 hidden h-10 w-10 -translate-y-1/2 rounded-full border-border/80 bg-background/80 backdrop-blur-sm sm:flex sm:right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
+              <CarouselDots />
+            </div>
           </Carousel>
         </section>
 

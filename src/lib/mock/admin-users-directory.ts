@@ -13,7 +13,7 @@ export type AdminDirectoryUserRow = {
   email: string;
   role: "admin" | "customer";
   phone_display: string;
-  status: "Active";
+  status: "Active" | "Deleted";
   deletable: boolean;
 };
 
@@ -60,8 +60,8 @@ export function listAdminUserDirectory(): AdminDirectoryUserRow[] {
       email: u.email,
       role: u.role,
       phone_display: formatPhone(prof?.phone_number),
-      status: "Active",
-      deletable: true,
+      status: u.is_deleted ? "Deleted" : "Active",
+      deletable: !u.is_deleted,
     };
   });
 

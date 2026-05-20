@@ -180,10 +180,10 @@ export default function AdminOverviewPage() {
   });
 
   const cards = [
-    { label: "Total Revenue", value: inr(data?.revenue ?? 0), icon: Coins },
-    { label: "Orders", value: data?.orders ?? 0, icon: ShoppingBag },
-    { label: "Products", value: data?.products ?? 0, icon: Package },
-    { label: "Customers", value: data?.customers ?? 0, icon: Users },
+    { label: "Total Revenue", value: inr(data?.revenue ?? 0), icon: Coins, href: "/admin/orders" },
+    { label: "Orders", value: data?.orders ?? 0, icon: ShoppingBag, href: "/admin/orders" },
+    { label: "Products", value: data?.products ?? 0, icon: Package, href: "/admin/products" },
+    { label: "Customers", value: data?.customers ?? 0, icon: Users, href: "/admin/users" },
   ];
 
   const revenueDisplay = useMemo(() => {
@@ -240,16 +240,17 @@ export default function AdminOverviewPage() {
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
-          <div
+          <Link
             key={c.label}
-            className="rounded-lg border bg-card p-4 transition-all duration-300 hover:border-primary hover:shadow-lg"
+            href={c.href}
+            className="rounded-lg border bg-card p-4 transition-all duration-300 hover:border-primary hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
           >
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">{c.label}</p>
               <c.icon className="size-5 text-primary" />
             </div>
             <p className="mt-2 text-2xl font-bold text-foreground">{c.value}</p>
-          </div>
+          </Link>
         ))}
       </div>
 
