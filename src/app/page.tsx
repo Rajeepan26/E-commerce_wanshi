@@ -17,7 +17,12 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-import { cloneActiveAds, cloneActiveOffers, cloneProductsActive, getPromoUrl } from "@/lib/mock/catalog-store";
+import {
+  cloneActiveAds,
+  cloneActiveOffers,
+  cloneProductsActive,
+  getPromoUrl,
+} from "@/lib/mock/catalog-store";
 import { promoScheduleBadges } from "@/lib/mock/promo-schedule";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";

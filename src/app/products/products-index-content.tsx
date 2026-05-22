@@ -33,10 +33,13 @@ export default function ProductsIndexContent() {
   const idsParam = searchParams.get("ids");
   const catsParam = searchParams.get("categories");
   const targetProductIds = useMemo(() => idsParam?.split(",").filter(Boolean) || [], [idsParam]);
-  const targetCategorySlugs = useMemo(() => catsParam?.split(",").filter(Boolean) || [], [catsParam]);
-  const targetCategoryIds = useMemo(() => 
-    targetCategorySlugs.map(slug => getCategoryIdBySlug(slug)).filter(Boolean) as string[],
-    [targetCategorySlugs]
+  const targetCategorySlugs = useMemo(
+    () => catsParam?.split(",").filter(Boolean) || [],
+    [catsParam],
+  );
+  const targetCategoryIds = useMemo(
+    () => targetCategorySlugs.map((slug) => getCategoryIdBySlug(slug)).filter(Boolean) as string[],
+    [targetCategorySlugs],
   );
 
   // Filters State
@@ -107,7 +110,12 @@ export default function ProductsIndexContent() {
     handleCategorySelect(null);
   };
 
-  const hasFilters = priceRange[0] !== 0 || priceRange[1] !== 30000 || inStockOnly || sortBy !== "relevance" || category;
+  const hasFilters =
+    priceRange[0] !== 0 ||
+    priceRange[1] !== 30000 ||
+    inStockOnly ||
+    sortBy !== "relevance" ||
+    category;
 
   const { data: categoriesData = [] } = useQuery({
     queryKey: ["demo-categories-list"],
@@ -162,14 +170,14 @@ export default function ProductsIndexContent() {
         <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
           Price Range
         </h3>
-        
+
         <div className="flex flex-col gap-4 px-1">
           <div className="flex items-center justify-between">
             <span className="text-[13px] font-bold text-primary">
               {inr(priceRange[0])} - {inr(priceRange[1])}
             </span>
           </div>
-          
+
           <Slider
             defaultValue={[0, 30000]}
             max={30000}
@@ -178,7 +186,7 @@ export default function ProductsIndexContent() {
             onValueChange={(val) => setPriceRange(val as [number, number])}
             className="py-2"
           />
-          
+
           <div className="flex justify-between text-[10px] font-medium text-muted-foreground uppercase tracking-tight">
             <span>{inr(0)}</span>
             <span>{inr(30000)}</span>
@@ -384,8 +392,8 @@ export default function ProductsIndexContent() {
                   : category
                     ? categoryHeadingFromSlug(category)
                     : targetProductIds.length > 0 || targetCategoryIds.length > 0
-                    ? "Special Collection"
-                    : "All products"}
+                      ? "Special Collection"
+                      : "All products"}
               </h1>
             </div>
 

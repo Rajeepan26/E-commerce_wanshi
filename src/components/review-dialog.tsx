@@ -60,7 +60,6 @@ export function ReviewDialog({
     }
   };
 
-
   if (!open) return null;
 
   return (
@@ -119,7 +118,6 @@ export function ReviewDialog({
               {comment.length} / 500 characters
             </p>
           </div>
-
         </div>
 
         <div className="mt-6 flex gap-3 justify-end">

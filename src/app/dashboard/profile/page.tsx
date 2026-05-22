@@ -225,7 +225,9 @@ export default function ProfilePage() {
       <div className="space-y-6 lg:max-w-none">
         <Card className="shadow-sm overflow-hidden border-border/80">
           <CardHeader className="space-y-1 bg-muted/30 pb-4">
-            <CardTitle className="text-xl font-bold tracking-tight text-foreground">My profile</CardTitle>
+            <CardTitle className="text-xl font-bold tracking-tight text-foreground">
+              My profile
+            </CardTitle>
             <CardDescription className="text-xs font-medium">
               Name and contact details for safe deliveries and WhatsApp order updates.
             </CardDescription>
@@ -233,10 +235,17 @@ export default function ProfilePage() {
           <CardContent className="space-y-4 pt-5 pb-2">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="first_name" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">First name</Label>
+                <Label
+                  htmlFor="first_name"
+                  className="text-xs font-bold uppercase tracking-wider text-muted-foreground"
+                >
+                  First name
+                </Label>
                 <Input
                   id="first_name"
-                  className={!editing ? inactiveField : "rounded-xl border-border/60 focus:ring-primary/20"}
+                  className={
+                    !editing ? inactiveField : "rounded-xl border-border/60 focus:ring-primary/20"
+                  }
                   readOnly={!editing}
                   autoComplete="given-name"
                   value={form.first_name}
@@ -244,10 +253,17 @@ export default function ProfilePage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="last_name" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Last name</Label>
+                <Label
+                  htmlFor="last_name"
+                  className="text-xs font-bold uppercase tracking-wider text-muted-foreground"
+                >
+                  Last name
+                </Label>
                 <Input
                   id="last_name"
-                  className={!editing ? inactiveField : "rounded-xl border-border/60 focus:ring-primary/20"}
+                  className={
+                    !editing ? inactiveField : "rounded-xl border-border/60 focus:ring-primary/20"
+                  }
                   readOnly={!editing}
                   autoComplete="family-name"
                   value={form.last_name}
@@ -255,9 +271,14 @@ export default function ProfilePage() {
                 />
               </div>
             </div>
-  
+
             <div className="space-y-2">
-              <Label htmlFor="profile_email" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Email Address</Label>
+              <Label
+                htmlFor="profile_email"
+                className="text-xs font-bold uppercase tracking-wider text-muted-foreground"
+              >
+                Email Address
+              </Label>
               <Input
                 id="profile_email"
                 type="email"
@@ -268,15 +289,24 @@ export default function ProfilePage() {
                 tabIndex={-1}
                 aria-readonly="true"
               />
-              <p className="text-xs text-muted-foreground/60 leading-none">Locked — email cannot be changed here.</p>
+              <p className="text-xs text-muted-foreground/60 leading-none">
+                Locked — email cannot be changed here.
+              </p>
             </div>
-  
+
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="phone_number" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Phone number</Label>
+                <Label
+                  htmlFor="phone_number"
+                  className="text-xs font-bold uppercase tracking-wider text-muted-foreground"
+                >
+                  Phone number
+                </Label>
                 <Input
                   id="phone_number"
-                  className={!editing ? inactiveField : "rounded-xl border-border/60 focus:ring-primary/20"}
+                  className={
+                    !editing ? inactiveField : "rounded-xl border-border/60 focus:ring-primary/20"
+                  }
                   readOnly={!editing}
                   autoComplete="tel"
                   inputMode="tel"
@@ -284,20 +314,31 @@ export default function ProfilePage() {
                   value={form.phone_number}
                   onChange={(e) => setForm({ ...form, phone_number: e.target.value })}
                 />
-                <p className="text-[10px] text-muted-foreground font-medium">10–15 digits (country code counts).</p>
+                <p className="text-[10px] text-muted-foreground font-medium">
+                  10–15 digits (country code counts).
+                </p>
               </div>
-  
+
               <div className="space-y-2">
-                <Label htmlFor="residence_address" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Residence address</Label>
+                <Label
+                  htmlFor="residence_address"
+                  className="text-xs font-bold uppercase tracking-wider text-muted-foreground"
+                >
+                  Residence address
+                </Label>
                 <Input
                   id="residence_address"
-                  className={!editing ? inactiveField : "rounded-xl border-border/60 focus:ring-primary/20"}
+                  className={
+                    !editing ? inactiveField : "rounded-xl border-border/60 focus:ring-primary/20"
+                  }
                   readOnly={!editing}
                   placeholder="Street, City, Province"
                   value={form.residence_address}
                   onChange={(e) => setForm({ ...form, residence_address: e.target.value })}
                 />
-                <p className="text-[10px] text-muted-foreground font-medium">Full address for deliveries.</p>
+                <p className="text-[10px] text-muted-foreground font-medium">
+                  Full address for deliveries.
+                </p>
               </div>
             </div>
           </CardContent>
@@ -316,10 +357,22 @@ export default function ProfilePage() {
               </Button>
             ) : (
               <>
-                <Button type="button" variant="outline" className="rounded-xl px-6 font-bold text-xs" onClick={cancelEdit} disabled={busy}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="rounded-xl px-6 font-bold text-xs"
+                  onClick={cancelEdit}
+                  disabled={busy}
+                >
                   Cancel
                 </Button>
-                <Button type="button" variant="default" className="rounded-xl px-8 font-bold text-xs" onClick={saveProfile} disabled={busy}>
+                <Button
+                  type="button"
+                  variant="default"
+                  className="rounded-xl px-8 font-bold text-xs"
+                  onClick={saveProfile}
+                  disabled={busy}
+                >
                   {busy ? "Saving…" : "Save Changes"}
                 </Button>
               </>
@@ -331,7 +384,9 @@ export default function ProfilePage() {
       <div className="space-y-6">
         <Card className="shadow-sm overflow-hidden border-border/80">
           <CardHeader className="space-y-1 bg-muted/30 pb-4">
-            <CardTitle className="text-xl font-bold tracking-tight text-foreground">Security</CardTitle>
+            <CardTitle className="text-xl font-bold tracking-tight text-foreground">
+              Security
+            </CardTitle>
             <CardDescription className="text-xs font-medium">
               Update your account password and security settings.
             </CardDescription>
@@ -340,13 +395,19 @@ export default function ProfilePage() {
             {!pwEditing ? (
               <div className="rounded-xl border border-dashed border-muted-foreground/30 p-3 bg-muted/10">
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  For safety, password fields are hidden until you choose to update. Choice <strong>&quot;Change Password&quot;</strong> below to start.
+                  For safety, password fields are hidden until you choose to update. Choice{" "}
+                  <strong>&quot;Change Password&quot;</strong> below to start.
                 </p>
               </div>
             ) : (
               <div className="grid gap-5">
                 <div className="space-y-2">
-                  <Label htmlFor="current_pw" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Current password</Label>
+                  <Label
+                    htmlFor="current_pw"
+                    className="text-xs font-bold uppercase tracking-wider text-muted-foreground"
+                  >
+                    Current password
+                  </Label>
                   <Input
                     id="current_pw"
                     type="password"
@@ -357,7 +418,12 @@ export default function ProfilePage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="new_pw" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">New password</Label>
+                  <Label
+                    htmlFor="new_pw"
+                    className="text-xs font-bold uppercase tracking-wider text-muted-foreground"
+                  >
+                    New password
+                  </Label>
                   <Input
                     id="new_pw"
                     type="password"
@@ -368,7 +434,12 @@ export default function ProfilePage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="confirm_pw" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Confirm new password</Label>
+                  <Label
+                    htmlFor="confirm_pw"
+                    className="text-xs font-bold uppercase tracking-wider text-muted-foreground"
+                  >
+                    Confirm new password
+                  </Label>
                   <Input
                     id="confirm_pw"
                     type="password"
@@ -405,7 +476,13 @@ export default function ProfilePage() {
                 >
                   Cancel
                 </Button>
-                <Button type="button" variant="default" className="rounded-xl px-8 font-bold text-xs" onClick={savePassword} disabled={pwBusy}>
+                <Button
+                  type="button"
+                  variant="default"
+                  className="rounded-xl px-8 font-bold text-xs"
+                  onClick={savePassword}
+                  disabled={pwBusy}
+                >
                   {pwBusy ? "Updating…" : "Update Password"}
                 </Button>
               </>

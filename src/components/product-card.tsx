@@ -89,7 +89,6 @@ export function ProductCard({ p }: { p: ProductCardData }) {
               </span>
             )}
           </div>
-
         </div>
       </Link>
       <div className="mt-auto px-1 pb-1 pt-1.5">

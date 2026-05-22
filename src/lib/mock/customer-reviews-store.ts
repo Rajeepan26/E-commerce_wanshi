@@ -47,7 +47,7 @@ export async function addCustomerReview(
   rating: number,
   comment: string,
   customerEmail?: string,
-  customerName?: string
+  customerName?: string,
 ): Promise<CustomerReview> {
   const review: CustomerReview = {
     id: `review-${Date.now()}`,

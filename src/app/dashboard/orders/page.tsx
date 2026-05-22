@@ -29,8 +29,15 @@ export default function OrdersPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
-  const [reviewDialog, setReviewDialog] = useState<{ open: boolean; orderId: string; productName: string } | null>(null);
-  const [cancelOrderDialog, setCancelOrderDialog] = useState<{ open: boolean; orderId: string } | null>(null);
+  const [reviewDialog, setReviewDialog] = useState<{
+    open: boolean;
+    orderId: string;
+    productName: string;
+  } | null>(null);
+  const [cancelOrderDialog, setCancelOrderDialog] = useState<{
+    open: boolean;
+    orderId: string;
+  } | null>(null);
 
   useEffect(
     () => subscribeOrders(() => qc.invalidateQueries({ queryKey: ["demo-my-orders"] })),
@@ -64,7 +71,7 @@ export default function OrdersPage() {
         review.rating,
         review.comment,
         user?.email,
-        user?.app_metadata?.full_name
+        user?.app_metadata?.full_name,
       );
       setReviewDialog(null);
       qc.invalidateQueries({ queryKey: ["customer-reviews"] });
@@ -195,7 +202,11 @@ export default function OrdersPage() {
                         variant="ghost"
                         className="text-[10px] h-7 px-3 text-primary border border-primary/20 bg-primary/5 hover:bg-primary/10 rounded-full font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all"
                         onClick={() =>
-                          setReviewDialog({ open: true, orderId: o.id, productName: it.product_name })
+                          setReviewDialog({
+                            open: true,
+                            orderId: o.id,
+                            productName: it.product_name,
+                          })
                         }
                       >
                         <Star className="size-3 fill-current" />

@@ -5,7 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { upsertAdvertisement, upsertOffer, cloneCategories, cloneProductsActive } from "@/lib/mock/catalog-store";
+import {
+  upsertAdvertisement,
+  upsertOffer,
+  cloneCategories,
+  cloneProductsActive,
+} from "@/lib/mock/catalog-store";
 import type { AdvertisementRow, OfferRow } from "@/lib/mock/types";
 import { parseDayEnd, parseDayStart } from "@/lib/mock/promo-schedule";
 import { ChevronRight, Search, Check } from "lucide-react";
@@ -34,24 +39,24 @@ function RedirectSelector({
 }) {
   const [catSearch, setCatSearch] = useState("");
   const categories = useMemo(() => cloneCategories(), []);
-  
+
   // We show products from ALL selected categories
   const activeProducts = useMemo(() => {
     if (selectedCategoryIds.length === 0) return [];
     // Potentially filter products by any of the selected categories
-    const all = selectedCategoryIds.flatMap(catId => cloneProductsActive({ categoryId: catId }));
+    const all = selectedCategoryIds.flatMap((catId) => cloneProductsActive({ categoryId: catId }));
     // Unique by ID
-    return Array.from(new Map(all.map(p => [p.id, p])).values());
+    return Array.from(new Map(all.map((p) => [p.id, p])).values());
   }, [selectedCategoryIds]);
 
   const filteredCats = categories.filter((c) =>
-    c.name.toLowerCase().includes(catSearch.toLowerCase())
+    c.name.toLowerCase().includes(catSearch.toLowerCase()),
   );
 
   const toggleCategory = (id: string) => {
     if (selectedCategoryIds.includes(id)) {
-      const next = selectedCategoryIds.filter(x => x !== id);
-      // Also filter out products that are specifically in ONLY this category if we want, 
+      const next = selectedCategoryIds.filter((x) => x !== id);
+      // Also filter out products that are specifically in ONLY this category if we want,
       // but simpler to just keep selected products as is for now or filter them?
       // User might want to keep some products selected even if cat is removed.
       onSelect(next, selectedProductIds);
@@ -62,7 +67,10 @@ function RedirectSelector({
 
   const toggleProduct = (id: string) => {
     if (selectedProductIds.includes(id)) {
-      onSelect(selectedCategoryIds, selectedProductIds.filter(x => x !== id));
+      onSelect(
+        selectedCategoryIds,
+        selectedProductIds.filter((x) => x !== id),
+      );
     } else {
       onSelect(selectedCategoryIds, [...selectedProductIds, id]);
     }
@@ -78,16 +86,23 @@ function RedirectSelector({
           <h3 className="text-sm uppercase tracking-wider">Redirection Target</h3>
         </div>
         {(selectedCategoryIds.length > 0 || selectedProductIds.length > 0) && (
-          <Button variant="ghost" size="sm" onClick={clearAll} className="h-7 text-[10px] uppercase font-bold text-muted-foreground hover:text-destructive">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearAll}
+            className="h-7 text-[10px] uppercase font-bold text-muted-foreground hover:text-destructive"
+          >
             Clear All
           </Button>
         )}
       </div>
-      
+
       <div className="space-y-6">
         {/* Category Selection */}
         <div>
-          <Label className="text-[11px] font-bold text-muted-foreground mb-3 block uppercase tracking-tight">1. Target Categories (Multiple)</Label>
+          <Label className="text-[11px] font-bold text-muted-foreground mb-3 block uppercase tracking-tight">
+            1. Target Categories (Multiple)
+          </Label>
           <div className="relative mb-3">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
@@ -106,7 +121,9 @@ function RedirectSelector({
                   type="button"
                   onClick={() => toggleCategory(c.id)}
                   className={`flex items-center justify-between px-3 py-2 text-[11px] font-bold rounded-xl border transition-all truncate text-left ${
-                    active ? "border-primary bg-primary/10 text-primary shadow-sm" : "border-border/60 bg-card hover:border-primary/30"
+                    active
+                      ? "border-primary bg-primary/10 text-primary shadow-sm"
+                      : "border-border/60 bg-card hover:border-primary/30"
                   }`}
                 >
                   <span className="truncate">{c.name}</span>
@@ -120,9 +137,13 @@ function RedirectSelector({
         {/* Product Selection */}
         {selectedCategoryIds.length > 0 && (
           <div className="animate-in fade-in slide-in-from-top-2 duration-300 border-t pt-4 border-dashed border-border">
-            <Label className="text-[11px] font-bold text-muted-foreground mb-3 block uppercase tracking-tight">2. Target Specific Products (Multiple)</Label>
+            <Label className="text-[11px] font-bold text-muted-foreground mb-3 block uppercase tracking-tight">
+              2. Target Specific Products (Multiple)
+            </Label>
             {activeProducts.length === 0 ? (
-              <p className="text-xs text-muted-foreground italic px-2 bg-muted/30 py-3 rounded-lg text-center">No products found in these categories</p>
+              <p className="text-xs text-muted-foreground italic px-2 bg-muted/30 py-3 rounded-lg text-center">
+                No products found in these categories
+              </p>
             ) : (
               <div className="max-h-60 overflow-y-auto space-y-1.5 pr-2 custom-scrollbar p-1">
                 {activeProducts.map((p) => {
@@ -131,7 +152,9 @@ function RedirectSelector({
                     <label
                       key={p.id}
                       className={`flex items-center gap-3 px-3 py-2 rounded-xl border cursor-pointer transition-all ${
-                        active ? "border-primary/50 bg-primary/5 shadow-sm" : "border-border/60 hover:bg-muted/50"
+                        active
+                          ? "border-primary/50 bg-primary/5 shadow-sm"
+                          : "border-border/60 hover:bg-muted/50"
                       }`}
                     >
                       <div className="relative flex items-center justify-center">
@@ -145,12 +168,18 @@ function RedirectSelector({
                       </div>
                       <div className="flex items-center gap-3 min-w-0 flex-1">
                         {p.image_url && (
-                          <img src={p.image_url} className="size-8 rounded-lg object-cover border bg-white" alt="" />
+                          <img
+                            src={p.image_url}
+                            className="size-8 rounded-lg object-cover border bg-white"
+                            alt=""
+                          />
                         )}
                         <div className="flex flex-col min-w-0">
-                          <span className="text-[11px] font-bold truncate leading-tight">{p.name}</span>
+                          <span className="text-[11px] font-bold truncate leading-tight">
+                            {p.name}
+                          </span>
                           <span className="text-[9px] text-muted-foreground font-medium truncate uppercase tracking-tighter">
-                            {categories.find(c => c.id === p.category_id)?.name || "N/A"}
+                            {categories.find((c) => c.id === p.category_id)?.name || "N/A"}
                           </span>
                         </div>
                       </div>

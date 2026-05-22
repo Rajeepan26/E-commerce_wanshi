@@ -37,9 +37,7 @@ export function AdminSidebar() {
   };
 
   return (
-    <Sidebar
-      className="top-[61px] sm:top-[69px] h-[calc(100vh-61px)] sm:h-[calc(100vh-69px)] border-r border-border/40 bg-gradient-to-b from-background to-muted/20"
-    >
+    <Sidebar className="top-[61px] sm:top-[69px] h-[calc(100vh-61px)] sm:h-[calc(100vh-69px)] border-r border-border/40 bg-gradient-to-b from-background to-muted/20">
       {/* Logo/Branding Header - Hidden */}
       <SidebarHeader className="hidden" />
 
@@ -61,7 +59,9 @@ export function AdminSidebar() {
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-foreground truncate">Admin</p>
-                <p className="text-xs text-muted-foreground truncate">{user?.email || "admin@wanshi.com"}</p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {user?.email || "admin@wanshi.com"}
+                </p>
               </div>
             </div>
           </div>

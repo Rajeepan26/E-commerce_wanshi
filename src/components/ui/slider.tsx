@@ -8,7 +8,7 @@ const Slider = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>
 >(({ className, ...props }, ref) => {
   const value = props.value || props.defaultValue || [0];
-  
+
   return (
     <SliderPrimitive.Root
       ref={ref}

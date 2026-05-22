@@ -42,7 +42,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       </h1>
                     </div>
                     <p className="text-base text-muted-foreground font-medium">
-                      Manage products, users, categories, orders, discount offers, and advertisements.
+                      Manage products, users, categories, orders, discount offers, and
+                      advertisements.
                     </p>
                   </div>
                   <div className="mt-6 h-1 w-24 bg-gradient-to-r from-primary/60 via-blue-500/40 to-transparent rounded-full" />

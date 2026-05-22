@@ -402,7 +402,6 @@ export function ProductDetailClient() {
               </div>
             </div>
           )}
-
         </div>
         {/* Right: Similar Items Column (col-span-1) */}
         <div className="space-y-6">

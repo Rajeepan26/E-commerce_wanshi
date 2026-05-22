@@ -264,7 +264,8 @@
 
 /* Custom Admin Panel Animations */
 @keyframes glow-pulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
   }
   50% {
@@ -282,7 +283,8 @@
 }
 
 @keyframes float-hover {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px);
   }
   50% {
@@ -291,7 +293,8 @@
 }
 
 @keyframes text-glow {
-  0%, 100% {
+  0%,
+  100% {
     text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
   }
   50% {
@@ -328,12 +331,7 @@
 }
 
 .admin-shimmer {
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
   background-size: 1000px 100%;
   animation: shimmer 2s infinite;
 }
@@ -376,11 +374,7 @@
   transform: translateY(-50%);
   width: 3px;
   height: 60%;
-  background: linear-gradient(
-    to bottom,
-    var(--primary),
-    var(--primary)
-  );
+  background: linear-gradient(to bottom, var(--primary), var(--primary));
   border-radius: 3px;
   animation: glow-pulse 2s ease-in-out infinite;
 }
@@ -395,20 +389,12 @@
 }
 
 .admin-scrollbar::-webkit-scrollbar-thumb {
-  background: linear-gradient(
-    to bottom,
-    var(--primary),
-    var(--accent)
-  );
+  background: linear-gradient(to bottom, var(--primary), var(--accent));
   border-radius: 4px;
   transition: all 300ms ease;
 }
 
 .admin-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(
-    to bottom,
-    var(--primary),
-    var(--primary)
-  );
+  background: linear-gradient(to bottom, var(--primary), var(--primary));
   width: 10px;
 }
