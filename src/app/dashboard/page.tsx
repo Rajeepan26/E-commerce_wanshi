@@ -311,7 +311,7 @@ export default function DashboardOverviewPage() {
                         </span>
                       </div>
                     </div>
-                    <p className="line-clamp-2 text-[11px] text-muted-foreground leading-relaxed italic bg-muted/20 p-2 rounded-xl mb-4">
+                    <p className="line-clamp-2 text-[11px] text-muted-foreground leading-relaxed bg-muted/20 p-2 rounded-xl mb-4">
                       {o.order_items.map((i) => i.product_name).join(" · ")}
                     </p>
                   </div>

@@ -17,7 +17,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-import { cloneActiveAds, cloneActiveOffers, cloneProductsActive } from "@/lib/mock/catalog-store";
+import { cloneActiveAds, cloneActiveOffers, cloneProductsActive, getPromoUrl } from "@/lib/mock/catalog-store";
 import { promoScheduleBadges } from "@/lib/mock/promo-schedule";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -88,7 +88,7 @@ export default function HomePage() {
               ].map((item) => (
                 <CarouselItem key={item.id} className="basis-full">
                   <Link
-                    href="/products"
+                    href={getPromoUrl(item as any)}
                     className="group relative block overflow-hidden rounded-2xl border border-border/80 bg-card transition-all duration-500 shadow-sm hover:shadow-xl hover:border-primary/20"
                   >
                     <div className="relative h-56 w-full overflow-hidden sm:h-80 md:h-[400px]">
@@ -194,7 +194,8 @@ export default function HomePage() {
               {ads
                 .filter((a) => (a.position === "banner" || a.position === "sidebar") && a.is_active)
                 .map((ad, i) => (
-                  <div
+                  <Link
+                    href={getPromoUrl(ad)}
                     key={ad.id}
                     className={cn(
                       "relative overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm group hover:-translate-y-0.5 hover:shadow-xl hover:border-primary/25 transition-all duration-500",
@@ -245,7 +246,7 @@ export default function HomePage() {
                         )}
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
             </div>
           </section>

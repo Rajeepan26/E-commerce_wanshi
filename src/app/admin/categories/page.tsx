@@ -25,6 +25,8 @@ export default function AdminCategoriesPage() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<CategoryRow | null>(null);
   const [deleting, setDeleting] = useState<CategoryRow | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const queryClient = useQueryClient();
 
   const invalidateLists = () => {
@@ -34,10 +36,16 @@ export default function AdminCategoriesPage() {
     queryClient.invalidateQueries({ queryKey: ["demo-products"] });
   };
 
-  const { data: categories } = useQuery({
+  const { data: categories = [] } = useQuery({
     queryKey: ["admin-categories"],
     queryFn: async () => cloneCategoriesForAdmin(),
   });
+
+  // Pagination
+  const totalPages = Math.ceil(categories.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedCategories = categories.slice(startIndex, endIndex);
 
   const confirmDelete = async () => {
     if (!deleting) return;
@@ -85,7 +93,7 @@ export default function AdminCategoriesPage() {
             </tr>
           </thead>
           <tbody>
-            {categories?.map((c) => (
+            {paginatedCategories?.map((c) => (
               <tr key={c.id} className="border-t">
                 <td className="p-3 font-semibold text-foreground">{c.name}</td>
                 <td className="p-3 text-muted-foreground">/{c.slug}</td>
@@ -109,6 +117,44 @@ export default function AdminCategoriesPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between gap-4">
+          <div className="text-sm text-muted-foreground">
+            Showing {startIndex + 1} to {Math.min(endIndex, categories.length)} of{" "}
+            {categories.length} categories
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <Button
+                key={page}
+                variant={currentPage === page ? "default" : "outline"}
+                size="sm"
+                onClick={() => setCurrentPage(page)}
+              >
+                {page}
+              </Button>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">

@@ -8,6 +8,8 @@ export type OfferRow = {
   /** Inclusive promo window (calendar days, local). Null = unrestricted. */
   starts_at: string | null;
   ends_at: string | null;
+  target_category_ids?: string[] | null;
+  target_product_ids?: string[] | null;
 };
 
 export type AdPosition = "hero" | "sidebar" | "banner";
@@ -21,6 +23,8 @@ export type AdvertisementRow = {
   /** Inclusive scheduling window for storefront visibility. Null = always on when active. */
   starts_at: string | null;
   ends_at: string | null;
+  target_category_ids?: string[] | null;
+  target_product_ids?: string[] | null;
 };
 
 export type CategoryRow = {

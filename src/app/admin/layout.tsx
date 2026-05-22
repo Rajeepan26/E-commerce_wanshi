@@ -1,21 +1,17 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
 import { WhatsappFab } from "@/components/whatsapp-fab";
-import { cn } from "@/lib/utils";
-import { ADMIN_NAV, isAdminNavActive } from "@/lib/admin-nav";
-
 import { LoadingSpinner } from "@/components/loading-spinner";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AdminSidebar } from "@/components/admin/admin-sidebar";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, role, loading } = useAuth();
   const router = useRouter();
-  const path = usePathname();
 
   useEffect(() => {
     if (loading) return;
@@ -28,49 +24,40 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <SiteHeader />
-      <main className="mx-auto w-full max-w-7xl min-w-0 flex-1 px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-        <div className="mb-6 flex flex-col gap-3">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/60 pb-3">
-            <div>
-              <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-                Admin Console
-              </h2>
-              <p className="text-xs text-muted-foreground sm:text-sm">
-                Manage products, users, categories, orders, discount offers, and advertisements.
-              </p>
+    <SidebarProvider defaultOpen={true}>
+      <div className="flex min-h-screen w-full flex-col">
+        <SiteHeader />
+        <div className="flex flex-1 overflow-hidden min-h-0 relative">
+          <AdminSidebar />
+          <main className="flex flex-1 flex-col overflow-hidden bg-gradient-to-br from-background via-background to-muted/30">
+            <div className="flex-1 overflow-auto">
+              <div className="mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 md:py-10">
+                {/* Header Section */}
+                <div className="mb-10 animate-in fade-in slide-in-from-top-4 duration-500">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-1 w-1 rounded-full bg-gradient-to-r from-primary to-blue-600 shadow-lg shadow-primary/50" />
+                      <h1 className="bg-gradient-to-r from-primary via-blue-600 to-primary bg-clip-text text-4xl font-black text-transparent tracking-tight">
+                        Admin Console
+                      </h1>
+                    </div>
+                    <p className="text-base text-muted-foreground font-medium">
+                      Manage products, users, categories, orders, discount offers, and advertisements.
+                    </p>
+                  </div>
+                  <div className="mt-6 h-1 w-24 bg-gradient-to-r from-primary/60 via-blue-500/40 to-transparent rounded-full" />
+                </div>
+
+                {/* Content Section */}
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+                  {children}
+                </div>
+              </div>
             </div>
-          </div>
-          <nav
-            className="flex flex-row items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none sm:gap-2"
-            aria-label="Admin sub navigation"
-          >
-            {ADMIN_NAV.map((n) => {
-              const active = isAdminNavActive(path || "", n);
-              return (
-                <Link
-                  key={n.href}
-                  href={n.href}
-                  className={cn(
-                    "flex shrink-0 items-center gap-1.5 rounded-2xl px-4 py-2.5 text-xs font-semibold tracking-tight transition-all sm:text-sm",
-                    "motion-safe:active:scale-[0.98]",
-                    active
-                      ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
-                      : "border border-border/50 bg-card text-muted-foreground hover:bg-muted/40 hover:text-foreground",
-                  )}
-                >
-                  <n.icon className="size-4" aria-hidden />
-                  <span>{n.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
+          </main>
         </div>
-        <div className="min-w-0">{children}</div>
-      </main>
-      <SiteFooter />
-      <WhatsappFab />
-    </div>
+        <WhatsappFab />
+      </div>
+    </SidebarProvider>
   );
 }

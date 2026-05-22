@@ -89,9 +89,7 @@ export function ProductCard({ p }: { p: ProductCardData }) {
               </span>
             )}
           </div>
-          <div className="inline-flex w-fit items-center gap-1 rounded-full bg-amber-400/10 px-2 py-0.5 text-[9px] font-extrabold text-amber-600 border border-amber-400/15">
-            {rating} <Star className="size-2.5 fill-current" />
-          </div>
+
         </div>
       </Link>
       <div className="mt-auto px-1 pb-1 pt-1.5">

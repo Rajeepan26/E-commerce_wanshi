@@ -484,6 +484,31 @@ export function getCategoryIdBySlug(slug: string): string | undefined {
   return getCategoryBySlug(slug)?.id;
 }
 
+/**
+ * Resolves the destination URL for a promotion (Ad or Offer).
+ * Supports multiple products and multiple categories.
+ */
+export function getPromoUrl(item: AdvertisementRow | OfferRow): string {
+  // If specific products are selected, go to products page with product filter
+  if (item.target_product_ids && item.target_product_ids.length > 0) {
+    return `/products?ids=${item.target_product_ids.join(",")}`;
+  }
+
+  // If specific categories are selected, go to products page with category filter
+  if (item.target_category_ids && item.target_category_ids.length > 0) {
+    const slugs = item.target_category_ids
+      .map((id) => getCategoryById(id)?.slug)
+      .filter(Boolean) as string[];
+
+    if (slugs.length > 0) {
+      return `/products?categories=${encodeURIComponent(slugs.join(","))}`;
+    }
+  }
+
+  // Default to generic products page
+  return "/products";
+}
+
 export function cloneActiveOffers(): OfferRow[] {
   return offersState.filter((o) => isPromoActiveNow(o));
 }
@@ -496,17 +521,37 @@ export function cloneProductsActive(options?: {
   q?: string;
   categorySlug?: string;
   categoryId?: string | null;
+  categoryIds?: string[];
+  productIds?: string[];
   limit?: number;
 }): ProductRow[] {
   let rows = productsState.filter((p) => p.is_active);
-  const catId =
-    options?.categoryId ??
-    (options?.categorySlug ? getCategoryIdBySlug(options.categorySlug) : undefined);
-  if (catId) rows = rows.filter((p) => p.category_id === catId);
+
+  // Filter by multiple Product IDs
+  if (options?.productIds && options.productIds.length > 0) {
+    rows = rows.filter((p) => options.productIds!.includes(p.id));
+  }
+
+  // Filter by Categories
+  const filterCatIds = new Set<string>();
+  if (options?.categoryId) filterCatIds.add(options.categoryId);
+  if (options?.categorySlug) {
+    const id = getCategoryIdBySlug(options.categorySlug);
+    if (id) filterCatIds.add(id);
+  }
+  if (options?.categoryIds && options.categoryIds.length > 0) {
+    options.categoryIds.forEach((id) => filterCatIds.add(id));
+  }
+
+  if (filterCatIds.size > 0) {
+    rows = rows.filter((p) => p.category_id && filterCatIds.has(p.category_id));
+  }
+
   if (options?.q?.trim()) {
     const t = options.q.trim().toLowerCase();
     rows = rows.filter((p) => p.name.toLowerCase().includes(t));
   }
+
   if (options?.limit != null) rows = rows.slice(0, options.limit);
   return rows.map((p) => ({ ...p }));
 }

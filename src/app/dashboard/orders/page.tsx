@@ -6,8 +6,22 @@ import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { StatusBadge } from "@/components/status-badge";
 import { inr } from "@/lib/format";
-import { listOrders, subscribeOrders } from "@/lib/mock/orders-store";
-import { Package, Search, X } from "lucide-react";
+import { listOrders, subscribeOrders, updateOrderStatus } from "@/lib/mock/orders-store";
+import { addCustomerReview } from "@/lib/mock/customer-reviews-store";
+import { ReviewDialog, type ReviewData } from "@/components/review-dialog";
+import { Package, Search, X, Star, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 import { LoadingSpinner } from "@/components/loading-spinner";
 
@@ -15,6 +29,8 @@ export default function OrdersPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
+  const [reviewDialog, setReviewDialog] = useState<{ open: boolean; orderId: string; productName: string } | null>(null);
+  const [cancelOrderDialog, setCancelOrderDialog] = useState<{ open: boolean; orderId: string } | null>(null);
 
   useEffect(
     () => subscribeOrders(() => qc.invalidateQueries({ queryKey: ["demo-my-orders"] })),
@@ -38,6 +54,41 @@ export default function OrdersPage() {
       return matchNum || matchStatus || matchItems;
     });
   }, [orders, search]);
+
+  const handleReviewSubmit = async (review: ReviewData) => {
+    try {
+      await addCustomerReview(
+        review.orderId,
+        user!.id,
+        review.productName,
+        review.rating,
+        review.comment,
+        user?.email,
+        user?.app_metadata?.full_name
+      );
+      setReviewDialog(null);
+      qc.invalidateQueries({ queryKey: ["customer-reviews"] });
+    } catch (error) {
+      toast.error("Failed to submit review");
+      throw error;
+    }
+  };
+
+  const handleCancelOrder = async () => {
+    if (!cancelOrderDialog) return;
+    try {
+      const ok = updateOrderStatus(cancelOrderDialog.orderId, "Cancelled");
+      if (ok) {
+        toast.success("Order cancelled successfully");
+        qc.invalidateQueries({ queryKey: ["demo-my-orders"] });
+      } else {
+        toast.error("Could not cancel order");
+      }
+      setCancelOrderDialog(null);
+    } catch (error) {
+      toast.error("An error occurred while cancelling the order");
+    }
+  };
 
   if (isLoading) {
     return <LoadingSpinner message="Syncing Orders..." className="py-12" />;
@@ -112,17 +163,45 @@ export default function OrdersPage() {
                     {new Date(o.created_at).toLocaleDateString()}
                   </p>
                 </div>
-                <StatusBadge status={o.status} />
+                <div className="flex items-center gap-3">
+                  <StatusBadge status={o.status} />
+                  {o.status === "Pending" && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-3 text-xs font-semibold text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full transition-colors"
+                      onClick={() => setCancelOrderDialog({ open: true, orderId: o.id })}
+                    >
+                      Cancel
+                    </Button>
+                  )}
+                </div>
               </div>
-              <div className="mt-3 space-y-1 text-sm">
+              <div className="mt-3 space-y-2 text-sm">
                 {o.order_items?.map((it) => (
-                  <div key={it.id} className="flex min-w-0 justify-between gap-3">
-                    <span className="min-w-0 break-words">
-                      {it.product_name} × {it.quantity}
-                    </span>
-                    <span className="shrink-0">
-                      {inr(Number(it.price_at_purchase) * it.quantity)}
-                    </span>
+                  <div key={it.id} className="space-y-1">
+                    <div className="flex min-w-0 justify-between gap-3">
+                      <span className="min-w-0 break-words">
+                        {it.product_name} × {it.quantity}
+                      </span>
+                      <span className="shrink-0">
+                        {inr(Number(it.price_at_purchase) * it.quantity)}
+                      </span>
+                    </div>
+                    {o.status === "Delivered" && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="text-[10px] h-7 px-3 text-primary border border-primary/20 bg-primary/5 hover:bg-primary/10 rounded-full font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all"
+                        onClick={() =>
+                          setReviewDialog({ open: true, orderId: o.id, productName: it.product_name })
+                        }
+                      >
+                        <Star className="size-3 fill-current" />
+                        Review
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>
@@ -134,6 +213,43 @@ export default function OrdersPage() {
           ))}
         </div>
       )}
+
+      {reviewDialog && (
+        <ReviewDialog
+          orderId={reviewDialog.orderId}
+          productName={reviewDialog.productName}
+          open={reviewDialog.open}
+          onClose={() => setReviewDialog(null)}
+          onSubmit={handleReviewSubmit}
+        />
+      )}
+
+      <AlertDialog
+        open={Boolean(cancelOrderDialog?.open)}
+        onOpenChange={(open) => !open && setCancelOrderDialog(null)}
+      >
+        <AlertDialogContent className="rounded-2xl border-destructive/20">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-destructive flex items-center gap-2">
+              <Trash2 className="size-5" />
+              Cancel Order
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to cancel this order? This action cannot be undone and will
+              return the items to stock.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-xl">Keep Order</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleCancelOrder}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"
+            >
+              Yes, Cancel Order
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

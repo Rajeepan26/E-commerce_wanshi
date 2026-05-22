@@ -368,18 +368,6 @@ export default function AdminOverviewPage() {
           </ChartContainer>
         </div>
       </div>
-
-      <div className="rounded-xl border bg-primary-soft/40 p-5 text-sm text-muted-foreground">
-        <p>
-          Use the sidebar for <span className="font-medium text-foreground">Products</span>,{" "}
-          <span className="font-medium text-foreground">Categories</span>,{" "}
-          <span className="font-medium text-foreground">Orders</span>, offers, and ads — or open{" "}
-          <Link href="/" className="font-medium text-primary underline-offset-4 hover:underline">
-            Frontend
-          </Link>{" "}
-          to preview the shop.
-        </p>
-      </div>
     </div>
   );
 }

@@ -48,6 +48,8 @@ export default function AdminProductsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<AdminProductRow | null>(null);
   const [deleting, setDeleting] = useState<AdminProductRow | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const queryClient = useQueryClient();
 
   const invalidateLists = () => {
@@ -72,6 +74,17 @@ export default function AdminProductsPage() {
       p.id.toLowerCase().includes(term)
     );
   });
+
+  // Reset to page 1 when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  // Pagination
+  const totalPages = Math.ceil((filteredProducts?.length ?? 0) / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedProducts = filteredProducts?.slice(startIndex, endIndex);
 
   const confirmDelete = async () => {
     if (!deleting) return;
@@ -128,7 +141,7 @@ export default function AdminProductsPage() {
             </tr>
           </thead>
           <tbody>
-            {filteredProducts?.map((p) => (
+            {paginatedProducts?.map((p) => (
               <tr key={p.id} className="border-t">
                 <td className="flex items-center gap-3 p-3">
                   <img src={p.image_url ?? ""} alt="" className="size-10 rounded object-cover" />
@@ -162,6 +175,44 @@ export default function AdminProductsPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between gap-4 mt-4">
+          <div className="text-sm text-muted-foreground">
+            Showing {startIndex + 1} to {Math.min(endIndex, filteredProducts?.length ?? 0)} of{" "}
+            {filteredProducts?.length ?? 0} products
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <Button
+                key={page}
+                variant={currentPage === page ? "default" : "outline"}
+                size="sm"
+                onClick={() => setCurrentPage(page)}
+              >
+                {page}
+              </Button>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">

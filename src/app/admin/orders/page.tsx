@@ -28,6 +28,8 @@ const STATUSES = ["Pending", "Accepted", "In-Transit", "Delivered", "Cancelled"]
 
 export default function AdminOrdersPage() {
   const qc = useQueryClient();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(
     () => subscribeOrders(() => qc.invalidateQueries({ queryKey: ["demo-admin-orders"] })),
@@ -40,6 +42,12 @@ export default function AdminOrdersPage() {
   });
 
   const [acceptingOrder, setAcceptingOrder] = useState<StoredOrder | null>(null);
+
+  // Pagination
+  const totalPages = Math.ceil((orders?.length ?? 0) / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedOrders = orders?.slice(startIndex, endIndex);
 
   const handleStatusChange = (id: string, status: OrderStatus) => {
     updateOrderStatus(id, status);
@@ -73,7 +81,7 @@ export default function AdminOrdersPage() {
     <div className="space-y-4">
       <h1 className="text-xl font-bold">Orders</h1>
       <div className="space-y-3">
-        {orders?.map((o) => (
+        {paginatedOrders?.map((o) => (
           <div key={o.id} className="rounded-lg border bg-card p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
@@ -141,6 +149,44 @@ export default function AdminOrdersPage() {
           </div>
         ))}
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between gap-4 mt-4">
+          <div className="text-sm text-muted-foreground">
+            Showing {startIndex + 1} to {Math.min(endIndex, orders?.length ?? 0)} of{" "}
+            {orders?.length ?? 0} orders
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <Button
+                key={page}
+                variant={currentPage === page ? "default" : "outline"}
+                size="sm"
+                onClick={() => setCurrentPage(page)}
+              >
+                {page}
+              </Button>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
 
       <LogisticsDialog
         open={!!acceptingOrder}

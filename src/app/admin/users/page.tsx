@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -17,6 +17,8 @@ export default function AdminUsersPage() {
   const queryClient = useQueryClient();
   const { user, signOut } = useAuth();
   const [showAddForm, setShowAddForm] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
@@ -27,6 +29,12 @@ export default function AdminUsersPage() {
     queryKey: ["admin-users-directory"],
     queryFn: async () => listAdminUserDirectory(),
   });
+
+  // Pagination
+  const totalPages = Math.ceil(directory.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedDirectory = directory.slice(startIndex, endIndex);
 
   const addMutation = useMutation({
     mutationFn: async () =>
@@ -163,7 +171,7 @@ export default function AdminUsersPage() {
               </tr>
             </thead>
             <tbody>
-              {directory.map((row) => (
+              {paginatedDirectory.map((row) => (
                 <tr key={row.id} className="border-b last:border-0">
                   <td className="px-3 py-2">{row.full_name}</td>
                   <td className="px-3 py-2">{row.email}</td>
@@ -205,6 +213,44 @@ export default function AdminUsersPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between gap-4 mt-4">
+            <div className="text-sm text-muted-foreground">
+              Showing {startIndex + 1} to {Math.min(endIndex, directory.length)} of{" "}
+              {directory.length} users
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </Button>
+              ))}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
       </section>
 
       {confirmDeleteId && (

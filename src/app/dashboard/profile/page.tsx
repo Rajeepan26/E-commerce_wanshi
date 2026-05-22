@@ -34,6 +34,7 @@ type ProfileForm = {
   first_name: string;
   last_name: string;
   phone_number: string;
+  residence_address: string;
 };
 
 function parseProfile(row: StoredProfileShape | undefined, seedUser: DemoAuthUser): ProfileForm {
@@ -57,6 +58,7 @@ function parseProfile(row: StoredProfileShape | undefined, seedUser: DemoAuthUse
     first_name,
     last_name,
     phone_number: row?.phone_number ?? "",
+    residence_address: (row as any)?.residence_address ?? "",
   };
 }
 
@@ -65,6 +67,7 @@ function normalizeCompare(f: ProfileForm) {
     first_name: f.first_name.trim(),
     last_name: f.last_name.trim(),
     phone_number: f.phone_number.replace(/\D/g, ""),
+    residence_address: f.residence_address.trim(),
   };
 }
 
@@ -79,6 +82,9 @@ function validateProfile(f: ProfileForm): string | null {
   if (digits.length < 10 || digits.length > 15) {
     return "Enter a valid phone number (10–15 digits).";
   }
+  if (f.residence_address.trim().length < 5) {
+    return "Please enter a valid residence address (min 5 characters).";
+  }
   return null;
 }
 
@@ -89,6 +95,7 @@ export default function ProfilePage() {
     first_name: "",
     last_name: "",
     phone_number: "",
+    residence_address: "",
   });
   const [baseline, setBaseline] = useState<ProfileForm | null>(null);
   const [busy, setBusy] = useState(false);
@@ -136,7 +143,8 @@ export default function ProfilePage() {
       prior &&
       prior.first_name === normalized.first_name &&
       prior.last_name === normalized.last_name &&
-      prior.phone_number === normalized.phone_number
+      prior.phone_number === normalized.phone_number &&
+      (prior as any).residence_address === normalized.residence_address
     ) {
       toast.message("Nothing to save — profile already matches these details.");
       setEditing(false);
@@ -147,10 +155,11 @@ export default function ProfilePage() {
     try {
       const raw = window.localStorage.getItem(PROFILE_KEY);
       const map = raw ? (JSON.parse(raw) as Record<string, StoredProfileShape>) : {};
-      const row: StoredProfileShape = {
+      const row = {
         first_name: form.first_name.trim(),
         last_name: form.last_name.trim(),
         phone_number: form.phone_number.trim(),
+        residence_address: form.residence_address.trim(),
       };
       map[user.id] = row;
       window.localStorage.setItem(PROFILE_KEY, JSON.stringify(map));
@@ -168,6 +177,7 @@ export default function ProfilePage() {
         first_name: row.first_name ?? "",
         last_name: row.last_name ?? "",
         phone_number: row.phone_number ?? "",
+        residence_address: (row as any).residence_address ?? "",
       };
       setBaseline(saved);
       setForm(saved);
@@ -211,171 +221,198 @@ export default function ProfilePage() {
   const inactiveField = "bg-muted/55 text-foreground";
 
   return (
-    <div className="space-y-6">
-      <Card className="shadow-sm">
-        <CardHeader className="space-y-1.5">
-          <CardTitle>My profile</CardTitle>
-          <CardDescription>Name and phone for deliveries and WhatsApp updates.</CardDescription>
-        </CardHeader>
-        <CardContent className="grid max-w-lg gap-4">
-          <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      <div className="space-y-6 lg:max-w-none">
+        <Card className="shadow-sm overflow-hidden border-border/80">
+          <CardHeader className="space-y-1 bg-muted/30 pb-4">
+            <CardTitle className="text-xl font-bold tracking-tight text-foreground">My profile</CardTitle>
+            <CardDescription className="text-xs font-medium">
+              Name and contact details for safe deliveries and WhatsApp order updates.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-5 pb-2">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="first_name" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">First name</Label>
+                <Input
+                  id="first_name"
+                  className={!editing ? inactiveField : "rounded-xl border-border/60 focus:ring-primary/20"}
+                  readOnly={!editing}
+                  autoComplete="given-name"
+                  value={form.first_name}
+                  onChange={(e) => setForm({ ...form, first_name: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="last_name" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Last name</Label>
+                <Input
+                  id="last_name"
+                  className={!editing ? inactiveField : "rounded-xl border-border/60 focus:ring-primary/20"}
+                  readOnly={!editing}
+                  autoComplete="family-name"
+                  value={form.last_name}
+                  onChange={(e) => setForm({ ...form, last_name: e.target.value })}
+                />
+              </div>
+            </div>
+  
             <div className="space-y-2">
-              <Label htmlFor="first_name">First name</Label>
+              <Label htmlFor="profile_email" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Email Address</Label>
               <Input
-                id="first_name"
-                className={!editing ? inactiveField : undefined}
-                readOnly={!editing}
-                autoComplete="given-name"
-                value={form.first_name}
-                onChange={(e) => setForm({ ...form, first_name: e.target.value })}
+                id="profile_email"
+                type="email"
+                className={`${inactiveField} cursor-not-allowed opacity-80`}
+                value={user.email ?? ""}
+                readOnly
+                disabled
+                tabIndex={-1}
+                aria-readonly="true"
               />
+              <p className="text-xs text-muted-foreground/60 leading-none">Locked — email cannot be changed here.</p>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="last_name">Last name</Label>
-              <Input
-                id="last_name"
-                className={!editing ? inactiveField : undefined}
-                readOnly={!editing}
-                autoComplete="family-name"
-                value={form.last_name}
-                onChange={(e) => setForm({ ...form, last_name: e.target.value })}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="profile_email">Email</Label>
-            <Input
-              id="profile_email"
-              type="email"
-              className={`${inactiveField} cursor-not-allowed`}
-              value={user.email ?? ""}
-              readOnly
-              disabled
-              tabIndex={-1}
-              aria-readonly="true"
-            />
-            <p className="text-xs text-muted-foreground">Locked — email cannot be changed here.</p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="phone_number">Phone number</Label>
-            <Input
-              id="phone_number"
-              className={!editing ? inactiveField : undefined}
-              readOnly={!editing}
-              autoComplete="tel"
-              inputMode="tel"
-              placeholder="+91 …"
-              value={form.phone_number}
-              onChange={(e) => setForm({ ...form, phone_number: e.target.value })}
-            />
-            <p className="text-xs text-muted-foreground">10–15 digits (country code counts).</p>
-          </div>
-        </CardContent>
-        <CardFooter className="flex flex-wrap gap-2 border-t pt-6">
-          {!editing ? (
-            <Button
-              type="button"
-              variant="default"
-              onClick={() => {
-                cancelPasswordEdit();
-                setEditing(true);
-              }}
-            >
-              Edit
-            </Button>
-          ) : (
-            <>
-              <Button type="button" variant="outline" onClick={cancelEdit} disabled={busy}>
-                Cancel
-              </Button>
-              <Button type="button" variant="default" onClick={saveProfile} disabled={busy}>
-                {busy ? "Saving…" : "Save"}
-              </Button>
-            </>
-          )}
-        </CardFooter>
-      </Card>
-
-      <Card className="shadow-sm">
-        <CardHeader className="space-y-1.5">
-          <CardTitle>Change password</CardTitle>
-          <CardDescription>
-            {pwEditing
-              ? "Enter your current password, then choose a new one."
-              : "Choose Edit password when you're ready — your password stays hidden until then."}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="max-w-lg space-y-4">
-          {!pwEditing ? (
-            <p className="text-sm text-muted-foreground">
-              For security we only show password fields while you&apos;re updating them.
-            </p>
-          ) : (
-            <div className="grid gap-4">
+  
+            <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="current_pw">Current password</Label>
+                <Label htmlFor="phone_number" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Phone number</Label>
                 <Input
-                  id="current_pw"
-                  type="password"
-                  autoComplete="current-password"
-                  value={pw.current}
-                  onChange={(e) => setPw({ ...pw, current: e.target.value })}
+                  id="phone_number"
+                  className={!editing ? inactiveField : "rounded-xl border-border/60 focus:ring-primary/20"}
+                  readOnly={!editing}
+                  autoComplete="tel"
+                  inputMode="tel"
+                  placeholder="+91 …"
+                  value={form.phone_number}
+                  onChange={(e) => setForm({ ...form, phone_number: e.target.value })}
                 />
+                <p className="text-[10px] text-muted-foreground font-medium">10–15 digits (country code counts).</p>
               </div>
+  
               <div className="space-y-2">
-                <Label htmlFor="new_pw">New password</Label>
+                <Label htmlFor="residence_address" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Residence address</Label>
                 <Input
-                  id="new_pw"
-                  type="password"
-                  autoComplete="new-password"
-                  value={pw.next}
-                  onChange={(e) => setPw({ ...pw, next: e.target.value })}
+                  id="residence_address"
+                  className={!editing ? inactiveField : "rounded-xl border-border/60 focus:ring-primary/20"}
+                  readOnly={!editing}
+                  placeholder="Street, City, Province"
+                  value={form.residence_address}
+                  onChange={(e) => setForm({ ...form, residence_address: e.target.value })}
                 />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirm_pw">Confirm new password</Label>
-                <Input
-                  id="confirm_pw"
-                  type="password"
-                  autoComplete="new-password"
-                  value={pw.confirm}
-                  onChange={(e) => setPw({ ...pw, confirm: e.target.value })}
-                />
+                <p className="text-[10px] text-muted-foreground font-medium">Full address for deliveries.</p>
               </div>
             </div>
-          )}
-        </CardContent>
-        <CardFooter className="flex flex-wrap gap-2 border-t pt-6">
-          {!pwEditing ? (
-            <Button
-              type="button"
-              variant="default"
-              onClick={() => {
-                cancelEdit();
-                setPwEditing(true);
-              }}
-            >
-              Edit password
-            </Button>
-          ) : (
-            <>
+          </CardContent>
+          <CardFooter className="flex flex-wrap gap-2 border-t pt-5 pb-5 bg-muted/5">
+            {!editing ? (
               <Button
                 type="button"
-                variant="outline"
-                onClick={cancelPasswordEdit}
-                disabled={pwBusy}
+                variant="default"
+                className="rounded-xl px-8 font-bold text-xs"
+                onClick={() => {
+                  cancelPasswordEdit();
+                  setEditing(true);
+                }}
               >
-                Cancel
+                Edit Profile
               </Button>
-              <Button type="button" variant="default" onClick={savePassword} disabled={pwBusy}>
-                {pwBusy ? "Updating…" : "Update password"}
+            ) : (
+              <>
+                <Button type="button" variant="outline" className="rounded-xl px-6 font-bold text-xs" onClick={cancelEdit} disabled={busy}>
+                  Cancel
+                </Button>
+                <Button type="button" variant="default" className="rounded-xl px-8 font-bold text-xs" onClick={saveProfile} disabled={busy}>
+                  {busy ? "Saving…" : "Save Changes"}
+                </Button>
+              </>
+            )}
+          </CardFooter>
+        </Card>
+      </div>
+
+      <div className="space-y-6">
+        <Card className="shadow-sm overflow-hidden border-border/80">
+          <CardHeader className="space-y-1 bg-muted/30 pb-4">
+            <CardTitle className="text-xl font-bold tracking-tight text-foreground">Security</CardTitle>
+            <CardDescription className="text-xs font-medium">
+              Update your account password and security settings.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-5 pb-2">
+            {!pwEditing ? (
+              <div className="rounded-xl border border-dashed border-muted-foreground/30 p-3 bg-muted/10">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  For safety, password fields are hidden until you choose to update. Choice <strong>&quot;Change Password&quot;</strong> below to start.
+                </p>
+              </div>
+            ) : (
+              <div className="grid gap-5">
+                <div className="space-y-2">
+                  <Label htmlFor="current_pw" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Current password</Label>
+                  <Input
+                    id="current_pw"
+                    type="password"
+                    autoComplete="current-password"
+                    className="rounded-xl border-border/60 focus:ring-primary/20"
+                    value={pw.current}
+                    onChange={(e) => setPw({ ...pw, current: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="new_pw" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">New password</Label>
+                  <Input
+                    id="new_pw"
+                    type="password"
+                    autoComplete="new-password"
+                    className="rounded-xl border-border/60 focus:ring-primary/20"
+                    value={pw.next}
+                    onChange={(e) => setPw({ ...pw, next: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirm_pw" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Confirm new password</Label>
+                  <Input
+                    id="confirm_pw"
+                    type="password"
+                    autoComplete="new-password"
+                    className="rounded-xl border-border/60 focus:ring-primary/20"
+                    value={pw.confirm}
+                    onChange={(e) => setPw({ ...pw, confirm: e.target.value })}
+                  />
+                </div>
+              </div>
+            )}
+          </CardContent>
+          <CardFooter className="flex flex-wrap gap-2 border-t pt-5 pb-5 bg-muted/5">
+            {!pwEditing ? (
+              <Button
+                type="button"
+                variant="default"
+                className="rounded-xl px-8 font-bold text-xs"
+                onClick={() => {
+                  cancelEdit();
+                  setPwEditing(true);
+                }}
+              >
+                Change password
               </Button>
-            </>
-          )}
-        </CardFooter>
-      </Card>
+            ) : (
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="rounded-xl px-6 font-bold text-xs"
+                  onClick={cancelPasswordEdit}
+                  disabled={pwBusy}
+                >
+                  Cancel
+                </Button>
+                <Button type="button" variant="default" className="rounded-xl px-8 font-bold text-xs" onClick={savePassword} disabled={pwBusy}>
+                  {pwBusy ? "Updating…" : "Update Password"}
+                </Button>
+              </>
+            )}
+          </CardFooter>
+        </Card>
+      </div>
     </div>
   );
 }

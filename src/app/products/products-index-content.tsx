@@ -10,12 +10,15 @@ import {
   getCategoryIdBySlug,
   cloneActiveAds,
   cloneCategories,
+  getPromoUrl,
 } from "@/lib/mock/catalog-store";
 import { ProductCard } from "@/components/product-card";
 import { cn } from "@/lib/utils";
 import { Check, SlidersHorizontal, RefreshCw, X, ArrowLeft, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
+import { inr } from "@/lib/format";
 
 export default function ProductsIndexContent() {
   const searchParams = useSearchParams();
@@ -26,8 +29,18 @@ export default function ProductsIndexContent() {
   const category = searchParams.get("category") ?? undefined;
   const catId = category ? getCategoryIdBySlug(category) : undefined;
 
+  // Multiple Targets from Promotions
+  const idsParam = searchParams.get("ids");
+  const catsParam = searchParams.get("categories");
+  const targetProductIds = useMemo(() => idsParam?.split(",").filter(Boolean) || [], [idsParam]);
+  const targetCategorySlugs = useMemo(() => catsParam?.split(",").filter(Boolean) || [], [catsParam]);
+  const targetCategoryIds = useMemo(() => 
+    targetCategorySlugs.map(slug => getCategoryIdBySlug(slug)).filter(Boolean) as string[],
+    [targetCategorySlugs]
+  );
+
   // Filters State
-  const [priceRange, setPriceRange] = useState<string>("all");
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 30000]);
   const [inStockOnly, setInStockOnly] = useState<boolean>(false);
   const [sortBy, setSortBy] = useState<string>("relevance");
   const [showMobileFilters, setShowMobileFilters] = useState<boolean>(false);
@@ -38,12 +51,14 @@ export default function ProductsIndexContent() {
   });
 
   const { data: products } = useQuery({
-    queryKey: ["demo-products", q, catId],
+    queryKey: ["demo-products", q, catId, targetProductIds, targetCategoryIds],
     queryFn: async () =>
       cloneProductsActive({
         q,
         categoryId: catId,
-        limit: 60,
+        categoryIds: targetCategoryIds.length > 0 ? targetCategoryIds : undefined,
+        productIds: targetProductIds.length > 0 ? targetProductIds : undefined,
+        limit: 100,
       }),
   });
 
@@ -52,15 +67,7 @@ export default function ProductsIndexContent() {
     let items = [...products];
 
     // Filter by Price Range
-    if (priceRange === "under-500") {
-      items = items.filter((p) => p.price < 500);
-    } else if (priceRange === "500-1000") {
-      items = items.filter((p) => p.price >= 500 && p.price <= 1000);
-    } else if (priceRange === "1000-2000") {
-      items = items.filter((p) => p.price >= 1000 && p.price <= 2000);
-    } else if (priceRange === "over-2000") {
-      items = items.filter((p) => p.price > 2000);
-    }
+    items = items.filter((p) => p.price >= priceRange[0] && p.price <= priceRange[1]);
 
     // Filter by Availability
     if (inStockOnly) {
@@ -94,13 +101,13 @@ export default function ProductsIndexContent() {
   };
 
   const handleClearAll = () => {
-    setPriceRange("all");
+    setPriceRange([0, 30000]);
     setInStockOnly(false);
     setSortBy("relevance");
     handleCategorySelect(null);
   };
 
-  const hasFilters = priceRange !== "all" || inStockOnly || sortBy !== "relevance" || category;
+  const hasFilters = priceRange[0] !== 0 || priceRange[1] !== 30000 || inStockOnly || sortBy !== "relevance" || category;
 
   const { data: categoriesData = [] } = useQuery({
     queryKey: ["demo-categories-list"],
@@ -151,36 +158,31 @@ export default function ProductsIndexContent() {
       </div>
 
       {/* Price Ranges Filter */}
-      <div className="space-y-2 border-t pt-4">
+      <div className="space-y-4 border-t pt-4">
         <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
           Price Range
         </h3>
-        <div className="flex flex-col gap-1 text-sm">
-          {[
-            { label: "All Prices", value: "all" },
-            { label: "Under LKR 500", value: "under-500" },
-            { label: "LKR 500 - LKR 1,000", value: "500-1000" },
-            { label: "LKR 1,000 - LKR 2,000", value: "1000-2000" },
-            { label: "Over LKR 2,000", value: "over-2000" },
-          ].map((range) => {
-            const active = priceRange === range.value;
-            return (
-              <button
-                key={range.value}
-                type="button"
-                onClick={() => setPriceRange(range.value)}
-                className={cn(
-                  "text-left px-2.5 py-1.5 rounded-lg transition-colors font-medium flex items-center justify-between",
-                  active
-                    ? "bg-primary-soft/15 text-primary"
-                    : "text-foreground/80 hover:bg-muted/50 hover:text-foreground",
-                )}
-              >
-                <span>{range.label}</span>
-                {active && <Check className="size-3.5" />}
-              </button>
-            );
-          })}
+        
+        <div className="flex flex-col gap-4 px-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[13px] font-bold text-primary">
+              {inr(priceRange[0])} - {inr(priceRange[1])}
+            </span>
+          </div>
+          
+          <Slider
+            defaultValue={[0, 30000]}
+            max={30000}
+            step={500}
+            value={priceRange}
+            onValueChange={(val) => setPriceRange(val as [number, number])}
+            className="py-2"
+          />
+          
+          <div className="flex justify-between text-[10px] font-medium text-muted-foreground uppercase tracking-tight">
+            <span>{inr(0)}</span>
+            <span>{inr(30000)}</span>
+          </div>
         </div>
       </div>
 
@@ -227,9 +229,10 @@ export default function ProductsIndexContent() {
             .filter((a) => a.position === "sidebar" && a.is_active)
             .slice(0, 1)
             .map((ad) => (
-              <div
+              <Link
                 key={ad.id}
-                className="relative overflow-hidden rounded-xl border bg-card/60 shadow-sm p-3 group hover:shadow-md transition-all duration-300"
+                href={getPromoUrl(ad)}
+                className="relative block overflow-hidden rounded-xl border bg-card/60 shadow-sm p-3 group hover:shadow-md transition-all duration-300"
               >
                 <div className="relative h-28 w-full overflow-hidden rounded-lg">
                   {ad.image_url ? (
@@ -257,7 +260,7 @@ export default function ProductsIndexContent() {
                     </h4>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
         </div>
       )}
@@ -380,6 +383,8 @@ export default function ProductsIndexContent() {
                   ? `Results for "${q}"`
                   : category
                     ? categoryHeadingFromSlug(category)
+                    : targetProductIds.length > 0 || targetCategoryIds.length > 0
+                    ? "Special Collection"
                     : "All products"}
               </h1>
             </div>
